@@ -1,0 +1,37 @@
+<mujoco model="HumanoidCMU">
+  <include file="../common.xml"/>
+  <include file="humanoid_CMU_V2020.xml" />
+  <size memory="1M"/>
+
+  <custom>
+    <numeric name="agent_planner" data="0" />
+    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="3" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="gradient_spline_points" data="5" />
+    <numeric name="residual_Height Goal" data="1.4 0.0 1.5" />
+  </custom>
+
+  <sensor>
+    <user name="Height" dim="1" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Balance" dim="1" user="6 50.0 0.0 100.0 0.1" />
+    <user name="CoM Vel." dim="2" user="0 10.0 0.0 100.0" />
+    <user name="Joint Vel." dim="62" user="0 0.01 0.0 0.1" />
+    <user name="Control" dim="56" user="3 0.025 0.0 0.1 0.3" />
+    <framepos name="trace" objtype="body" objname="root"/>
+    <framepos name="torso_position" objtype="body" objname="root"/>
+    <framepos name="head_position" objtype="body" objname="head"/>
+    <framequat name="head_orientation" objtype="body" objname="head"/>
+    <framezaxis name="torso_zaxis" objtype="body" objname="root"/>
+    <framelinvel name="torso_subtreelinvel" objtype="body" objname="root" />
+    <subtreecom name="torso_subtreecom" body="root"/>
+    <framexaxis name="torso_forward" objtype="body" objname="root" />
+    <framepos name="sp0" objtype="body" objname="lfoot"/>
+    <framepos name="sp1" objtype="body" objname="rfoot"/>
+    <framepos name="sp2" objtype="body" objname="ltoes"/>
+    <framepos name="sp3" objtype="body" objname="rtoes"/>
+    <subtreelinvel name="foot_right_vel" body="rfoot"/>
+    <subtreelinvel name="foot_left_vel" body="lfoot"/>
+  </sensor>
+</mujoco>

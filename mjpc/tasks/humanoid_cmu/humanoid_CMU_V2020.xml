@@ -34,7 +34,24 @@
   <worldbody>
     <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
 
-    <body name="root" pos="0 0  0.91" childclass="humanoid" quat="1 1 0 0">
+    <site name="mocap_site[0]" type="sphere" size=".05" rgba="0 0 1 1"/>
+    <site name="mocap_site[1]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[2]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[3]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[4]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[5]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[6]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[7]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[8]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[9]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[10]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[11]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[12]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[13]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[14]" type="sphere" size=".03" rgba="0 0 1 1"/>
+    <site name="mocap_site[15]" type="sphere" size=".03" rgba="0 0 1 1"/>
+
+    <body name="root" pos="0 0  0.91" childclass="humanoid" quat="0.5 0.5 0.5 0.5">
       <site name="root" size=".01" rgba="0.5 0.5 0.5 0"/>
 
       <light name="tracking_light" pos="0 0 7" dir="0 0 -1" mode="trackcom"/>
@@ -47,7 +64,6 @@
       <freejoint/>
 
       <geom name="root_geom" size="0.1 0.07" pos="0 -0.05 0" quat="1 0 -1 0" />
-      <!-- <geom name="root_geom" size="0.1 0.07" pos="0 -0.05 0" /> -->
       <body name="lhipjoint">
         <geom name="lhipjoint" size="0.008 0.02187363" pos="0.0509685 -0.0459037 0.024723" quat="0.5708 -0.566602 -0.594264 0"/>
         <body name="lfemur" pos="0.101937 -0.0918074 0.0494461" quat="0.984808 0 0 0.173648">

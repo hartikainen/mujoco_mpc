@@ -34,6 +34,11 @@ namespace {
 const TaskDefinition kTasksArray[]{
     {
         .name = "Humanoid_CMU",
+        .xml_path = "humanoid_cmu/task_track_sequence.xml",
+        .residual = &HumanoidCMU::ResidualTrackSequence,
+    },
+    {
+        .name = "Humanoid_CMU",
         .xml_path = "humanoid_cmu/task_stand.xml",
         .residual = &HumanoidCMU::ResidualStand,
     },

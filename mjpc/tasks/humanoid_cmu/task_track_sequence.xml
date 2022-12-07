@@ -1,0 +1,52 @@
+<mujoco model="HumanoidCMU">
+  <include file="../common.xml"/>
+  <include file="humanoid_CMU_V2020.xml" />
+  <size memory="1M"/>
+
+  <custom>
+    <numeric name="agent_planner" data="0" />
+    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="3" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="gradient_spline_points" data="5" />
+    <numeric name="residual_POSE Index" data="0.0 0.0 1.0" />
+  </custom>
+
+  <sensor>
+    <user name="Mocap Error" dim="48" user="6 100.0 0.0 100.0 0.1" />
+    <framepos name="trace" objtype="body" objname="root"/>
+    <framepos name="torso_position" objtype="body" objname="root"/>
+    <framepos name="head_position" objtype="body" objname="head"/>
+    <framequat name="head_orientation" objtype="body" objname="head"/>
+    <framezaxis name="torso_zaxis" objtype="body" objname="root"/>
+    <framelinvel name="torso_subtreelinvel" objtype="body" objname="root" />
+    <subtreecom name="torso_subtreecom" body="root"/>
+    <framexaxis name="torso_forward" objtype="body" objname="root" />
+    <framepos name="sp0" objtype="body" objname="lfoot"/>
+    <framepos name="sp1" objtype="body" objname="rfoot"/>
+    <framepos name="sp2" objtype="body" objname="ltoes"/>
+    <framepos name="sp3" objtype="body" objname="rtoes"/>
+
+    <framequat name="root_quat" objtype="body" objname="root"/>
+    <framepos name="tracking_pose[root]" objtype="body" objname="root"/>
+    <framepos name="tracking_pose[ltoes_offset]" objtype="body" objname="ltoes_offset"/>
+    <framepos name="tracking_pose[rtoes_offset]" objtype="body" objname="rtoes_offset"/>
+    <framepos name="tracking_pose[lheel_offset]" objtype="body" objname="lheel_offset"/>
+    <framepos name="tracking_pose[rheel_offset]" objtype="body" objname="rheel_offset"/>
+    <framepos name="tracking_pose[ltibia]" objtype="body" objname="ltibia"/>
+    <framepos name="tracking_pose[rtibia]" objtype="body" objname="rtibia"/>
+    <framepos name="tracking_pose[lwrist]" objtype="body" objname="lwrist"/>
+    <framepos name="tracking_pose[rwrist]" objtype="body" objname="rwrist"/>
+    <framepos name="tracking_pose[lradius]" objtype="body" objname="lradius"/>
+    <framepos name="tracking_pose[rradius]" objtype="body" objname="rradius"/>
+    <framepos name="tracking_pose[lhumerus]" objtype="body" objname="lhumerus"/>
+    <framepos name="tracking_pose[rhumerus]" objtype="body" objname="rhumerus"/>
+    <framepos name="tracking_pose[head_offset]" objtype="body" objname="head_offset"/>
+    <framepos name="tracking_pose[lfemur]" objtype="body" objname="lfemur"/>
+    <framepos name="tracking_pose[rfemur]" objtype="body" objname="rfemur"/>
+
+    <subtreelinvel name="foot_right_vel" body="rfoot"/>
+    <subtreelinvel name="foot_left_vel" body="lfoot"/>
+  </sensor>
+</mujoco>

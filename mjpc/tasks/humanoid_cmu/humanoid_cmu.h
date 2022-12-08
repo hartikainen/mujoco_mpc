@@ -19,6 +19,12 @@ struct HumanoidCMU {
   static void ResidualTrackSequence(const double* parameters, const mjModel* model,
                                     const mjData* data, double* residual);
 
+  // -------- Transition for humanoid task ---------
+  //   If humanoid is within tolerance of goal,
+  //   set goal to next from keyframes.
+  // -----------------------------------------------
+  static int TransitionTrackSequence(int state, const mjModel* model, mjData* data);
+
   // ------------------ Residuals for humanoid stand task ------------
   //   Number of residuals: 6
   //     Residual (0): control

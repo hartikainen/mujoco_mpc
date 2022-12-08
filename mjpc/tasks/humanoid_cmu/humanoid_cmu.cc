@@ -24,45 +24,41 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
                                         const mjData* data, double* residual) {
   int counter = 0;
 
-  int sequence_length = 45;
-
-  int step_index = parameters[0] * double(sequence_length);
-
   double current_pose[16][3] = {{0.0}};
   double target_pose[16][3] = {{0.0}};
 
   mju_copy3(current_pose[0], mjpc::SensorByName(model, data, "tracking_pose[root]"));
-  mju_copy3(target_pose[0], mocap_motions.motion_sequence[step_index][0]);
+  mju_copy3(target_pose[0], data->mocap_pos + 3 * 0);
   mju_copy3(current_pose[1], mjpc::SensorByName(model, data, "tracking_pose[ltoes_offset]"));
-  mju_copy3(target_pose[1], mocap_motions.motion_sequence[step_index][10]);
+  mju_copy3(target_pose[1], data->mocap_pos + 3 * 1);
   mju_copy3(current_pose[2], mjpc::SensorByName(model, data, "tracking_pose[rtoes_offset]"));
-  mju_copy3(target_pose[2], mocap_motions.motion_sequence[step_index][11]);
+  mju_copy3(target_pose[2], data->mocap_pos + 3 * 2);
   mju_copy3(current_pose[3], mjpc::SensorByName(model, data, "tracking_pose[lheel_offset]"));
-  mju_copy3(target_pose[3], mocap_motions.motion_sequence[step_index][7]);
+  mju_copy3(target_pose[3], data->mocap_pos + 3 * 3);
   mju_copy3(current_pose[4], mjpc::SensorByName(model, data, "tracking_pose[rheel_offset]"));
-  mju_copy3(target_pose[4], mocap_motions.motion_sequence[step_index][8]);
+  mju_copy3(target_pose[4], data->mocap_pos + 3 * 4);
   mju_copy3(current_pose[5], mjpc::SensorByName(model, data, "tracking_pose[ltibia]"));
-  mju_copy3(target_pose[5], mocap_motions.motion_sequence[step_index][4]);
+  mju_copy3(target_pose[5], data->mocap_pos + 3 * 5);
   mju_copy3(current_pose[6], mjpc::SensorByName(model, data, "tracking_pose[rtibia]"));
-  mju_copy3(target_pose[6], mocap_motions.motion_sequence[step_index][5]);
+  mju_copy3(target_pose[6], data->mocap_pos + 3 * 6);
   mju_copy3(current_pose[7], mjpc::SensorByName(model, data, "tracking_pose[lwrist]"));
-  mju_copy3(target_pose[7], mocap_motions.motion_sequence[step_index][20]);
+  mju_copy3(target_pose[7], data->mocap_pos + 3 * 7);
   mju_copy3(current_pose[8], mjpc::SensorByName(model, data, "tracking_pose[rwrist]"));
-  mju_copy3(target_pose[8], mocap_motions.motion_sequence[step_index][21]);
+  mju_copy3(target_pose[8], data->mocap_pos + 3 * 8);
   mju_copy3(current_pose[9], mjpc::SensorByName(model, data, "tracking_pose[lradius]"));
-  mju_copy3(target_pose[9], mocap_motions.motion_sequence[step_index][18]);
+  mju_copy3(target_pose[9], data->mocap_pos + 3 * 9);
   mju_copy3(current_pose[10], mjpc::SensorByName(model, data, "tracking_pose[rradius]"));
-  mju_copy3(target_pose[10], mocap_motions.motion_sequence[step_index][19]);
+  mju_copy3(target_pose[10], data->mocap_pos + 3 * 10);
   mju_copy3(current_pose[11], mjpc::SensorByName(model, data, "tracking_pose[lhumerus]"));
-  mju_copy3(target_pose[11], mocap_motions.motion_sequence[step_index][16]);
+  mju_copy3(target_pose[11], data->mocap_pos + 3 * 11);
   mju_copy3(current_pose[12], mjpc::SensorByName(model, data, "tracking_pose[rhumerus]"));
-  mju_copy3(target_pose[12], mocap_motions.motion_sequence[step_index][17]);
+  mju_copy3(target_pose[12], data->mocap_pos + 3 * 12);
   mju_copy3(current_pose[13], mjpc::SensorByName(model, data, "tracking_pose[head_offset]"));
-  mju_copy3(target_pose[13], mocap_motions.motion_sequence[step_index][15]);
+  mju_copy3(target_pose[13], data->mocap_pos + 3 * 13);
   mju_copy3(current_pose[14], mjpc::SensorByName(model, data, "tracking_pose[lfemur]"));
-  mju_copy3(target_pose[14], mocap_motions.motion_sequence[step_index][1]);
+  mju_copy3(target_pose[14], data->mocap_pos + 3 * 14);
   mju_copy3(current_pose[15], mjpc::SensorByName(model, data, "tracking_pose[rfemur]"));
-  mju_copy3(target_pose[15], mocap_motions.motion_sequence[step_index][2]);
+  mju_copy3(target_pose[15], data->mocap_pos + 3 * 15);
 
   for (int joint_index = 0; joint_index < 16; joint_index++) {
     double norm[3] = {0.0};
@@ -70,24 +66,6 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
     residual[counter] = mju_norm(norm, 3);
     counter += 3;
   }
-
-  // model->name_siteadr[mj_name2id(model, mjOBJ_SITE, "mocap_site[0]")]
-  mju_copy3(data->site_xpos + 3 * 0, target_pose[0]);
-  mju_copy3(data->site_xpos + 3 * 1, target_pose[1]);
-  mju_copy3(data->site_xpos + 3 * 2, target_pose[2]);
-  mju_copy3(data->site_xpos + 3 * 3, target_pose[3]);
-  mju_copy3(data->site_xpos + 3 * 4, target_pose[4]);
-  mju_copy3(data->site_xpos + 3 * 5, target_pose[5]);
-  mju_copy3(data->site_xpos + 3 * 6, target_pose[6]);
-  mju_copy3(data->site_xpos + 3 * 7, target_pose[7]);
-  mju_copy3(data->site_xpos + 3 * 8, target_pose[8]);
-  mju_copy3(data->site_xpos + 3 * 9, target_pose[9]);
-  mju_copy3(data->site_xpos + 3 * 10, target_pose[10]);
-  mju_copy3(data->site_xpos + 3 * 11, target_pose[11]);
-  mju_copy3(data->site_xpos + 3 * 12, target_pose[12]);
-  mju_copy3(data->site_xpos + 3 * 13, target_pose[13]);
-  mju_copy3(data->site_xpos + 3 * 14, target_pose[14]);
-  mju_copy3(data->site_xpos + 3 * 15, target_pose[15]);
 
   // sensor dim sanity check
   // TODO: use this pattern everywhere and make this a utility function
@@ -102,6 +80,37 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
                 "and actual length of residual %d", counter);
   }
 
+}
+
+int HumanoidCMU::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
+  // TODO(hartikainen): Add distance-based target transition logic.
+
+  // int sequence_length = 45;
+  int step_index = 0;
+
+  // TODO(hartikainen): Why doesn't this have effect on the mocap positions?
+  mju_copy3(data->mocap_pos + 3 * 0, mocap_motions.motion_sequence[step_index][0]);
+  mju_copy3(data->mocap_pos + 3 * 1, mocap_motions.motion_sequence[step_index][10]);
+  mju_copy3(data->mocap_pos + 3 * 2, mocap_motions.motion_sequence[step_index][11]);
+  mju_copy3(data->mocap_pos + 3 * 3, mocap_motions.motion_sequence[step_index][7]);
+  mju_copy3(data->mocap_pos + 3 * 4, mocap_motions.motion_sequence[step_index][8]);
+  mju_copy3(data->mocap_pos + 3 * 5, mocap_motions.motion_sequence[step_index][4]);
+  mju_copy3(data->mocap_pos + 3 * 6, mocap_motions.motion_sequence[step_index][5]);
+  mju_copy3(data->mocap_pos + 3 * 7, mocap_motions.motion_sequence[step_index][20]);
+  mju_copy3(data->mocap_pos + 3 * 8, mocap_motions.motion_sequence[step_index][21]);
+  mju_copy3(data->mocap_pos + 3 * 9, mocap_motions.motion_sequence[step_index][18]);
+  mju_copy3(data->mocap_pos + 3 * 10, mocap_motions.motion_sequence[step_index][19]);
+  mju_copy3(data->mocap_pos + 3 * 11, mocap_motions.motion_sequence[step_index][16]);
+  mju_copy3(data->mocap_pos + 3 * 12, mocap_motions.motion_sequence[step_index][17]);
+  mju_copy3(data->mocap_pos + 3 * 13, mocap_motions.motion_sequence[step_index][15]);
+  mju_copy3(data->mocap_pos + 3 * 14, mocap_motions.motion_sequence[step_index][1]);
+  mju_copy3(data->mocap_pos + 3 * 15, mocap_motions.motion_sequence[step_index][2]);
+
+  // TODO(hartikainen)
+  // int new_state = (state + 1) % sequence_length;
+  int new_state = 0;
+
+  return new_state;
 }
 
 // ------------------ Residuals for humanoid stand task ------------

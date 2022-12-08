@@ -36,6 +36,7 @@ const TaskDefinition kTasksArray[]{
         .name = "Humanoid_CMU",
         .xml_path = "humanoid_cmu/task_track_sequence.xml",
         .residual = &HumanoidCMU::ResidualTrackSequence,
+        .transition = &HumanoidCMU::TransitionTrackSequence,
     },
     {
         .name = "Humanoid_CMU",

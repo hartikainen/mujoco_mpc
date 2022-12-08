@@ -34,23 +34,6 @@
   <worldbody>
     <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
 
-    <site name="mocap_site[0]" type="sphere" size=".05" rgba="0 0 1 1"/>
-    <site name="mocap_site[1]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[2]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[3]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[4]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[5]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[6]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[7]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[8]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[9]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[10]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[11]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[12]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[13]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[14]" type="sphere" size=".03" rgba="0 0 1 1"/>
-    <site name="mocap_site[15]" type="sphere" size=".03" rgba="0 0 1 1"/>
-
     <body name="root" pos="0 0  0.91" childclass="humanoid" quat="0.5 0.5 0.5 0.5">
       <site name="root" size=".01" rgba="0.5 0.5 0.5 0"/>
 

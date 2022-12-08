@@ -4,6 +4,7 @@
   <size memory="1M"/>
 
   <custom>
+    <numeric name="task_transition" data="1" />
     <numeric name="agent_planner" data="0" />
     <numeric name="agent_horizon" data="0.35" />
     <numeric name="agent_timestep" data="0.015" />
@@ -12,6 +13,57 @@
     <numeric name="gradient_spline_points" data="5" />
     <numeric name="residual_POSE Index" data="0.0 0.0 1.0" />
   </custom>
+
+  <worldbody>
+    <body name="mocap_site[0]" mocap="true">
+      <site type="sphere" size="0.05" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[1]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[2]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[3]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[4]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[5]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[6]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[7]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[8]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[9]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[10]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[11]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[12]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[13]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[14]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[15]" mocap="true">
+      <site type="sphere" size="0.03" rgba="0 0 1 1" material="target" />
+    </body>
+  </worldbody>
 
   <sensor>
     <user name="Mocap Error" dim="48" user="6 100.0 0.0 100.0 0.1" />

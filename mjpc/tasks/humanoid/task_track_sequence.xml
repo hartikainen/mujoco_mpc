@@ -1,0 +1,100 @@
+<mujoco model="Humanoid Tracking">
+  <include file="../common.xml"/>
+  <include file="humanoid.xml" />
+  <size memory="400K"/>
+
+  <custom>
+    <numeric name="task_transition" data="1" />
+    <numeric name="agent_planner" data="0" />
+    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="5" />
+    <numeric name="sampling_exploration" data="0.15" />
+    <numeric name="gradient_spline_points" data="5" />
+    <numeric name="residual_POSE Index" data="0.0 0.0 1.0" />
+  </custom>
+
+  <worldbody>
+    <body name="mocap_site[0]" mocap="true">
+      <site type="sphere" size="0.05" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[1]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[2]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[3]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[4]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[5]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[6]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[7]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[8]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[9]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[10]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[11]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[12]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[13]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[14]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+    <body name="mocap_site[15]" mocap="true">
+      <site type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    </body>
+  </worldbody>
+
+  <sensor>
+    <user name="root quat error" dim="3" user="0 3 0 10" />
+    <user name="root pos error" dim="3" user="6 100.0 0.0 100.0 0.1" />
+    <user name="head_error" dim="3" user="6 100.0 0.0 100.0 0.1" />
+    <user name="toe error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="heel error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="knee error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="hand error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="elbow error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="shoulder error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="hip error" dim="6" user="6 100.0 0.0 100.0 0.1" />
+
+    <framepos name="trace" objtype="body" objname="pelvis"/>
+
+    <framequat name="tracking_quat[torso]" objtype="body" objname="pelvis"/>
+    <framepos name="tracking_pose[torso]" objtype="body" objname="pelvis"/>
+    <framepos name="tracking_pose[toe_left]" objtype="body" objname="toe_left"/>
+    <framepos name="tracking_pose[toe_right]" objtype="body" objname="toe_right"/>
+    <framepos name="tracking_pose[heel_left]" objtype="body" objname="heel_left"/>
+    <framepos name="tracking_pose[heel_right]" objtype="body" objname="heel_right"/>
+    <framepos name="tracking_pose[knee_left]" objtype="site" objname="knee_left"/>
+    <framepos name="tracking_pose[knee_right]" objtype="site" objname="knee_right"/>
+    <framepos name="tracking_pose[left_hand_left]" objtype="geom" objname="hand_left"/>
+    <framepos name="tracking_pose[right_hand_right]" objtype="geom" objname="hand_right"/>
+    <framepos name="tracking_pose[elbow_left]" objtype="site" objname="elbow_left"/>
+    <framepos name="tracking_pose[elbow_right]" objtype="site" objname="elbow_right"/>
+    <framepos name="tracking_pose[shoulder1_left]" objtype="site" objname="shoulder_left"/>
+    <framepos name="tracking_pose[shoulder1_right]" objtype="site" objname="shoulder_right"/>
+    <framepos name="tracking_pose[head]" objtype="body" objname="head"/>
+    <framepos name="tracking_pose[hip_z_left]" objtype="body" objname="thigh_left"/>
+    <framepos name="tracking_pose[hip_z_right]" objtype="body" objname="thigh_right"/>
+  </sensor>
+</mujoco>

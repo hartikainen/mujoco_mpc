@@ -34,7 +34,7 @@
   <worldbody>
     <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
 
-    <body name="root" pos="0 0  0.91" childclass="humanoid" quat="0.5 0.5 0.5 0.5">
+    <body name="root" pos="0 0  0.91" childclass="humanoid" quat="-0.5 -0.5 0.5 0.5">
       <site name="root" size=".01" rgba="0.5 0.5 0.5 0"/>
 
       <light name="tracking_light" pos="0 0 7" dir="0 0 -1" mode="trackcom"/>

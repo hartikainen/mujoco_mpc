@@ -93,9 +93,11 @@
         <joint name="abdomen_z" pos="0 0 .065" axis="0 0 1" range="-45 45" class="joint_big_stiff"/>
         <joint name="abdomen_y" pos="0 0 .065" axis="0 1 0" range="-75 30" class="joint_big"/>
         <body name="pelvis" pos="0 0 -.165">
+          <site name="pelvis" type="sphere" pos="0 0 0.05" size=".027" rgba="1 0 0 1"/>
           <joint name="abdomen_x" pos="0 0 .1" axis="1 0 0" range="-35 35" class="joint_big"/>
           <geom name="butt" fromto="-.02 -.07 0 -.02 .07 0" size=".09"/>
           <body name="thigh_right" pos="0 -.1 -.04">
+            <site name="thigh_right" type="sphere" pos="0 0.025 0" size=".027" rgba="1 0 0 1"/>
             <joint name="hip_x_right" axis="1 0 0" class="hip_x"/>
             <joint name="hip_z_right" axis="0 0 1" class="hip_z"/>
             <joint name="hip_y_right" class="hip_y"/>
@@ -113,15 +115,16 @@
                 <site name="sp2" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp3" pos=".14 0 0" type="sphere" size=".027"/>
                 <body name="heel_right" pos="-0.05 0 0.06">
-                  <site name="heel1_right" type="sphere" pos="0 0 0" size="0.027"/>
+                  <site name="heel1_right" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
                 <body name="toe_right" pos="0.07 0 -0.01">
-                  <site name="toe1_right" type="sphere" pos="0 0 0" size="0.027"/>
+                  <site name="toe1_right" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
               </body>
             </body>
           </body>
           <body name="thigh_left" pos="0 .1 -.04">
+            <site name="thigh_left" type="sphere" pos="0 -0.025 0" size=".027" rgba="1 0 0 1"/>
             <joint name="hip_x_left" axis="-1 0 0" class="hip_x"/>
             <joint name="hip_z_left" axis="0 0 -1" class="hip_z"/>
             <joint name="hip_y_left" class="hip_y"/>
@@ -139,10 +142,10 @@
                 <site name="sp0" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp1" pos=".14 0 0" type="sphere" size=".027"/>
                 <body name="heel_left" pos="-0.05 0 0.06">
-                  <site name="heel1_left" type="sphere" pos="0 0 0" size="0.027"/>
+                  <site name="heel1_left" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
                 <body name="toe_left" pos="0.07 0 -0.01">
-                  <site name="toe1_left" type="sphere" pos="0 0 0" size="0.027"/>
+                  <site name="toe1_left" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
               </body>
             </body>
@@ -157,7 +160,7 @@
         <body name="lower_arm_right" pos=".18 -.18 -.18">
           <joint name="elbow_right" axis="0 -1 1" class="elbow"/>
           <site name="elbow_right" type="sphere" rgba="1 0 0 1"/>
-          <site name="hand_right" type="sphere" pos="0.12 0.12 0.12" size="0.027" rgba="1 0 0 1"/>
+          <site name="hand_right" type="sphere" pos="0.13 0.13 0.13" size=".04" rgba="1 0 0 1"/>
           <geom name="lower_arm_right" fromto=".01 .01 .01 .17 .17 .17" class="arm_lower"/>
           <body name="hand_right" pos=".18 .18 .18">
             <geom name="hand_right" zaxis="1 1 1" class="hand"/>
@@ -172,7 +175,7 @@
         <body name="lower_arm_left" pos=".18 .18 -.18">
           <joint name="elbow_left" axis="0 -1 -1" class="elbow"/>
           <site name="elbow_left" type="sphere" rgba="1 0 0 1"/>
-          <site name="hand_left" type="sphere" pos="0.12 -0.12 0.12" size="0.027" rgba="1 0 0 1"/>
+          <site name="hand_left" type="sphere" pos="0.13 -0.13 0.13" size=".04" rgba="1 0 0 1"/>
           <geom name="lower_arm_left" fromto=".01 -.01 .01 .17 -.17 .17" class="arm_lower"/>
           <body name="hand_left" pos=".18 -.18 .18">
             <geom name="hand_left" zaxis="1 -1 1" class="hand"/>

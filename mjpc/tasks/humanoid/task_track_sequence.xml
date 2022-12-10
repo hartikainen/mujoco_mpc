@@ -16,52 +16,52 @@
 
   <worldbody>
     <body name="mocap-pelvis" mocap="true">
-      <site name="pelvis" type="sphere" size="0.05" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-pelvis" type="sphere" size="0.05" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-head" mocap="true">
-      <site name="head" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-head" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-ltoe" mocap="true">
-      <site name="ltoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-ltoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rtoe" mocap="true">
-      <site name="rtoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rtoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lheel" mocap="true">
-      <site name="lheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rheel" mocap="true">
-      <site name="rheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lknee" mocap="true">
-      <site name="lknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rknee" mocap="true">
-      <site name="rknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lhand" mocap="true">
-      <site name="lhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rhand" mocap="true">
-      <site name="rhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lelbow" mocap="true">
-      <site name="lelbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lelbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-relbow" mocap="true">
-      <site name="relbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-relbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lshoulder" mocap="true">
-      <site name="lshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rshoulder" mocap="true">
-      <site name="rshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-lhip" mocap="true">
-      <site name="lhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-lhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
     <body name="mocap-rhip" mocap="true">
-      <site name="rhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+      <site name="mocap-rhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
   </worldbody>
 
@@ -86,13 +86,13 @@
 
     <framepos name="trace" objtype="body" objname="pelvis"/>
 
-    <framequat name="tracking_quat[pelvis]" objtype="body" objname="pelvis"/>
-    <framepos name="tracking_pose[pelvis]" objtype="body" objname="pelvis"/>
+    <framequat name="tracking_quat[pelvis]" objtype="site" objname="pelvis"/>
+    <framepos name="tracking_pose[pelvis]" objtype="site" objname="pelvis"/>
     <framepos name="tracking_pose[head]" objtype="body" objname="head"/>
-    <framepos name="tracking_pose[ltoe]" objtype="body" objname="toe_left"/>
-    <framepos name="tracking_pose[rtoe]" objtype="body" objname="toe_right"/>
-    <framepos name="tracking_pose[lheel]" objtype="body" objname="heel_left"/>
-    <framepos name="tracking_pose[rheel]" objtype="body" objname="heel_right"/>
+    <framepos name="tracking_pose[ltoe]" objtype="site" objname="toe1_left"/>
+    <framepos name="tracking_pose[rtoe]" objtype="site" objname="toe1_right"/>
+    <framepos name="tracking_pose[lheel]" objtype="site" objname="heel1_left"/>
+    <framepos name="tracking_pose[rheel]" objtype="site" objname="heel1_right"/>
     <framepos name="tracking_pose[lknee]" objtype="site" objname="knee_left"/>
     <framepos name="tracking_pose[rknee]" objtype="site" objname="knee_right"/>
     <framepos name="tracking_pose[lhand]" objtype="site" objname="hand_left"/>
@@ -101,7 +101,7 @@
     <framepos name="tracking_pose[relbow]" objtype="site" objname="elbow_right"/>
     <framepos name="tracking_pose[lshoulder]" objtype="site" objname="shoulder_left"/>
     <framepos name="tracking_pose[rshoulder]" objtype="site" objname="shoulder_right"/>
-    <framepos name="tracking_pose[lhip]" objtype="body" objname="thigh_left"/>
-    <framepos name="tracking_pose[rhip]" objtype="body" objname="thigh_right"/>
+    <framepos name="tracking_pose[lhip]" objtype="site" objname="thigh_left"/>
+    <framepos name="tracking_pose[rhip]" objtype="site" objname="thigh_right"/>
   </sensor>
 </mujoco>

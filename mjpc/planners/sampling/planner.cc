@@ -51,7 +51,7 @@ void SamplingPlanner::Initialize(mjModel* model, const Task& task) {
   noise_exploration = GetNumberOrDefault(0.1, model, "sampling_exploration");
 
   // set number of trajectories to rollout
-  num_trajectories_ = GetNumberOrDefault(10, model, "sampling_trajectories");
+  num_trajectories_ = GetNumberOrDefault(128, model, "sampling_trajectories");
 
   winner = 0;
 }

@@ -72,13 +72,16 @@
     </default>
   </default>
 
+  <option gravity="0 0 0" />
+
   <worldbody>
     <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
+    <!-- <body name="torso" pos="0 0 1.282" quat="0 0 0 1" childclass="body"> -->
     <body name="torso" pos="0 0 1.282" quat="1 0 0 0" childclass="body">
       <light name="top" pos="0 0 2" mode="trackcom"/>
       <camera name="back" pos="-3 0 1" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
       <camera name="side" pos="0 -3 1" xyaxes="1 0 0 0 1 2" mode="trackcom"/>
-      <freejoint name="root"/>
+      <!-- <freejoint name="root"/> -->
       <geom name="torso" fromto="0 -.07 0 0 .07 0" size=".07"/>
       <geom name="waist_upper" fromto="-.01 -.06 -.12 -.01 .06 -.12" size=".06"/>
       <body name="head" pos="0 0 .19">
@@ -106,14 +109,14 @@
                 <joint name="ankle_x_right" class="ankle_x" axis="1 0 .5"/>
                 <geom name="foot1_right" class="foot1"/>
                 <geom name="foot2_right" class="foot2"/>
-                <site name="foot_right" pos=".05 .03 0" type="sphere" size=".027"/>
+                <site name="foot_right" pos=".05 0 0" type="sphere" size=".027"/>
                 <site name="sp2" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp3" pos=".14 0 0" type="sphere" size=".027"/>
                 <body name="heel_right" pos="-0.05 0 0.06">
-                  <geom name="heel1_right" type="sphere" pos="0 0 0"  size="0.04"/>
+                  <site name="heel1_right" type="sphere" pos="0 0 0" size="0.027"/>
                 </body>
-                <body name="toe_right" pos="0.14 0 -0.01">
-                  <geom name="toe1_right" type="sphere" pos="0 0 0"  size="0.04"/>
+                <body name="toe_right" pos="0.07 0 -0.01">
+                  <site name="toe1_right" type="sphere" pos="0 0 0" size="0.027"/>
                 </body>
               </body>
             </body>
@@ -132,14 +135,14 @@
                 <joint name="ankle_x_left" class="ankle_x" axis="-1 0 -.5"/>
                 <geom name="foot1_left" class="foot1"/>
                 <geom name="foot2_left" class="foot2"/>
-                <site name="foot_left" pos=".05 -.03 0" type="sphere" size=".027"/>
+                <site name="foot_left" pos=".05 0 0" type="sphere" size=".027"/>
                 <site name="sp0" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp1" pos=".14 0 0" type="sphere" size=".027"/>
                 <body name="heel_left" pos="-0.05 0 0.06">
-                  <geom name="heel1_left" type="sphere" pos="0 0 0"  size="0.04"/>
+                  <site name="heel1_left" type="sphere" pos="0 0 0" size="0.027"/>
                 </body>
-                <body name="toe_left" pos="0.14 0 -0.01">
-                  <geom name="toe1_left" type="sphere" pos="0 0 0"  size="0.04"/>
+                <body name="toe_left" pos="0.07 0 -0.01">
+                  <site name="toe1_left" type="sphere" pos="0 0 0" size="0.027"/>
                 </body>
               </body>
             </body>
@@ -154,6 +157,7 @@
         <body name="lower_arm_right" pos=".18 -.18 -.18">
           <joint name="elbow_right" axis="0 -1 1" class="elbow"/>
           <site name="elbow_right" type="sphere" rgba="1 0 0 1"/>
+          <site name="hand_right" type="sphere" pos="0.12 0.12 0.12" size="0.027" rgba="1 0 0 1"/>
           <geom name="lower_arm_right" fromto=".01 .01 .01 .17 .17 .17" class="arm_lower"/>
           <body name="hand_right" pos=".18 .18 .18">
             <geom name="hand_right" zaxis="1 1 1" class="hand"/>
@@ -168,6 +172,7 @@
         <body name="lower_arm_left" pos=".18 .18 -.18">
           <joint name="elbow_left" axis="0 -1 -1" class="elbow"/>
           <site name="elbow_left" type="sphere" rgba="1 0 0 1"/>
+          <site name="hand_left" type="sphere" pos="0.12 -0.12 0.12" size="0.027" rgba="1 0 0 1"/>
           <geom name="lower_arm_left" fromto=".01 -.01 .01 .17 -.17 .17" class="arm_lower"/>
           <body name="hand_left" pos=".18 -.18 .18">
             <geom name="hand_left" zaxis="1 -1 1" class="hand"/>

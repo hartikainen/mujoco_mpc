@@ -17,6 +17,7 @@
 #include "tasks/humanoid_cmu/motions.h"
 
 #include <array>
+#include <cmath>
 #include <iostream>
 #include <map>
 
@@ -43,7 +44,7 @@ namespace mjpc {
 //   return reward, terms, _sort_dict(terms)
 
 
-const mjpc::MocapMotions mocap_motions;
+// const mjpc::MocapMotions mocap_motions;
 // ------------------ Residuals for humanoid stand task ------------
 //   Number of residuals: 16
 //     Residual (0): `pelvis` mocap error
@@ -472,7 +473,10 @@ int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* d
   // TODO(hartikainen): Add distance-based target transition logic.
 
   // int sequence_length = 46;
-  int step_index = 0;
+  // TODO(hartikainen): is `data->time` the right thing to index here?
+  float fps = 30.0;
+  int step_index = data->time * fps;
+  // std::printf("data->time=%f; step_index=%d\n", data->time, step_index);
 
   //  0: root        , root
   // 15: head_offset , head
@@ -491,25 +495,34 @@ int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* d
   //  1: lfemur      , left_hip
   //  2: rfemur      , right_hip
 
-  std::array<std::string, 16> body_names = {
-    "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
-    "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
-    "rhip",
-  };
-  std::array<int, 16> kinematic_ids = {
-    0, 15,  10,  11,  7,  8,  4,  5,  20,  21,  18,  19,  16,  17,  1,  2,
-  };
+  // std::array<std::string, 16> body_names = {
+  //   "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
+  //   "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
+  //   "rhip",
+  // };
+  // std::array<int, 16> kinematic_ids = {
+  //   0, 15,  10,  11,  7,  8,  4,  5,  20,  21,  18,  19,  16,  17,  1,  2,
+  // };
 
-  int i = 0;
-  for (const auto& body_name : body_names) {
-    std::string mocap_body_name = "mocap-" + body_name;
-    int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
-    int kinematic_id = kinematic_ids[i];
-    // std::cout << mocap_body_name << ": " << body_mocapid << ", " << kinematic_id << std::endl;
-    assert (0 <= body_mocapid);
-    mju_copy3(data->mocap_pos + 3 * body_mocapid, mocap_motions.motion_sequence[step_index][kinematic_id]);
-    i++;
-  }
+  // // model->key_mpos
+  // std::printf("model->nmocap=%d", model->nmocap * 3 * step_index);
+
+  // int i = 0;
+  // for (const auto& body_name : body_names) {
+  //   std::string mocap_body_name = "mocap-" + body_name;
+  //   int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
+  //   int kinematic_id = kinematic_ids[i];
+  //   // std::cout << mocap_body_name << ": " << body_mocapid << ", " << kinematic_id << std::endl;
+  //   assert (0 <= body_mocapid);
+  //   mju_copy3(data->mocap_pos + 3 * body_mocapid, mocap_motions.motion_sequence[step_index][kinematic_id]);
+  //   i++;
+  // }
+
+  // std::printf("data->time = %f; std::fmod(data->time, 1.0) = %f\n", data->time, std::fmod(data->time, 1.0));
+  // if (0.998 <= std::fmod(data->time, 1.0)) {
+  //   std::printf("data->time=%f\n", data->time);
+  // }
+  mju_copy(data->mocap_pos, model->key_mpos + model->nmocap * 3 * step_index, model->nmocap * 3);
 
   // TODO(hartikainen)
   // int new_state = (state + 1) % sequence_length;

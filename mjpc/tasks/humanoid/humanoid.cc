@@ -340,33 +340,7 @@ void Humanoid::ResidualWalk(const double* parameters, const mjModel* model,
 // ----------------------------------------------------------------
 void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* model,
                                      const mjData* data, double* residual) {
-  double current_pose[16][3] = {{0.0}};
-  double target_pose[16][3] = {{0.0}};
   int counter = 0;
-
-  //  std::map<std::string, double[3]> current_pos = {
-  //   {"pelvis", {0.0}},
-  //   {"head", {0.0}},
-  //   {"toe_left", {0.0}}, {"toe_right", {0.0}},
-  //   {"heel_left", {0.0}}, {"heel_right", {0.0}},
-  //   {"knee_left", {0.0}}, {"knee_right", {0.0}},
-  //   {"left_hand_left", {0.0}}, {"right_hand_right", {0.0}},
-  //   {"elbow_left", {0.0}}, {"elbow_right", {0.0}},
-  //   {"shoulder1_left", {0.0}}, {"shoulder1_right", {0.0}},
-  //   {"hip_z_left", 0.0}, {"hip_z_right", {0.0}},
-  // };
-
-  // std::map<std::string, double[3]> target_pos = {
-  //   {"pelvis", {0.0}},
-  //   {"head", {0.0}},
-  //   {"toe_left", {0.0}}, {"toe_right", {0.0}},
-  //   {"heel_left", {0.0}}, {"heel_right", {0.0}},
-  //   {"knee_left", {0.0}}, {"knee_right", {0.0}},
-  //   {"left_hand_left", {0.0}}, {"right_hand_right", {0.0}},
-  //   {"elbow_left", {0.0}}, {"elbow_right", {0.0}},
-  //   {"shoulder1_left", {0.0}}, {"shoulder1_right", {0.0}},
-  //   {"hip_z_left", 0.0}, {"hip_z_right", {0.0}},
-  // };
 
   std::array<std::string, 16> body_names = {
     "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
@@ -380,76 +354,10 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     std::string sensor_name = "tracking_pose[" + body_name + "]";
     int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
     assert (0 <= body_mocapid);
-    mju_copy3(current_pose[i], mjpc::SensorByName(model, data, sensor_name.c_str()));
-    mju_copy3(target_pose[i], data->mocap_pos + 3 * body_mocapid);
-    // if (i == to_log_joint_index or i == 2) {
-    //   std::cout << body_name << ", current_pose=[" << current_pose[i][0] << "; " << current_pose[i][1] << "; " << current_pose[i][2] << "]" << std::endl;
-    //   std::cout << body_name << ", target_pose=[" << target_pose[i][0] << "; " << target_pose[i][1] << "; " << target_pose[i][2] << "]" << std::endl;
-    // }
+    mju_sub3(&residual[counter],
+             data->mocap_pos + 3 * body_mocapid,
+             mjpc::SensorByName(model, data, sensor_name.c_str()));
     i++;
-  }
-
-  double mid_pelvis[3] = {0.0};
-  mju_copy3(
-    mid_pelvis,
-    data->mocap_pos + 3 * model->body_mocapid[mj_name2id(model, mjOBJ_BODY, "mocap-pelvis")]);
-  double left_pelvis[3] = {0.0};
-  mju_copy3(
-    left_pelvis,
-    data->mocap_pos + 3 * model->body_mocapid[mj_name2id(model, mjOBJ_BODY, "mocap-lhip")]);
-  double right_pelvis[3] = {0.0};
-  mju_copy3(
-    right_pelvis,
-    data->mocap_pos + 3 * model->body_mocapid[mj_name2id(model, mjOBJ_BODY, "mocap-rhip")]);
-
-  // Given three points, return position and orientation of coordinate frame.
-  double root_pos[3] = {
-    0.5 * (left_pelvis[0] + right_pelvis[0]),
-    0.5 * (left_pelvis[1] + right_pelvis[1]),
-    0.5 * (left_pelvis[2] + right_pelvis[2]),
-  };
-
-  double left_dir[3] = {
-    left_pelvis[0] - root_pos[0],
-    left_pelvis[1] - root_pos[1],
-    left_pelvis[2] - root_pos[2],
-  };
-  mju_normalize3(left_dir);
-
-  double up_dir[3] = {
-    mid_pelvis[0] - root_pos[0],
-    mid_pelvis[1] - root_pos[1],
-    mid_pelvis[2] - root_pos[2],
-  };
-  mju_normalize3(up_dir);
-
-  double forward_dir[3] = {0.0};
-  mju_cross(forward_dir, left_dir, up_dir);
-  mju_normalize3(forward_dir);
-
-  double rot_mat[9] = {
-    forward_dir[0], left_dir[0], up_dir[0],
-    forward_dir[1], left_dir[1], up_dir[1],
-    forward_dir[2], left_dir[2], up_dir[2],
-  };
-  double target_root_quat[4] = {0.0};
-  mju_mat2Quat(target_root_quat, rot_mat);
-
-  double current_root_quat[4] = {0.0};
-  mju_copy4(current_root_quat, mjpc::SensorByName(model, data, "tracking_quat[pelvis]"));
-  double root_quat_error[3] = {0.0};
-  mju_subQuat(root_quat_error, target_root_quat, current_root_quat);
-
-  mju_copy3(&residual[counter], root_quat_error);
-  counter += 3;
-
-  for (int joint_index = 0; joint_index < 16; joint_index++) {
-    double joint_pos_error[3] = {0.0};
-    mju_sub3(joint_pos_error, target_pose[joint_index], current_pose[joint_index]);
-    // if (joint_index == to_log_joint_index) {
-    //   std::printf("error: [%f, %f, %f]\n", joint_pos_error[0], joint_pos_error[1], joint_pos_error[1]);
-    // }
-    mju_copy3(&residual[counter], joint_pos_error);
     counter += 3;
   }
 

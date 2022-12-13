@@ -66,7 +66,6 @@
   </worldbody>
 
   <sensor>
-    <user name="root quat error" dim="3" user="0 3 0 10" />
     <user name="root pos error" dim="3" user="6 20 0.0 100.0 0.1" />
     <user name="head_error" dim="3" user="6 20 0.0 100.0 0.1" />
     <user name="ltoe error" dim="3" user="6 20 0.0 100.0 0.1" />
@@ -86,7 +85,6 @@
 
     <framepos name="trace" objtype="body" objname="pelvis"/>
 
-    <framequat name="tracking_quat[pelvis]" objtype="site" objname="pelvis"/>
     <framepos name="tracking_pose[pelvis]" objtype="site" objname="pelvis"/>
     <framepos name="tracking_pose[head]" objtype="body" objname="head"/>
     <framepos name="tracking_pose[ltoe]" objtype="site" objname="toe1_left"/>

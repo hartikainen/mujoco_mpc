@@ -341,6 +341,9 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
                                      const mjData* data, double* residual) {
   int counter = 0;
 
+  mju_copy(&residual[counter], data->ctrl, model->nu);
+  counter += model->nu;
+
   std::array<std::string, 16> body_names = {
     "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
     "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",

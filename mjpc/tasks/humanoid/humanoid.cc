@@ -14,7 +14,6 @@
 
 #include "tasks/humanoid/humanoid.h"
 #include "mujoco/mjmodel.h"
-#include "tasks/humanoid_cmu/motions.h"
 
 #include <array>
 #include <cmath>

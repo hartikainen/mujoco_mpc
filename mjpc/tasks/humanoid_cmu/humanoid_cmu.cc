@@ -1,6 +1,5 @@
 #include "tasks/humanoid_cmu/humanoid_cmu.h"
 #include "mujoco/mjmodel.h"
-#include "tasks/humanoid_cmu/motions.h"
 
 #include <iostream>
 

@@ -209,7 +209,6 @@ add_library(
   tasks/humanoid/humanoid.h
   tasks/humanoid_cmu/humanoid_cmu.cc
   tasks/humanoid_cmu/humanoid_cmu.h
-  tasks/humanoid_cmu/motions.h
   tasks/particle/particle.cc
   tasks/particle/particle.h
   tasks/quadrotor/quadrotor.cc

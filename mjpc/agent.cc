@@ -80,9 +80,9 @@ void Agent::Initialize(mjModel* model, mjData* data,
   }
 
   // status
-  plan_enabled = false;
+  plan_enabled = true;
   action_enabled = true;
-  visualize_enabled = false;
+  visualize_enabled = true;
   allocate_enabled = true;
   plot_enabled = true;
 

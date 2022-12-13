@@ -18,7 +18,7 @@
 #include "tasks/cartpole/cartpole.h"
 #include "tasks/hand/hand.h"
 #include "tasks/humanoid/humanoid.h"
-#include "tasks/humanoid_cmu/humanoid_cmu.h"
+// #include "tasks/humanoid_cmu/humanoid_cmu.h"
 #include "tasks/particle/particle.h"
 #include "tasks/quadrotor/quadrotor.h"
 #include "tasks/quadruped/quadruped.h"
@@ -38,17 +38,17 @@ const TaskDefinition kTasksArray[]{
         .residual = &Humanoid::ResidualTrackSequence,
         .transition = &Humanoid::TransitionTrackSequence,
     },
-    {
-        .name = "Humanoid_CMU",
-        .xml_path = "humanoid_cmu/task_track_sequence.xml",
-        .residual = &HumanoidCMU::ResidualTrackSequence,
-        .transition = &HumanoidCMU::TransitionTrackSequence,
-    },
-    {
-        .name = "Humanoid_CMU",
-        .xml_path = "humanoid_cmu/task_stand.xml",
-        .residual = &HumanoidCMU::ResidualStand,
-    },
+    // {
+    //     .name = "Humanoid_CMU",
+    //     .xml_path = "humanoid_cmu/task_track_sequence.xml",
+    //     .residual = &HumanoidCMU::ResidualTrackSequence,
+    //     .transition = &HumanoidCMU::TransitionTrackSequence,
+    // },
+    // {
+    //     .name = "Humanoid_CMU",
+    //     .xml_path = "humanoid_cmu/task_stand.xml",
+    //     .residual = &HumanoidCMU::ResidualStand,
+    // },
     {
         .name = "Humanoid Stand",
         .xml_path = "humanoid/task_stand.xml",

@@ -350,7 +350,7 @@ int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* d
   float fps = 30.0;
   int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
   mju_copy(data->mocap_pos,
-           model->key_mpos + model->nmocap * 3 * step_index,
+           model->key_mpos + model->nmocap * 3 * (step_index + 0),
            model->nmocap * 3);
 
   int new_state = step_index;

@@ -254,8 +254,8 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
                                         const mjData* data, double* residual) {
   int counter = 0;
 
-  float fps = 30.0;
-  int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
+  // float fps = 30.0;
+  // int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
 
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
@@ -269,6 +269,7 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
     "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
     "rhip",
   };
+
   for (const auto& body_name : body_names) {
     std::string mocap_body_name = "mocap-" + body_name;
     std::string pos_sensor_name = "tracking_pose[" + body_name + "]";
@@ -277,9 +278,11 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
       printf("%s\n", mocap_body_name.c_str());
     }
     assert(0 <= body_mocapid);
+    double* mocap_sensor = mjpc::SensorByName(model, data, pos_sensor_name.c_str());
     mju_sub3(&residual[counter],
              data->mocap_pos + 3 * body_mocapid,
-             mjpc::SensorByName(model, data, pos_sensor_name.c_str()));
+             mocap_sensor);
+
     counter += 3;
   }
 
@@ -292,16 +295,12 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
       printf("%s\n", mocap_body_name.c_str());
     }
 
-    double current_mocap_body_pos[3] = {0.0};
-    mju_copy3(current_mocap_body_pos, data->mocap_pos + 3 * body_mocapid);
-    double next_mocap_body_pos[3] = {0.0};
-    mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
-    double mocap_body_vel[3] = {0.0};
-    mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
-    mju_scl3(mocap_body_vel, mocap_body_vel, fps);
+    double* sensor_vel = mjpc::SensorByName(model, data, vel_sensor_name.c_str());
+
     mju_sub3(&residual[counter],
-             mocap_body_vel,
-             mjpc::SensorByName(model, data, vel_sensor_name.c_str()));
+            //  mocap_body_vel,
+             data->mocap_quat + 3 * body_mocapid,
+             sensor_vel);
     counter += 3;
   }
 
@@ -330,8 +329,15 @@ int HumanoidCMU::TransitionTrackSequence(int state, const mjModel* model, mjData
   float fps = 30.0;
   int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
   mju_copy(data->mocap_pos,
-           model->key_mpos + model->nmocap * 3 * step_index,
+           model->key_mpos + model->nmocap * 3 * (step_index + 0),
            model->nmocap * 3);
+
+  // velocities
+  mju_copy(data->mocap_quat,
+           model->key_mpos + model->nmocap * 3 * (step_index + 1),
+           model->nmocap * 3);
+  mju_subFrom(data->mocap_quat, data->mocap_pos, model->nmocap * 3);
+  mju_scl(data->mocap_quat, data->mocap_quat, fps, model->nmocap * 3);
 
   int new_state = step_index;
 

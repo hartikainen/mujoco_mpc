@@ -269,7 +269,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   int counter = 0;
 
   float fps = 30.0;
-  int step_index = data->time * fps;
+  int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
 
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
@@ -347,7 +347,7 @@ int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* d
   // TODO(hartikainen): Add distance-based target transition logic.
   // TODO(hartikainen): is `data->time` the right thing to index here?
   // float fps = 30.0;
-  // int step_index = data->time * fps;
+  // int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
   // mju_copy(data->mocap_pos,
   //          model->key_mpos + model->nmocap * 3 * step_index,
   //          model->nmocap * 3);

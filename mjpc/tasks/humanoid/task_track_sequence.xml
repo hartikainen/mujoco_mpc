@@ -70,21 +70,21 @@
     <user name="joint vel." dim="21" user="0 0.01 0.0 1.0" />
 
     <user name="root pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="head_error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="ltoe error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rtoe error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lheel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rheel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lknee error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="rknee error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="lhand error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rhand error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lelbow error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="relbow error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lshoulder error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="rshoulder error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="lhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="head pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="ltoe pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rtoe pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lheel pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rheel pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lknee pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rknee pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhand pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhand pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lelbow pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="relbow pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lshoulder pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rshoulder pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhip pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhip pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
 
     <user name="root vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
     <user name="head vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />

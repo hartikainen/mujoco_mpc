@@ -341,6 +341,9 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
                                      const mjData* data, double* residual) {
   int counter = 0;
 
+  float fps = 30.0;
+  int step_index = data->time * fps;
+
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
 
@@ -357,7 +360,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   // int to_log_joint_index = 4;
   for (const auto& body_name : body_names) {
     std::string mocap_body_name = "mocap-" + body_name;
-    std::string sensor_name = "tracking_pose[" + body_name + "]";
+    std::string pos_sensor_name = "tracking_pose[" + body_name + "]";
     int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
     if (body_mocapid < 0) {
       printf("%s\n", mocap_body_name.c_str());
@@ -365,9 +368,35 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     // assert(0 <= body_mocapid);
     mju_sub3(&residual[counter],
              data->mocap_pos + 3 * body_mocapid,
-             mjpc::SensorByName(model, data, sensor_name.c_str()));
-    i++;
+             mjpc::SensorByName(model, data, pos_sensor_name.c_str()));
     counter += 3;
+    i++;
+  }
+
+  i = 0;
+  // int to_log_joint_index = 4;
+  for (const auto& body_name : body_names) {
+    std::string mocap_body_name = "mocap-" + body_name;
+    std::string vel_sensor_name = "tracking_vel[" + body_name + "]";
+    int body_mocapid = model->body_mocapid[
+      mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
+    if (body_mocapid < 0) {
+      printf("%s\n", mocap_body_name.c_str());
+    }
+
+    double current_mocap_body_pos[3] = {0.0};
+    mju_copy3(current_mocap_body_pos, data->mocap_pos + 3 * body_mocapid);
+    double next_mocap_body_pos[3] = {0.0};
+    mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
+    double mocap_body_vel[3] = {0.0};
+    mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
+    mju_scl3(mocap_body_vel, mocap_body_vel, fps);
+    mju_sub3(&residual[counter],
+             mocap_body_vel,
+             mjpc::SensorByName(model, data, vel_sensor_name.c_str()));
+    counter += 3;
+
+    i++;
   }
 
   // sensor dim sanity check

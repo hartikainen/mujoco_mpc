@@ -68,6 +68,7 @@
   <sensor>
     <user name="control" dim="21" user="0 0.1 0 1.0" />
     <user name="joint vel." dim="21" user="0 0.01 0.0 1.0" />
+
     <user name="root pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
     <user name="head_error" dim="3" user="6 10.0 0.0 100.0 0.1" />
     <user name="ltoe error" dim="3" user="6 1.0 0.0 100.0 0.1" />
@@ -84,6 +85,23 @@
     <user name="rshoulder error" dim="3" user="6 10.0 0.0 100.0 0.1" />
     <user name="lhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
     <user name="rhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+
+    <user name="root vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="head vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="ltoe vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rtoe vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lheel vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rheel vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lknee vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rknee vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhand vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhand vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lelbow vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="relbow vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lshoulder vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rshoulder vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhip vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhip vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
 
     <framepos name="trace" objtype="body" objname="pelvis"/>
 
@@ -103,6 +121,23 @@
     <framepos name="tracking_pose[rshoulder]" objtype="site" objname="shoulder_right"/>
     <framepos name="tracking_pose[lhip]" objtype="site" objname="thigh_left"/>
     <framepos name="tracking_pose[rhip]" objtype="site" objname="thigh_right"/>
+
+    <framelinvel name="tracking_vel[pelvis]" objtype="site" objname="pelvis"/>
+    <framelinvel name="tracking_vel[head]" objtype="body" objname="head"/>
+    <framelinvel name="tracking_vel[ltoe]" objtype="site" objname="toe1_left"/>
+    <framelinvel name="tracking_vel[rtoe]" objtype="site" objname="toe1_right"/>
+    <framelinvel name="tracking_vel[lheel]" objtype="site" objname="heel1_left"/>
+    <framelinvel name="tracking_vel[rheel]" objtype="site" objname="heel1_right"/>
+    <framelinvel name="tracking_vel[lknee]" objtype="site" objname="knee_left"/>
+    <framelinvel name="tracking_vel[rknee]" objtype="site" objname="knee_right"/>
+    <framelinvel name="tracking_vel[lhand]" objtype="site" objname="hand_left"/>
+    <framelinvel name="tracking_vel[rhand]" objtype="site" objname="hand_right"/>
+    <framelinvel name="tracking_vel[lelbow]" objtype="site" objname="elbow_left"/>
+    <framelinvel name="tracking_vel[relbow]" objtype="site" objname="elbow_right"/>
+    <framelinvel name="tracking_vel[lshoulder]" objtype="site" objname="shoulder_left"/>
+    <framelinvel name="tracking_vel[rshoulder]" objtype="site" objname="shoulder_right"/>
+    <framelinvel name="tracking_vel[lhip]" objtype="site" objname="thigh_left"/>
+    <framelinvel name="tracking_vel[rhip]" objtype="site" objname="thigh_right"/>
   </sensor>
 
   <include file="./keyframes/CMU-CMU-88-88_08_poses.xml" />

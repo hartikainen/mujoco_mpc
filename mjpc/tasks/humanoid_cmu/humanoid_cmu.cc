@@ -1,14 +1,18 @@
 #include "tasks/humanoid_cmu/humanoid_cmu.h"
 #include "mujoco/mjmodel.h"
 
+#include <array>
+#include <cassert>
+#include <cmath>
 #include <iostream>
+#include <map>
 
 #include <mujoco/mujoco.h>
 #include "utilities.h"
 
 namespace mjpc {
 
-// ------------- Residuals for humanoid tracking task -------------
+// ------------------ Residuals for HumanoidCMU stand task ------------
 //   Number of residuals: 6
 //     Residual (0): Desired height
 //     Residual (1): Balance: COM_xy - average(feet position)_xy
@@ -17,110 +21,7 @@ namespace mjpc {
 //     Residual (4): Joint vel: minimise joint velocity
 //   Number of parameters: 1
 //     Parameter (0): height_goal
-// ----------------------------------------------------------------
-void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel* model,
-                                        const mjData* data, double* residual) {
-  int counter = 0;
-
-  double current_pose[16][3] = {{0.0}};
-  double target_pose[16][3] = {{0.0}};
-
-  mju_copy3(current_pose[0], mjpc::SensorByName(model, data, "tracking_pose[root]"));
-  mju_copy3(target_pose[0], data->mocap_pos + 3 * 0);
-  mju_copy3(current_pose[1], mjpc::SensorByName(model, data, "tracking_pose[ltoes_offset]"));
-  mju_copy3(target_pose[1], data->mocap_pos + 3 * 1);
-  mju_copy3(current_pose[2], mjpc::SensorByName(model, data, "tracking_pose[rtoes_offset]"));
-  mju_copy3(target_pose[2], data->mocap_pos + 3 * 2);
-  mju_copy3(current_pose[3], mjpc::SensorByName(model, data, "tracking_pose[lheel_offset]"));
-  mju_copy3(target_pose[3], data->mocap_pos + 3 * 3);
-  mju_copy3(current_pose[4], mjpc::SensorByName(model, data, "tracking_pose[rheel_offset]"));
-  mju_copy3(target_pose[4], data->mocap_pos + 3 * 4);
-  mju_copy3(current_pose[5], mjpc::SensorByName(model, data, "tracking_pose[ltibia]"));
-  mju_copy3(target_pose[5], data->mocap_pos + 3 * 5);
-  mju_copy3(current_pose[6], mjpc::SensorByName(model, data, "tracking_pose[rtibia]"));
-  mju_copy3(target_pose[6], data->mocap_pos + 3 * 6);
-  mju_copy3(current_pose[7], mjpc::SensorByName(model, data, "tracking_pose[lwrist]"));
-  mju_copy3(target_pose[7], data->mocap_pos + 3 * 7);
-  mju_copy3(current_pose[8], mjpc::SensorByName(model, data, "tracking_pose[rwrist]"));
-  mju_copy3(target_pose[8], data->mocap_pos + 3 * 8);
-  mju_copy3(current_pose[9], mjpc::SensorByName(model, data, "tracking_pose[lradius]"));
-  mju_copy3(target_pose[9], data->mocap_pos + 3 * 9);
-  mju_copy3(current_pose[10], mjpc::SensorByName(model, data, "tracking_pose[rradius]"));
-  mju_copy3(target_pose[10], data->mocap_pos + 3 * 10);
-  mju_copy3(current_pose[11], mjpc::SensorByName(model, data, "tracking_pose[lhumerus]"));
-  mju_copy3(target_pose[11], data->mocap_pos + 3 * 11);
-  mju_copy3(current_pose[12], mjpc::SensorByName(model, data, "tracking_pose[rhumerus]"));
-  mju_copy3(target_pose[12], data->mocap_pos + 3 * 12);
-  mju_copy3(current_pose[13], mjpc::SensorByName(model, data, "tracking_pose[head_offset]"));
-  mju_copy3(target_pose[13], data->mocap_pos + 3 * 13);
-  mju_copy3(current_pose[14], mjpc::SensorByName(model, data, "tracking_pose[lfemur]"));
-  mju_copy3(target_pose[14], data->mocap_pos + 3 * 14);
-  mju_copy3(current_pose[15], mjpc::SensorByName(model, data, "tracking_pose[rfemur]"));
-  mju_copy3(target_pose[15], data->mocap_pos + 3 * 15);
-
-  for (int joint_index = 0; joint_index < 16; joint_index++) {
-    double norm[3] = {0.0};
-    mju_sub3(norm, target_pose[joint_index], current_pose[joint_index]);
-    residual[counter] = mju_norm(norm, 3);
-    counter += 3;
-  }
-
-  // sensor dim sanity check
-  // TODO: use this pattern everywhere and make this a utility function
-  int user_sensor_dim = 0;
-  for (int i=0; i < model->nsensor; i++) {
-    if (model->sensor_type[i] == mjSENS_USER) {
-      user_sensor_dim += model->sensor_dim[i];
-    }
-  }
-  if (user_sensor_dim != counter) {
-    mju_error_i("mismatch between total user-sensor dimension "
-                "and actual length of residual %d", counter);
-  }
-
-}
-
-int HumanoidCMU::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
-  // TODO(hartikainen): Add distance-based target transition logic.
-
-  // int sequence_length = 45;
-  int step_index = 0;
-
-  // TODO(hartikainen): Why doesn't this have effect on the mocap positions?
-  mju_copy3(data->mocap_pos + 3 * 0, mocap_motions.motion_sequence[step_index][0]);
-  mju_copy3(data->mocap_pos + 3 * 1, mocap_motions.motion_sequence[step_index][10]);
-  mju_copy3(data->mocap_pos + 3 * 2, mocap_motions.motion_sequence[step_index][11]);
-  mju_copy3(data->mocap_pos + 3 * 3, mocap_motions.motion_sequence[step_index][7]);
-  mju_copy3(data->mocap_pos + 3 * 4, mocap_motions.motion_sequence[step_index][8]);
-  mju_copy3(data->mocap_pos + 3 * 5, mocap_motions.motion_sequence[step_index][4]);
-  mju_copy3(data->mocap_pos + 3 * 6, mocap_motions.motion_sequence[step_index][5]);
-  mju_copy3(data->mocap_pos + 3 * 7, mocap_motions.motion_sequence[step_index][20]);
-  mju_copy3(data->mocap_pos + 3 * 8, mocap_motions.motion_sequence[step_index][21]);
-  mju_copy3(data->mocap_pos + 3 * 9, mocap_motions.motion_sequence[step_index][18]);
-  mju_copy3(data->mocap_pos + 3 * 10, mocap_motions.motion_sequence[step_index][19]);
-  mju_copy3(data->mocap_pos + 3 * 11, mocap_motions.motion_sequence[step_index][16]);
-  mju_copy3(data->mocap_pos + 3 * 12, mocap_motions.motion_sequence[step_index][17]);
-  mju_copy3(data->mocap_pos + 3 * 13, mocap_motions.motion_sequence[step_index][15]);
-  mju_copy3(data->mocap_pos + 3 * 14, mocap_motions.motion_sequence[step_index][1]);
-  mju_copy3(data->mocap_pos + 3 * 15, mocap_motions.motion_sequence[step_index][2]);
-
-  // TODO(hartikainen)
-  // int new_state = (state + 1) % sequence_length;
-  int new_state = 0;
-
-  return new_state;
-}
-
-// ------------------ Residuals for humanoid stand task ------------
-//   Number of residuals: 6
-//     Residual (0): Desired height
-//     Residual (1): Balance: COM_xy - average(feet position)_xy
-//     Residual (2): Com Vel: should be 0 and equal feet average vel
-//     Residual (3): Control: minimise control
-//     Residual (4): Joint vel: minimise joint velocity
-//   Number of parameters: 1
-//     Parameter (0): height_goal
-// ----------------------------------------------------------------
+// -------------------------------------------------------------------
 void HumanoidCMU::ResidualStand(const double* parameters, const mjModel* model,
                                 const mjData* data, double* residual) {
   int counter = 0;
@@ -174,15 +75,267 @@ void HumanoidCMU::ResidualStand(const double* parameters, const mjModel* model,
   // sensor dim sanity check
   // TODO: use this pattern everywhere and make this a utility function
   int user_sensor_dim = 0;
+  for (int i = 0; i < model->nsensor; i++) {
+    if (model->sensor_type[i] == mjSENS_USER) {
+      user_sensor_dim += model->sensor_dim[i];
+    }
+  }
+  if (user_sensor_dim != counter) {
+    mju_error_i(
+        "mismatch between total user-sensor dimension "
+        "and actual length of residual %d",
+        counter);
+  }
+}
+
+// ------------------ Residuals for HumanoidCMU walk task ------------
+//   Number of residuals:
+//     Residual (0): torso height
+//     Residual (1): pelvis-feet aligment
+//     Residual (2): balance
+//     Residual (3): upright
+//     Residual (4): posture
+//     Residual (5): walk
+//     Residual (6): move feet
+//     Residual (7): control
+//   Number of parameters:
+//     Parameter (0): torso height goal
+//     Parameter (1): speed goal
+// -------------------------------------------------------------------
+void HumanoidCMU::ResidualWalk(const double* parameters, const mjModel* model,
+                            const mjData* data, double* residual) {
+  int counter = 0;
+
+  // ----- torso height ----- //
+  double torso_height = mjpc::SensorByName(model, data, "torso_position")[2];
+  residual[counter++] = torso_height - parameters[0];
+
+  // ----- pelvis / feet ----- //
+  double* foot_right = mjpc::SensorByName(model, data, "foot_right");
+  double* foot_left = mjpc::SensorByName(model, data, "foot_left");
+  double pelvis_height = mjpc::SensorByName(model, data, "pelvis_position")[2];
+  residual[counter++] =
+      0.5 * (foot_left[2] + foot_right[2]) - pelvis_height - 0.2;
+
+  // ----- balance ----- //
+  // capture point
+  double* subcom = mjpc::SensorByName(model, data, "torso_subcom");
+  double* subcomvel = mjpc::SensorByName(model, data, "torso_subcomvel");
+
+  double capture_point[3];
+  mju_addScl(capture_point, subcom, subcomvel, 0.3, 3);
+  capture_point[2] = 1.0e-3;
+
+  // project onto line segment
+
+  double axis[3];
+  double center[3];
+  double vec[3];
+  double pcp[3];
+  mju_sub3(axis, foot_right, foot_left);
+  axis[2] = 1.0e-3;
+  double length = 0.5 * mju_normalize3(axis) - 0.05;
+  mju_add3(center, foot_right, foot_left);
+  mju_scl3(center, center, 0.5);
+  mju_sub3(vec, capture_point, center);
+
+  // project onto axis
+  double t = mju_dot3(vec, axis);
+
+  // clamp
+  t = mju_max(-length, mju_min(length, t));
+  mju_scl3(vec, axis, t);
+  mju_add3(pcp, vec, center);
+  pcp[2] = 1.0e-3;
+
+  // is standing
+  double standing =
+      torso_height / mju_sqrt(torso_height * torso_height + 0.45 * 0.45) - 0.4;
+
+  mju_sub(&residual[counter], capture_point, pcp, 2);
+  mju_scl(&residual[counter], &residual[counter], standing, 2);
+
+  counter += 2;
+
+  // ----- upright ----- //
+  double* torso_up = mjpc::SensorByName(model, data, "torso_up");
+  double* pelvis_up = mjpc::SensorByName(model, data, "pelvis_up");
+  double* foot_right_up = mjpc::SensorByName(model, data, "foot_right_up");
+  double* foot_left_up = mjpc::SensorByName(model, data, "foot_left_up");
+  double z_ref[3] = {0.0, 0.0, 1.0};
+
+  // torso
+  residual[counter++] = torso_up[2] - 1.0;
+
+  // pelvis
+  residual[counter++] = 0.3 * (pelvis_up[2] - 1.0);
+
+  // right foot
+  mju_sub3(&residual[counter], foot_right_up, z_ref);
+  mju_scl3(&residual[counter], &residual[counter], 0.1 * standing);
+  counter += 3;
+
+  mju_sub3(&residual[counter], foot_left_up, z_ref);
+  mju_scl3(&residual[counter], &residual[counter], 0.1 * standing);
+  counter += 3;
+
+  // ----- posture ----- //
+  mju_copy(&residual[counter], data->qpos + 7, model->nq - 7);
+  counter += model->nq - 7;
+
+  // ----- walk ----- //
+  double* torso_forward = mjpc::SensorByName(model, data, "torso_forward");
+  double* pelvis_forward = mjpc::SensorByName(model, data, "pelvis_forward");
+  double* foot_right_forward =
+      mjpc::SensorByName(model, data, "foot_right_forward");
+  double* foot_left_forward =
+      mjpc::SensorByName(model, data, "foot_left_forward");
+
+  double forward[2];
+  mju_copy(forward, torso_forward, 2);
+  mju_addTo(forward, pelvis_forward, 2);
+  mju_addTo(forward, foot_right_forward, 2);
+  mju_addTo(forward, foot_left_forward, 2);
+  mju_normalize(forward, 2);
+
+  // com vel
+  double* waist_lower_subcomvel =
+      mjpc::SensorByName(model, data, "waist_lower_subcomvel");
+  double* torso_velocity = mjpc::SensorByName(model, data, "torso_velocity");
+  double com_vel[2];
+  mju_add(com_vel, waist_lower_subcomvel, torso_velocity, 2);
+  mju_scl(com_vel, com_vel, 0.5, 2);
+
+  // walk forward
+  residual[counter++] =
+      standing * (mju_dot(com_vel, forward, 2) - parameters[1]);
+
+  // ----- move feet ----- //
+  double* foot_right_velocity =
+      mjpc::SensorByName(model, data, "foot_right_velocity");
+  double* foot_left_velocity =
+      mjpc::SensorByName(model, data, "foot_left_velocity");
+  double move_feet[2];
+  mju_copy(move_feet, com_vel, 2);
+  mju_addToScl(move_feet, foot_right_velocity, -0.5, 2);
+  mju_addToScl(move_feet, foot_left_velocity, -0.5, 2);
+
+  mju_copy(&residual[counter], move_feet, 2);
+  mju_scl(&residual[counter], &residual[counter], standing, 2);
+  counter += 2;
+
+  // ----- control ----- //
+  mju_copy(&residual[counter], data->ctrl, model->nu);
+  counter += model->nu;
+
+  // sensor dim sanity check
+  // TODO: use this pattern everywhere and make this a utility function
+  int user_sensor_dim = 0;
+  for (int i = 0; i < model->nsensor; i++) {
+    if (model->sensor_type[i] == mjSENS_USER) {
+      user_sensor_dim += model->sensor_dim[i];
+    }
+  }
+  if (user_sensor_dim != counter) {
+    mju_error_i(
+        "mismatch between total user-sensor dimension "
+        "and actual length of residual %d",
+        counter);
+  }
+}
+
+// ------------- Residuals for HumanoidCMU tracking task -------------
+//   Number of residuals: TODO(hartikainen)
+//     Residual (0): TODO(hartikainen)
+//   Number of parameters: TODO(hartikainen)
+//     Parameter (0): TODO(hartikainen)
+// -------------------------------------------------------------------
+void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel* model,
+                                        const mjData* data, double* residual) {
+  int counter = 0;
+
+  float fps = 30.0;
+  int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
+
+  mju_copy(&residual[counter], data->ctrl, model->nu);
+  counter += model->nu;
+
+  // ----- joint velocity ----- //
+  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
+  counter += model->nv - 6;
+
+  std::array<std::string, 16> body_names = {
+    "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
+    "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
+    "rhip",
+  };
+  for (const auto& body_name : body_names) {
+    std::string mocap_body_name = "mocap-" + body_name;
+    std::string pos_sensor_name = "tracking_pose[" + body_name + "]";
+    int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
+    if (body_mocapid < 0) {
+      printf("%s\n", mocap_body_name.c_str());
+    }
+    assert(0 <= body_mocapid);
+    mju_sub3(&residual[counter],
+             data->mocap_pos + 3 * body_mocapid,
+             mjpc::SensorByName(model, data, pos_sensor_name.c_str()));
+    counter += 3;
+  }
+
+  for (const auto& body_name : body_names) {
+    std::string mocap_body_name = "mocap-" + body_name;
+    std::string vel_sensor_name = "tracking_vel[" + body_name + "]";
+    int body_mocapid = model->body_mocapid[
+      mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
+    if (body_mocapid < 0) {
+      printf("%s\n", mocap_body_name.c_str());
+    }
+
+    double current_mocap_body_pos[3] = {0.0};
+    mju_copy3(current_mocap_body_pos, data->mocap_pos + 3 * body_mocapid);
+    double next_mocap_body_pos[3] = {0.0};
+    mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
+    double mocap_body_vel[3] = {0.0};
+    mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
+    mju_scl3(mocap_body_vel, mocap_body_vel, fps);
+    mju_sub3(&residual[counter],
+             mocap_body_vel,
+             mjpc::SensorByName(model, data, vel_sensor_name.c_str()));
+    counter += 3;
+  }
+
+  // sensor dim sanity check
+  // TODO: use this pattern everywhere and make this a utility function
+  int user_sensor_dim = 0;
   for (int i=0; i < model->nsensor; i++) {
     if (model->sensor_type[i] == mjSENS_USER) {
       user_sensor_dim += model->sensor_dim[i];
     }
   }
   if (user_sensor_dim != counter) {
-    mju_error_i("mismatch between total user-sensor dimension "
-                "and actual length of residual %d", counter);
+    std::printf("user_sensor_dim=%d, counter=%d", user_sensor_dim, counter);
+    mju_error_i("mismatch between total user-sensor dimension"
+                "and actual length of residual %d", user_sensor_dim);
   }
+
+}
+
+// -------- Transition for HumanoidCMU tracking task ---------
+//   TODO(hartikainen)
+// -----------------------------------------------------------
+int HumanoidCMU::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
+  // TODO(hartikainen): Add distance-based target transition logic.
+  // TODO(hartikainen): is `data->time` the right thing to index here?
+  float fps = 30.0;
+  int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
+  mju_copy(data->mocap_pos,
+           model->key_mpos + model->nmocap * 3 * step_index,
+           model->nmocap * 3);
+
+  int new_state = step_index;
+
+  return new_state;
 }
 
 }  // namespace mjpc

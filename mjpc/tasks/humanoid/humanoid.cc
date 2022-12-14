@@ -357,7 +357,6 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     "rhip",
   };
 
-  // int to_log_joint_index = 4;
   for (const auto& body_name : body_names) {
     std::string mocap_body_name = "mocap-" + body_name;
     std::string pos_sensor_name = "tracking_pose[" + body_name + "]";
@@ -384,38 +383,19 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     double current_mocap_body_pos[3] = {0.0};
     mju_copy3(current_mocap_body_pos, data->mocap_pos + 3 * body_mocapid);
     double next_mocap_body_pos[3] = {0.0};
-    // mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);  
-
-    // printf("step index: %i\n", step_index);
-    // printf("nmocap: %i\n", model->nmocap);
-
     mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
 
     double mocap_body_vel[3];
-    // mju_zero(mocap_body_vel, 3);
     mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
-    // mju_scl3(mocap_body_vel, mocap_body_vel, fps);
-
-    // printf("body id: %i\n", body_mocapid);
-    // printf("current pelvis: \n");
-    // mju_printMat(current_mocap_body_pos, 1, 3);
-    // printf("next pelvis: \n");
-    // mju_printMat(next_mocap_body_pos, 1, 3);
 
     double* sensor_vel = mjpc::SensorByName(model, data, vel_sensor_name.c_str());
-    if (!sensor_vel) {
-      printf("sensor vel missing\n");
-    }
+
     mju_sub3(&residual[counter],
              mocap_body_vel,
              sensor_vel);
-    // printf("residual\n");
-    // printf("  %s\n", body_name.c_str());
-    // mju_printMat(residual + counter, 1, 3);
     counter += 3;
 
   }
-
 
   // sensor dim sanity check
   // TODO: use this pattern everywhere and make this a utility function
@@ -436,12 +416,10 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
 int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
   // TODO(hartikainen): Add distance-based target transition logic.
 
-  // int sequence_length = 46;
   // TODO(hartikainen): is `data->time` the right thing to index here?
   float fps = 30.0;
   int step_index = 0 * data->time * fps;
   mju_copy(data->mocap_pos, model->key_mpos + model->nmocap * 3 * step_index, model->nmocap * 3);
-
 
   // TODO(hartikainen)
   // int new_state = (state + 1) % sequence_length;

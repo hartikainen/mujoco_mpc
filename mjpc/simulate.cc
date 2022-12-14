@@ -1170,6 +1170,12 @@ void uiEvent(mjuiState* state) {
           if (qpos_key) {
             mju_copy(sim->dnew->qpos, qpos_key, sim->mnew->nq);
           }
+
+          // set initial velocity via keyframe
+          int id = mj_name2id(m, mjOBJ_KEY, "home");
+          if (id != -1) {
+            mju_copy(sim->dnew->qvel, m->key_qvel + m->nv * id, sim->mnew->nv);
+          }
           sim->agent.PlotReset();
         }
         break;

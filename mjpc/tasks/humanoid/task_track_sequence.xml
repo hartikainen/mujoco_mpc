@@ -105,5 +105,5 @@
     <framepos name="tracking_pose[rhip]" objtype="site" objname="thigh_right"/>
   </sensor>
 
-  <include file="./keyframes/CMU-CMU-103-103_08_poses.xml" />
+  <include file="./keyframes/CMU-CMU-88-88_08_poses.xml" />
 </mujoco>

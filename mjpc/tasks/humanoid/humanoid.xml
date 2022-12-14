@@ -3,7 +3,7 @@
   <statistic extent="2" center="0 0 1"/>
 
   <default>
-    <motor ctrlrange="-1 1" ctrllimited="true"/>
+    <motor ctrlrange="-1.5 1.5" ctrllimited="true"/>
     <site size=".04" group="3"/>
     <default class="body">
 
@@ -112,7 +112,7 @@
                 <site name="foot_right" pos=".05 0 0" type="sphere" size=".027"/>
                 <site name="sp2" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp3" pos=".14 0 0" type="sphere" size=".027"/>
-                <body name="heel_right" pos="-0.05 0 0.06">
+                <body name="heel_right" pos="-0.05 0 0.04">
                   <site name="heel1_right" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
                 <body name="toe_right" pos="0.07 0 -0.01">
@@ -139,7 +139,7 @@
                 <site name="foot_left" pos=".05 0 0" type="sphere" size=".027"/>
                 <site name="sp0" pos="-.07 0 0" type="sphere" size=".027"/>
                 <site name="sp1" pos=".14 0 0" type="sphere" size=".027"/>
-                <body name="heel_left" pos="-0.05 0 0.06">
+                <body name="heel_left" pos="-0.05 0 0.04">
                   <site name="heel1_left" type="sphere" pos="0 0 0" rgba="1 0 0 1" size="0.027"/>
                 </body>
                 <body name="toe_left" pos="0.07 0 -0.01">

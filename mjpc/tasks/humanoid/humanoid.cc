@@ -16,6 +16,7 @@
 #include "mujoco/mjmodel.h"
 
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -25,44 +26,15 @@
 
 namespace mjpc {
 
-// def deep_mimic_multiclip(walker_features, reference_features, **unused_kwargs):
-//   """A reward similar to deepmimic (larger weight on joints_velocity)."""
-//   differences = _compute_squared_differences(walker_features,
-//                                              reference_features)
-//   com = .1 * np.exp(-10 * differences['center_of_mass'])
-//   joints_velocity = 1.0 * np.exp(-0.1 * differences['joints_velocity'])
-//   appendages = 0.15 * np.exp(-40. * differences['appendages'])
-//   body_quaternions = 0.65 * np.exp(-2 * differences['body_quaternions'])
-//   terms = {
-//       'center_of_mass': com,
-//       'joints_velocity': joints_velocity,
-//       'appendages': appendages,
-//       'body_quaternions': body_quaternions
-//   }
-//   reward = sum(terms.values())
-//   return reward, terms, _sort_dict(terms)
-
-
 // ------------------ Residuals for humanoid stand task ------------
-//   Number of residuals: 16
-//     Residual (0): `pelvis` mocap error
-//     Residual (1): `toe_left` mocap error
-//     Residual (2): `toe_right` mocap error
-//     Residual (3): `heel_left` mocap error
-//     Residual (4): `heel_right` mocap error
-//     Residual (5): `knee_left` mocap error
-//     Residual (6): `knee_right` mocap error
-//     Residual (7): `left_hand_left` mocap error
-//     Residual (8): `right_hand_right` mocap error
-//     Residual (9): `elbow_left` mocap error
-//     Residual (10): `elbow_right` mocap error
-//     Residual (11): `shoulder1_left` mocap error
-//     Residual (12): `shoulder1_right` mocap error
-//     Residual (13): `head` mocap error
-//     Residual (14): `hip_z_left` mocap error
-//     Residual (15): `hip_z_right` mocap error
+//   Number of residuals: 6
+//     Residual (0): Desired height
+//     Residual (1): Balance: COM_xy - average(feet position)_xy
+//     Residual (2): Com Vel: should be 0 and equal feet average vel
+//     Residual (3): Control: minimise control
+//     Residual (4): Joint vel: minimise joint velocity
 //   Number of parameters: 1
-//     Parameter (0): TODO(hartikainen): parameterize the loss.
+//     Parameter (0): height_goal
 // ----------------------------------------------------------------
 void Humanoid::ResidualStand(const double* parameters, const mjModel* model,
                              const mjData* data, double* residual) {
@@ -286,55 +258,11 @@ void Humanoid::ResidualWalk(const double* parameters, const mjModel* model,
   }
 }
 
-
-// std::array<double, 4> compute_target_root_quat(const double left_pelvis[3],
-//                                                 const double mid_pelvis[3],
-//                                                 const double right_pelvis[3]) {
-//   // Given three points, return position and orientation of coordinate frame.
-//   double root_pos[3] = {
-//     0.5 * left_pelvis[0] + right_pelvis[0],
-//     0.5 * left_pelvis[1] + right_pelvis[1],
-//     0.5 * left_pelvis[2] + right_pelvis[2],
-//   };
-
-//   double left_dir[3] = {
-//     left_pelvis[0] - root_pos[0],
-//     left_pelvis[1] - root_pos[1],
-//     left_pelvis[2] - root_pos[2],
-//   };
-//   mju_normalize3(left_dir);
-
-//   double up_dir[3] = {
-//     mid_pelvis[0] - root_pos[0],
-//     mid_pelvis[1] - root_pos[1],
-//     mid_pelvis[2] - root_pos[2],
-//   };
-//   mju_normalize3(up_dir);
-
-//   double forward_dir[3] = {0.0};
-//   mju_cross(forward_dir, left_dir, up_dir);
-//   mju_normalize3(forward_dir);
-
-//   double rot_mat[9] = {
-//     forward_dir[0], left_dir[0], up_dir[0],
-//     forward_dir[1], left_dir[1], up_dir[1],
-//     forward_dir[2], left_dir[2], up_dir[2],
-//   };
-//   double target_root_quat[4] = {0.0};
-//   mju_mat2Quat(target_root_quat, rot_mat);
-
-//   return target_root_quat;
-// }
-
 // ------------- Residuals for humanoid tracking task -------------
-//   Number of residuals: 6
-//     Residual (0): Desired height
-//     Residual (1): Balance: COM_xy - average(feet position)_xy
-//     Residual (2): Com Vel: should be 0 and equal feet average vel
-//     Residual (3): Control: minimise control
-//     Residual (4): Joint vel: minimise joint velocity
-//   Number of parameters: 1
-//     Parameter (0): height_goal
+//   Number of residuals: TODO(hartikainen)
+//     Residual (0): TODO(hartikainen)
+//   Number of parameters: TODO(hartikainen)
+//     Parameter (0): TODO(hartikainen)
 // ----------------------------------------------------------------
 void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* model,
                                      const mjData* data, double* residual) {
@@ -363,7 +291,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     if (body_mocapid < 0) {
       printf("%s\n", mocap_body_name.c_str());
     }
-    // assert(0 <= body_mocapid);
+    assert(0 <= body_mocapid);
     mju_sub3(&residual[counter],
              data->mocap_pos + 3 * body_mocapid,
              mjpc::SensorByName(model, data, pos_sensor_name.c_str()));
@@ -412,17 +340,19 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
 
 }
 
+// -------- Transition for humanoid task ---------
+//   TODO(hartikainen)
+// -----------------------------------------------
 int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
   // TODO(hartikainen): Add distance-based target transition logic.
-
   // TODO(hartikainen): is `data->time` the right thing to index here?
   float fps = 30.0;
-  int step_index = 0 * data->time * fps;
-  mju_copy(data->mocap_pos, model->key_mpos + model->nmocap * 3 * step_index, model->nmocap * 3);
+  int step_index = data->time * fps;
+  mju_copy(data->mocap_pos,
+           model->key_mpos + model->nmocap * 3 * step_index,
+           model->nmocap * 3);
 
-  // TODO(hartikainen)
-  // int new_state = (state + 1) % sequence_length;
-  int new_state = 0;
+  int new_state = step_index;
 
   return new_state;
 }

@@ -293,7 +293,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     }
     assert(0 <= body_mocapid);
     mju_sub3(&residual[counter],
-             data->mocap_pos + 3 * body_mocapid,
+             model->key_mpos + model->nmocap * 3 * (step_index + 0) + 3 * body_mocapid,
              mjpc::SensorByName(model, data, pos_sensor_name.c_str()));
     counter += 3;
   }
@@ -308,7 +308,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     }
 
     double current_mocap_body_pos[3] = {0.0};
-    mju_copy3(current_mocap_body_pos, data->mocap_pos + 3 * body_mocapid);
+    mju_copy3(current_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 0) + 3 * body_mocapid);
     double next_mocap_body_pos[3] = {0.0};
     mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
 
@@ -346,15 +346,15 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
 int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
   // TODO(hartikainen): Add distance-based target transition logic.
   // TODO(hartikainen): is `data->time` the right thing to index here?
-  float fps = 30.0;
-  int step_index = data->time * fps;
-  mju_copy(data->mocap_pos,
-           model->key_mpos + model->nmocap * 3 * step_index,
-           model->nmocap * 3);
+  // float fps = 30.0;
+  // int step_index = data->time * fps;
+  // mju_copy(data->mocap_pos,
+  //          model->key_mpos + model->nmocap * 3 * step_index,
+  //          model->nmocap * 3);
 
-  int new_state = step_index;
+  // int new_state = step_index;
 
-  return new_state;
+  return 0;
 }
 
 }  // namespace mjpc

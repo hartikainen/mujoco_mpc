@@ -422,53 +422,8 @@ int Humanoid::TransitionTrackSequence(int state, const mjModel* model, mjData* d
   // TODO(hartikainen): is `data->time` the right thing to index here?
   float fps = 30.0;
   int step_index = data->time * fps;
-  // std::printf("data->time=%f; step_index=%d\n", data->time, step_index);
-
-  //  0: root        , root
-  // 15: head_offset , head
-  // 10: ltoes_offset, left_foot
-  // 11: rtoes_offset, right_foot
-  //  7: lheel_offset, left_ankle
-  //  8: rheel_offset, right_ankle
-  //  4: ltibia      , left_knee
-  //  5: rtibia      , right_knee
-  // 20: lwrist      , left_wrist
-  // 21: rwrist      , right_wrist
-  // 18: lradius     , left_elbow
-  // 19: rradius     , right_elbow
-  // 16: lhumerus    , left_shoulder
-  // 17: rhumerus    , right_shoulder
-  //  1: lfemur      , left_hip
-  //  2: rfemur      , right_hip
-
-  // std::array<std::string, 16> body_names = {
-  //   "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
-  //   "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
-  //   "rhip",
-  // };
-  // std::array<int, 16> kinematic_ids = {
-  //   0, 15,  10,  11,  7,  8,  4,  5,  20,  21,  18,  19,  16,  17,  1,  2,
-  // };
-
-  // // model->key_mpos
-  // std::printf("model->nmocap=%d", model->nmocap * 3 * step_index);
-
-  // int i = 0;
-  // for (const auto& body_name : body_names) {
-  //   std::string mocap_body_name = "mocap-" + body_name;
-  //   int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
-  //   int kinematic_id = kinematic_ids[i];
-  //   // std::cout << mocap_body_name << ": " << body_mocapid << ", " << kinematic_id << std::endl;
-  //   assert (0 <= body_mocapid);
-  //   mju_copy3(data->mocap_pos + 3 * body_mocapid, mocap_motions.motion_sequence[step_index][kinematic_id]);
-  //   i++;
-  // }
-
-  // std::printf("data->time = %f; std::fmod(data->time, 1.0) = %f\n", data->time, std::fmod(data->time, 1.0));
-  // if (0.998 <= std::fmod(data->time, 1.0)) {
-  //   std::printf("data->time=%f\n", data->time);
-  // }
   mju_copy(data->mocap_pos, model->key_mpos + model->nmocap * 3 * step_index, model->nmocap * 3);
+
 
   // TODO(hartikainen)
   // int new_state = (state + 1) % sequence_length;

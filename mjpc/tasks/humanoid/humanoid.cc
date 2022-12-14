@@ -314,6 +314,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
 
     double mocap_body_vel[3];
     mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
+    mju_scl3(mocap_body_vel, mocap_body_vel, fps);
 
     double* sensor_vel = mjpc::SensorByName(model, data, vel_sensor_name.c_str());
 

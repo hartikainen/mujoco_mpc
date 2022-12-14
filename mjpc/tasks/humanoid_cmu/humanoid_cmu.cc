@@ -8,7 +8,6 @@
 
 namespace mjpc {
 
-const mjpc::MocapMotions mocap_motions;
 // ------------- Residuals for humanoid tracking task -------------
 //   Number of residuals: 6
 //     Residual (0): Desired height

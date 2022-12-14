@@ -43,7 +43,6 @@ namespace mjpc {
 //   return reward, terms, _sort_dict(terms)
 
 
-// const mjpc::MocapMotions mocap_motions;
 // ------------------ Residuals for humanoid stand task ------------
 //   Number of residuals: 16
 //     Residual (0): `pelvis` mocap error

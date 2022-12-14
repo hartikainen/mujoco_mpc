@@ -85,22 +85,22 @@
     <user name="lhip pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
     <user name="rhip pos error" dim="3" user="6 1.0 0.0 100.0 0.1" />
 
-    <user name="root vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="head vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="ltoe vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rtoe vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lheel vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rheel vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lknee vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="rknee vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="lhand vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rhand vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lelbow vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="relbow vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="lshoulder vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="rshoulder vel error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="lhip vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
-    <user name="rhip vel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="root vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="head vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="ltoe vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rtoe vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lheel vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rheel vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lknee vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rknee vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lhand vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rhand vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lelbow vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="relbow vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lshoulder vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rshoulder vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="lhip vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
+    <user name="rhip vel error" dim="3" user="6 0.1 0.0 1.0 0.1" />
 
     <framepos name="trace" objtype="body" objname="pelvis"/>
 

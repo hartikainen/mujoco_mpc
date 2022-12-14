@@ -6,12 +6,12 @@
   <custom>
     <numeric name="task_transition" data="1" />
     <numeric name="agent_planner" data="0" />
-    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_horizon" data="0.6" />
     <numeric name="agent_timestep" data="0.015" />
     <numeric name="sampling_spline_points" data="5" />
     <numeric name="sampling_exploration" data="0.15" />
     <numeric name="gradient_spline_points" data="5" />
-    <numeric name="residual_POSE Index" data="0.0 0.0 1.0" />
+    <numeric name="residual_POSE Index" data="0.0 0.0 20.0" />
   </custom>
 
   <worldbody>
@@ -66,23 +66,24 @@
   </worldbody>
 
   <sensor>
-    <user name="control" dim="21" user="0 0.1 0 0.1" />
-    <user name="root pos error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="head_error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="ltoe error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rtoe error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lheel error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rheel error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lknee error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rknee error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lhand error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rhand error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lelbow error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="relbow error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lshoulder error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rshoulder error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="lhip error" dim="3" user="6 20 0.0 100.0 0.1" />
-    <user name="rhip error" dim="3" user="6 20 0.0 100.0 0.1" />
+    <user name="control" dim="21" user="0 0.1 0 1.0" />
+    <user name="joint vel." dim="21" user="0 0.01 0.0 1.0" />
+    <user name="root pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="head_error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="ltoe error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rtoe error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lheel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rheel error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lknee error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rknee error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhand error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhand error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lelbow error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="relbow error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="lshoulder error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="rshoulder error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
+    <user name="rhip error" dim="3" user="6 1.0 0.0 100.0 0.1" />
 
     <framepos name="trace" objtype="body" objname="pelvis"/>
 
@@ -104,5 +105,5 @@
     <framepos name="tracking_pose[rhip]" objtype="site" objname="thigh_right"/>
   </sensor>
 
-  <include file="./keyframes/CMU-CMU-137-137_40_poses.xml" />
+  <include file="./keyframes/CMU-CMU-103-103_08_poses.xml" />
 </mujoco>

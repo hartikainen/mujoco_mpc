@@ -18,10 +18,10 @@
       <default class="foot">
         <geom size=".027"/>
         <default class="foot1">
-          <geom fromto="-.07 -.01 0 .14 -.03 0"/>
+          <geom fromto="-.05 -.01 0 .12 -.03 0"/>
         </default>
         <default class="foot2">
-          <geom fromto="-.07 .01 0 .14  .03 0"/>
+          <geom fromto="-.05 .01 0 .12  .03 0"/>
         </default>
       </default>
       <default class="arm_upper">

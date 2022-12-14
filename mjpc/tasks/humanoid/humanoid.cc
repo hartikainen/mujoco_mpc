@@ -344,6 +344,10 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
 
+  // ----- joint velocity ----- //
+  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
+  counter += model->nv - 6;
+
   std::array<std::string, 16> body_names = {
     "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
     "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
@@ -355,7 +359,10 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     std::string mocap_body_name = "mocap-" + body_name;
     std::string sensor_name = "tracking_pose[" + body_name + "]";
     int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
-    assert (0 <= body_mocapid);
+    if (body_mocapid < 0) {
+      printf("%s\n", mocap_body_name.c_str());
+    }
+    // assert(0 <= body_mocapid);
     mju_sub3(&residual[counter],
              data->mocap_pos + 3 * body_mocapid,
              mjpc::SensorByName(model, data, sensor_name.c_str()));

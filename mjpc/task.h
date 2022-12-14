@@ -60,7 +60,7 @@ class Task {
   void Residuals(const mjModel* m, const mjData* d, double* residuals) const;
 
   // apply transition function
-  void Transition(const mjModel* m, mjData* d);
+  void Transition(const mjModel* m, mjData* d) const;
 
   int id = 0;             // task ID
   int transition_state;   // state

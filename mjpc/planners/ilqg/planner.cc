@@ -54,7 +54,7 @@ void iLQGPlanner::Initialize(mjModel* model, const Task& task) {
   dim_max = 10 * mju_max(mju_max(mju_max(dim_state, dim_state_derivative),
                                  dim_action),
                          model->nuser_sensor);
-  num_trajectory = GetNumberOrDefault(16, model, "ilqg_num_rollouts");
+  num_trajectory = GetNumberOrDefault(10, model, "ilqg_num_rollouts");
   settings.regularization_type = GetNumberOrDefault(
       settings.regularization_type, model, "ilqg_regularization_type");
 }

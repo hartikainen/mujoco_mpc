@@ -319,7 +319,7 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
     double* sensor_vel = mjpc::SensorByName(model, data, vel_sensor_name.c_str());
 
     mju_sub3(&residual[counter],
-             mocap_body_vel,
+             data->mocap_quat + 3 * body_mocapid,
              sensor_vel);
     counter += 3;
 

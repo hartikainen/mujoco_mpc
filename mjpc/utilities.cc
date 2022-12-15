@@ -497,7 +497,7 @@ void PlotUpdateData(mjvFigure* fig, double* bounds, double x, double y,
 // reset plot data to zeros
 void PlotResetData(mjvFigure* fig, int length, int index) {
   if (index >= mjMAXLINE) {
-    std::cerr << "Too many plots requested: " << index << '\n';
+    // std::cerr << "Too many plots requested: " << index << '\n';
     return;
   }
   int pnt = mjMIN(length, fig->linepnt[index] + 1);

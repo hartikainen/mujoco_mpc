@@ -207,7 +207,9 @@ add_library(
   tasks/hand/hand.h
   tasks/humanoid/humanoid.cc
   tasks/humanoid/humanoid.h
-  tasks/humanoid_cmu/humanoid_cmu.cc
+  tasks/humanoid_cmu/stand/task.cc
+  tasks/humanoid_cmu/track_sequence/task.cc
+  tasks/humanoid_cmu/walk/task.cc
   tasks/humanoid_cmu/humanoid_cmu.h
   tasks/particle/particle.cc
   tasks/particle/particle.h

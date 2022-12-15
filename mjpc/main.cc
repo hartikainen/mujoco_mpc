@@ -826,7 +826,7 @@ void PhysicsLoop(mj::Simulate& sim) {
       if (id != -1) {
         mju_copy(sim.dnew->qvel, m->key_qvel + m->nv * id, sim.mnew->nv);
       }
-      
+
       // decrement counter
       sim.uiloadrequest.fetch_sub(1);
     }

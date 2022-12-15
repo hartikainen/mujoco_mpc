@@ -20,7 +20,7 @@
 #include "task.h"
 
 namespace mjpc {
-inline constexpr int kNumTasks = 14;
+inline constexpr int kNumTasks = 15;
 extern const TaskDefinition (&kTasks)[kNumTasks];
 }  // namespace mjpc
 

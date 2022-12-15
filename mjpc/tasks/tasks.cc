@@ -33,31 +33,37 @@ namespace {
 // kNumTasks and the size of the array initializer.
 const TaskDefinition kTasksArray[]{
     {
-        .name = "Humanoid",
+        .name = "HumanoidCMU Tracking",
+        .xml_path = "humanoid_cmu/track_sequence/task.xml",
+        .residual = &HumanoidCMU::ResidualTrackSequence,
+        .transition = &HumanoidCMU::TransitionTrackSequence,
+    },
+    {
+        .name = "HumanoidCMU Walk",
+        .xml_path = "humanoid_cmu/track_sequence/task.xml",
+        .residual = &HumanoidCMU::ResidualTrackSequence,
+        .transition = &HumanoidCMU::TransitionTrackSequence,
+    },
+    {
+        .name = "Humanoid Tracking",
         .xml_path = "humanoid/task_track_sequence.xml",
         .residual = &Humanoid::ResidualTrackSequence,
         .transition = &Humanoid::TransitionTrackSequence,
     },
     {
-        .name = "Humanoid_CMU",
-        .xml_path = "humanoid_cmu/task_track_sequence.xml",
-        .residual = &HumanoidCMU::ResidualTrackSequence,
-        .transition = &HumanoidCMU::TransitionTrackSequence,
-    },
-    {
-        .name = "Humanoid_CMU",
-        .xml_path = "humanoid_cmu/task_stand.xml",
+        .name = "HumanoidCMU Stand",
+        .xml_path = "humanoid_cmu/stand/task.xml",
         .residual = &HumanoidCMU::ResidualStand,
-    },
-    {
-        .name = "Humanoid Stand",
-        .xml_path = "humanoid/task_stand.xml",
-        .residual = &Humanoid::ResidualStand,
     },
     {
         .name = "Humanoid Walk",
         .xml_path = "humanoid/task_walk.xml",
         .residual = &Humanoid::ResidualWalk,
+    },
+    {
+        .name = "Humanoid Stand",
+        .xml_path = "humanoid/task_stand.xml",
+        .residual = &Humanoid::ResidualStand,
     },
     {
         .name = "Swimmer",

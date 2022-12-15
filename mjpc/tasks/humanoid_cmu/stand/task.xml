@@ -1,6 +1,6 @@
 <mujoco model="HumanoidCMU">
-  <include file="../common.xml"/>
-  <include file="humanoid_CMU_V2020.xml" />
+  <include file="../../common.xml"/>
+  <include file="../humanoid_CMU_V2020.xml" />
   <size memory="1M"/>
 
   <custom>

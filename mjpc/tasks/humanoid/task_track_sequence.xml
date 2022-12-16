@@ -65,8 +65,8 @@
   </worldbody>
 
   <sensor>
-    <user name="control" dim="21" user="0 0.1 0 1.0" />
-    <user name="joint vel." dim="21" user="0 0.01 0.0 1.0" />
+    <user name="control" dim="21" user="3 0.025 0.0 0.1 0.3" />
+    <user name="joint vel." dim="27" user="0 0.01 0.0 1.0" />
 
     <user name="root pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
     <user name="head pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />

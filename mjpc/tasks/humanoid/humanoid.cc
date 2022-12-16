@@ -275,8 +275,8 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   counter += model->nu;
 
   // ----- joint velocity ----- //
-  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
-  counter += model->nv - 6;
+  mju_copy(residual + counter, data->qvel, model->nv);
+  counter += model->nv;
 
   std::array<std::string, 16> body_names = {
     "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
@@ -307,9 +307,9 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
       printf("%s\n", mocap_body_name.c_str());
     }
 
-    double current_mocap_body_pos[3] = {0.0};
+    double current_mocap_body_pos[3];
     mju_copy3(current_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 0) + 3 * body_mocapid);
-    double next_mocap_body_pos[3] = {0.0};
+    double next_mocap_body_pos[3];
     mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
 
     double mocap_body_vel[3];

@@ -93,6 +93,10 @@ def main():
       size="0.027",
       rgba="1 0 0 1",
       group="3")
+    # mocap_body_element = ET.Element(
+    #   "body",
+    #   name=f"tracking-{mocap_site_name}",
+    #   pos=" ".join(map(str, mocap_site_offset)))
     geom_parent_element = root_body_element.find(f".//geom[@name='{mocap_site_name}']...")
     assert geom_parent_element is not None
     # geom_element = root_body_element.find(f".//geom[@name='{mocap_site_name}']")
@@ -100,6 +104,12 @@ def main():
     # mocap_site_index = geom_index + 1
     mocap_site_index = 0
     geom_parent_element.insert(mocap_site_index, mocap_site_element)
+    # geom_parent_element.insert(mocap_site_index, mocap_body_element)
+
+  # For pybullet:
+  # joint_elements = root_body_element.findall(f".//joint")
+  # for joint_element in joint_elements:
+  #   joint_element.set("type", "hinge")
 
   tree = ET.ElementTree(root_element)
   ET.indent(tree)

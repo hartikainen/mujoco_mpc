@@ -118,7 +118,7 @@ def main():
   output_str = output_str.replace(" /", "/")
   # output_str = minidom.parseString(ET.tostring(tree.getroot())).toprettyxml(indent="  ")
 
-  output_path = pathlib.Path("/tmp/humanoid_CMU_mjpc.xml")
+  output_path = pathlib.Path("/tmp/cmu_humanoid_mjpc.xml")
   output_path.parent.mkdir(parents=True, exist_ok=True)
   with output_path.open("wt") as f:
     f.write(output_str)

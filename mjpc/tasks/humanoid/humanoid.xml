@@ -3,7 +3,7 @@
   <statistic extent="2" center="0 0 1"/>
 
   <default>
-    <motor ctrlrange="-1.5 1.5" ctrllimited="true"/>
+    <motor ctrlrange="-1 1" ctrllimited="true"/>
     <site size=".04" group="3"/>
     <default class="body">
 

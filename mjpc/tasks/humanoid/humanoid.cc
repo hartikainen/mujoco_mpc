@@ -285,8 +285,8 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   };
 
   for (const auto& body_name : body_names) {
-    std::string mocap_body_name = "mocap-" + body_name;
-    std::string pos_sensor_name = "tracking_pose[" + body_name + "]";
+    std::string mocap_body_name = "mocap[" + body_name + "]";
+    std::string pos_sensor_name = "tracking_pos[" + body_name + "]";
     int body_mocapid = model->body_mocapid[mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
     assert(0 <= body_mocapid);
 
@@ -303,26 +303,26 @@ void Humanoid::ResidualTrackSequence(const double* parameters, const mjModel* mo
   }
 
   for (const auto& body_name : body_names) {
-    std::string mocap_body_name = "mocap-" + body_name;
-    std::string vel_sensor_name = "tracking_vel[" + body_name + "]";
+    std::string mocap_body_name = "mocap[" + body_name + "]";
+    std::string linvel_sensor_name = "tracking_linvel[" + body_name + "]";
     int body_mocapid = model->body_mocapid[
       mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str())];
     assert(0 <= body_mocapid);
 
-    double mocap_body_vel[3];
-    mju_copy3(mocap_body_vel, data->mocap_quat + 3 * body_mocapid);
+    double mocap_body_linvel[3];
+    mju_copy3(mocap_body_linvel, data->mocap_quat + 3 * body_mocapid);
     // double current_mocap_body_pos[3];
     // mju_copy3(current_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 0) + 3 * body_mocapid);
     // double next_mocap_body_pos[3];
     // mju_copy3(next_mocap_body_pos, model->key_mpos + model->nmocap * 3 * (step_index + 1) + 3 * body_mocapid);
-    // mju_sub3(mocap_body_vel, next_mocap_body_pos, current_mocap_body_pos);
-    // mju_scl3(mocap_body_vel, mocap_body_vel, fps);
+    // mju_sub3(mocap_body_linvel, next_mocap_body_pos, current_mocap_body_pos);
+    // mju_scl3(mocap_body_linvel, mocap_body_linvel, fps);
 
-    double* sensor_vel = mjpc::SensorByName(model, data, vel_sensor_name.c_str());
+    double* sensor_linvel = mjpc::SensorByName(model, data, linvel_sensor_name.c_str());
 
     mju_sub3(&residual[counter],
-             mocap_body_vel,
-             sensor_vel);
+             mocap_body_linvel,
+             sensor_linvel);
     counter += 3;
   }
 

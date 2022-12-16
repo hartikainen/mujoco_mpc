@@ -87,7 +87,7 @@ def main():
   for mocap_site_name, mocap_site_offset in mocap_site_names_and_offsets:
     mocap_site_element = ET.Element(
       "site",
-      name=f"tracking-{mocap_site_name}",
+      name=f"tracking[{mocap_site_name}]",
       type="sphere",
       pos=" ".join(map(str, mocap_site_offset)),
       size="0.027",
@@ -95,7 +95,7 @@ def main():
       group="3")
     # mocap_body_element = ET.Element(
     #   "body",
-    #   name=f"tracking-{mocap_site_name}",
+    #   name=f"tracking[{mocap_site_name}]",
     #   pos=" ".join(map(str, mocap_site_offset)))
     geom_parent_element = root_body_element.find(f".//geom[@name='{mocap_site_name}']...")
     assert geom_parent_element is not None

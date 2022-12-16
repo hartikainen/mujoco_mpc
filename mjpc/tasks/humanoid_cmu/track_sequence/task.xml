@@ -16,53 +16,53 @@
   <worldbody>
     <geom name="floor" pos="0 0 -0.2" size="0 0 0.05" type="plane" material="blue_grid"/>
 
-    <body name="mocap-pelvis" mocap="true">
-      <site name="mocap-pelvis" type="sphere" size="0.05" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[pelvis]" mocap="true">
+      <site name="mocap[pelvis]" type="sphere" size="0.05" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-head" mocap="true">
-      <site name="mocap-head" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[head]" mocap="true">
+      <site name="mocap[head]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-ltoe" mocap="true">
-      <site name="mocap-ltoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[ltoe]" mocap="true">
+      <site name="mocap[ltoe]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rtoe" mocap="true">
-      <site name="mocap-rtoe" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rtoe]" mocap="true">
+      <site name="mocap[rtoe]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lheel" mocap="true">
-      <site name="mocap-lheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lheel]" mocap="true">
+      <site name="mocap[lheel]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rheel" mocap="true">
-      <site name="mocap-rheel" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rheel]" mocap="true">
+      <site name="mocap[rheel]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lknee" mocap="true">
-      <site name="mocap-lknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lknee]" mocap="true">
+      <site name="mocap[lknee]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rknee" mocap="true">
-      <site name="mocap-rknee" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rknee]" mocap="true">
+      <site name="mocap[rknee]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lhand" mocap="true">
-      <site name="mocap-lhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lhand]" mocap="true">
+      <site name="mocap[lhand]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rhand" mocap="true">
-      <site name="mocap-rhand" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rhand]" mocap="true">
+      <site name="mocap[rhand]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lelbow" mocap="true">
-      <site name="mocap-lelbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lelbow]" mocap="true">
+      <site name="mocap[lelbow]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-relbow" mocap="true">
-      <site name="mocap-relbow" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[relbow]" mocap="true">
+      <site name="mocap[relbow]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lshoulder" mocap="true">
-      <site name="mocap-lshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lshoulder]" mocap="true">
+      <site name="mocap[lshoulder]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rshoulder" mocap="true">
-      <site name="mocap-rshoulder" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rshoulder]" mocap="true">
+      <site name="mocap[rshoulder]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-lhip" mocap="true">
-      <site name="mocap-lhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[lhip]" mocap="true">
+      <site name="mocap[lhip]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
-    <body name="mocap-rhip" mocap="true">
-      <site name="mocap-rhip" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
+    <body name="mocap[rhip]" mocap="true">
+      <site name="mocap[rhip]" type="sphere" size="0.03" group="0" rgba="0 0 1 1" material="target" />
     </body>
   </worldbody>
 
@@ -106,39 +106,39 @@
 
     <framepos name="trace" objtype="body" objname="thorax"/>
 
-    <framepos name="tracking_pose[pelvis]" objtype="site" objname="root"/>
-    <framepos name="tracking_pose[head]" objtype="site" objname="tracking-head"/>
-    <framepos name="tracking_pose[ltoe]" objtype="site" objname="tracking-ltoes0"/>
-    <framepos name="tracking_pose[rtoe]" objtype="site" objname="tracking-rtoes0"/>
-    <framepos name="tracking_pose[lheel]" objtype="site" objname="tracking-lfoot"/>
-    <framepos name="tracking_pose[rheel]" objtype="site" objname="tracking-rfoot"/>
-    <framepos name="tracking_pose[lknee]" objtype="site" objname="tracking-ltibia"/>
-    <framepos name="tracking_pose[rknee]" objtype="site" objname="tracking-rtibia"/>
-    <framepos name="tracking_pose[lhand]" objtype="site" objname="tracking-lwrist"/>
-    <framepos name="tracking_pose[rhand]" objtype="site" objname="tracking-rwrist"/>
-    <framepos name="tracking_pose[lelbow]" objtype="site" objname="tracking-lradius"/>
-    <framepos name="tracking_pose[relbow]" objtype="site" objname="tracking-rradius"/>
-    <framepos name="tracking_pose[lshoulder]" objtype="site" objname="tracking-lhumerus"/>
-    <framepos name="tracking_pose[rshoulder]" objtype="site" objname="tracking-rhumerus"/>
-    <framepos name="tracking_pose[lhip]" objtype="site" objname="tracking-lfemur"/>
-    <framepos name="tracking_pose[rhip]" objtype="site" objname="tracking-rfemur"/>
+    <framepos name="tracking_pos[pelvis]" objtype="site" objname="root"/>
+    <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]"/>
+    <framepos name="tracking_pos[ltoe]" objtype="site" objname="tracking[ltoes0]"/>
+    <framepos name="tracking_pos[rtoe]" objtype="site" objname="tracking[rtoes0]"/>
+    <framepos name="tracking_pos[lheel]" objtype="site" objname="tracking[lfoot]"/>
+    <framepos name="tracking_pos[rheel]" objtype="site" objname="tracking[rfoot]"/>
+    <framepos name="tracking_pos[lknee]" objtype="site" objname="tracking[ltibia]"/>
+    <framepos name="tracking_pos[rknee]" objtype="site" objname="tracking[rtibia]"/>
+    <framepos name="tracking_pos[lhand]" objtype="site" objname="tracking[lwrist]"/>
+    <framepos name="tracking_pos[rhand]" objtype="site" objname="tracking[rwrist]"/>
+    <framepos name="tracking_pos[lelbow]" objtype="site" objname="tracking[lradius]"/>
+    <framepos name="tracking_pos[relbow]" objtype="site" objname="tracking[rradius]"/>
+    <framepos name="tracking_pos[lshoulder]" objtype="site" objname="tracking[lhumerus]"/>
+    <framepos name="tracking_pos[rshoulder]" objtype="site" objname="tracking[rhumerus]"/>
+    <framepos name="tracking_pos[lhip]" objtype="site" objname="tracking[lfemur]"/>
+    <framepos name="tracking_pos[rhip]" objtype="site" objname="tracking[rfemur]"/>
 
-    <framelinvel name="tracking_vel[pelvis]" objtype="site" objname="root"/>
-    <framelinvel name="tracking_vel[head]" objtype="site" objname="tracking-head"/>
-    <framelinvel name="tracking_vel[ltoe]" objtype="site" objname="tracking-ltoes0"/>
-    <framelinvel name="tracking_vel[rtoe]" objtype="site" objname="tracking-rtoes0"/>
-    <framelinvel name="tracking_vel[lheel]" objtype="site" objname="tracking-lfoot"/>
-    <framelinvel name="tracking_vel[rheel]" objtype="site" objname="tracking-rfoot"/>
-    <framelinvel name="tracking_vel[lknee]" objtype="site" objname="tracking-ltibia"/>
-    <framelinvel name="tracking_vel[rknee]" objtype="site" objname="tracking-rtibia"/>
-    <framelinvel name="tracking_vel[lhand]" objtype="site" objname="tracking-lwrist"/>
-    <framelinvel name="tracking_vel[rhand]" objtype="site" objname="tracking-rwrist"/>
-    <framelinvel name="tracking_vel[lelbow]" objtype="site" objname="tracking-lradius"/>
-    <framelinvel name="tracking_vel[relbow]" objtype="site" objname="tracking-rradius"/>
-    <framelinvel name="tracking_vel[lshoulder]" objtype="site" objname="tracking-lhumerus"/>
-    <framelinvel name="tracking_vel[rshoulder]" objtype="site" objname="tracking-rhumerus"/>
-    <framelinvel name="tracking_vel[lhip]" objtype="site" objname="tracking-lfemur"/>
-    <framelinvel name="tracking_vel[rhip]" objtype="site" objname="tracking-rfemur"/>
+    <framelinvel name="tracking_linvel[pelvis]" objtype="site" objname="root"/>
+    <framelinvel name="tracking_linvel[head]" objtype="site" objname="tracking[head]"/>
+    <framelinvel name="tracking_linvel[ltoe]" objtype="site" objname="tracking[ltoes0]"/>
+    <framelinvel name="tracking_linvel[rtoe]" objtype="site" objname="tracking[rtoes0]"/>
+    <framelinvel name="tracking_linvel[lheel]" objtype="site" objname="tracking[lfoot]"/>
+    <framelinvel name="tracking_linvel[rheel]" objtype="site" objname="tracking[rfoot]"/>
+    <framelinvel name="tracking_linvel[lknee]" objtype="site" objname="tracking[ltibia]"/>
+    <framelinvel name="tracking_linvel[rknee]" objtype="site" objname="tracking[rtibia]"/>
+    <framelinvel name="tracking_linvel[lhand]" objtype="site" objname="tracking[lwrist]"/>
+    <framelinvel name="tracking_linvel[rhand]" objtype="site" objname="tracking[rwrist]"/>
+    <framelinvel name="tracking_linvel[lelbow]" objtype="site" objname="tracking[lradius]"/>
+    <framelinvel name="tracking_linvel[relbow]" objtype="site" objname="tracking[rradius]"/>
+    <framelinvel name="tracking_linvel[lshoulder]" objtype="site" objname="tracking[lhumerus]"/>
+    <framelinvel name="tracking_linvel[rshoulder]" objtype="site" objname="tracking[rhumerus]"/>
+    <framelinvel name="tracking_linvel[lhip]" objtype="site" objname="tracking[lfemur]"/>
+    <framelinvel name="tracking_linvel[rhip]" objtype="site" objname="tracking[rfemur]"/>
   </sensor>
 
   <!-- <include file="./keyframes/CMU-CMU-02-02_04_poses.xml"/> -->

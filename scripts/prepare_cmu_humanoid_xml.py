@@ -20,6 +20,22 @@ def main():
   root_element = ET.fromstring(xml_string)
   root_element.set("model", "HumanoidCMU")
 
+  default_element = root_element.find("default")
+  assert default_element is not None
+  humanoid_default_element = default_element.find("default[@class='humanoid']")
+  assert humanoid_default_element is not None
+  tracking_site_default = ET.SubElement(
+    humanoid_default_element,
+    "default",
+    attrib={"class": "tracking_site"})
+  _ = ET.SubElement(
+    tracking_site_default,
+    "site",
+    type="sphere",
+    size="0.027",
+    rgba="1 0 0 1",
+    group="3")
+
   sensor_element = root_element.find("sensor")
   assert sensor_element is not None
   root_element.remove(sensor_element)
@@ -80,19 +96,16 @@ def main():
 
   root_site = root_body_element.find("site[@name='root']")
   assert root_site is not None
-  root_site.set("size", "0.027")
-  root_site.set("rgba", "1 0 0 1")
-  root_site.set("group", "3")
+  root_site.set("size", "0.05")
+  root_site.set("class", "tracking_site")
+  del root_site.attrib["rgba"]
 
   for mocap_site_name, mocap_site_offset in mocap_site_names_and_offsets:
     mocap_site_element = ET.Element(
       "site",
       name=f"tracking[{mocap_site_name}]",
-      type="sphere",
       pos=" ".join(map(str, mocap_site_offset)),
-      size="0.027",
-      rgba="1 0 0 1",
-      group="3")
+      attrib={"class": "tracking_site"})
     # mocap_body_element = ET.Element(
     #   "body",
     #   name=f"tracking[{mocap_site_name}]",

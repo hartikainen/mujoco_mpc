@@ -1,5 +1,5 @@
-#ifndef MJPC_TASKS_HUMANOID_HUMANOID_CMU_H_
-#define MJPC_TASKS_HUMANOID_HUMANOID_CMU_H_
+#ifndef MJPC_TASKS_HUMANOID_CMU_HUMANOID_CMU_H_
+#define MJPC_TASKS_HUMANOID_CMU_HUMANOID_CMU_H_
 
 #include <mujoco/mujoco.h>
 
@@ -53,4 +53,4 @@ struct HumanoidCMU {
 };
 }  // namespace mjpc
 
-#endif  // MJPC_TASKS_HUMANOID_HUMANOID_CMU_H_
+#endif  // MJPC_TASKS_HUMANOID_CMU_HUMANOID_CMU_H_

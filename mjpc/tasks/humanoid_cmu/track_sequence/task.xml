@@ -110,7 +110,7 @@
     <user name="lhip vel error" dim="3" user="6 0.01 0.0 100.0 0.1" />
     <user name="rhip vel error" dim="3" user="6 0.01 0.0 100.0 0.1" />
 
-    <framepos name="trace" objtype="body" objname="thorax"/>
+    <framepos name="trace0" objtype="body" objname="thorax"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="root"/>
     <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]"/>

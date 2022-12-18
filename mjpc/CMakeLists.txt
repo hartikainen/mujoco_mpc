@@ -208,9 +208,11 @@ add_library(
   tasks/humanoid/humanoid.cc
   tasks/humanoid/humanoid.h
   tasks/humanoid_cmu/stand/task.cc
+  tasks/humanoid_cmu/stand/task.h
   tasks/humanoid_cmu/track_sequence/task.cc
+  tasks/humanoid_cmu/track_sequence/task.h
   tasks/humanoid_cmu/walk/task.cc
-  tasks/humanoid_cmu/humanoid_cmu.h
+  tasks/humanoid_cmu/walk/task.h
   tasks/particle/particle.cc
   tasks/particle/particle.h
   tasks/quadrotor/quadrotor.cc

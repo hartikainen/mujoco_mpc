@@ -1,4 +1,4 @@
-#include "tasks/humanoid_cmu/humanoid_cmu.h"
+#include "tasks/humanoid_cmu/walk/task.h"
 #include "mujoco/mjmodel.h"
 
 #include <array>

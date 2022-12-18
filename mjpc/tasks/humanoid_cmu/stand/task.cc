@@ -22,8 +22,8 @@ namespace mjpc {
 //   Number of parameters: 1
 //     Parameter (0): height_goal
 // -------------------------------------------------------------------
-void HumanoidCMU::ResidualStand(const double* parameters, const mjModel* model,
-                                const mjData* data, double* residual) {
+void HumanoidCMU::Stand::Residual(const double* parameters, const mjModel* model,
+                                  const mjData* data, double* residual) {
   int counter = 0;
 
   // ----- Height: head feet vertical error ----- //

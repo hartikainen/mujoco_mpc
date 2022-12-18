@@ -35,14 +35,8 @@ const TaskDefinition kTasksArray[]{
     {
         .name = "HumanoidCMU Tracking",
         .xml_path = "humanoid_cmu/track_sequence/task.xml",
-        .residual = &HumanoidCMU::ResidualTrackSequence,
-        .transition = &HumanoidCMU::TransitionTrackSequence,
-    },
-    {
-        .name = "HumanoidCMU Walk",
-        .xml_path = "humanoid_cmu/track_sequence/task.xml",
-        .residual = &HumanoidCMU::ResidualTrackSequence,
-        .transition = &HumanoidCMU::TransitionTrackSequence,
+        .residual = &HumanoidCMU::TrackSequence::Residual,
+        .transition = &HumanoidCMU::TrackSequence::Transition,
     },
     {
         .name = "Humanoid Tracking",
@@ -51,9 +45,14 @@ const TaskDefinition kTasksArray[]{
         .transition = &Humanoid::TransitionTrackSequence,
     },
     {
+        .name = "HumanoidCMU Walk",
+        .xml_path = "humanoid_cmu/walk/task.xml",
+        .residual = &HumanoidCMU::Walk::Residual,
+    },
+    {
         .name = "HumanoidCMU Stand",
         .xml_path = "humanoid_cmu/stand/task.xml",
-        .residual = &HumanoidCMU::ResidualStand,
+        .residual = &HumanoidCMU::Stand::Residual,
     },
     {
         .name = "Humanoid Walk",

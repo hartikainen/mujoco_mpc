@@ -26,8 +26,8 @@ namespace mjpc {
 //     Parameter (0): torso height goal
 //     Parameter (1): speed goal
 // -------------------------------------------------------------------
-void HumanoidCMU::ResidualWalk(const double* parameters, const mjModel* model,
-                            const mjData* data, double* residual) {
+void HumanoidCMU::Walk::Residual(const double* parameters, const mjModel* model,
+                                 const mjData* data, double* residual) {
   int counter = 0;
 
   // ----- torso height ----- //

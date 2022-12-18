@@ -18,8 +18,8 @@ namespace mjpc {
 //   Number of parameters: TODO(hartikainen)
 //     Parameter (0): TODO(hartikainen)
 // -------------------------------------------------------------------
-void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel* model,
-                                        const mjData* data, double* residual) {
+void HumanoidCMU::TrackSequence::Residual(const double* parameters, const mjModel* model,
+                                          const mjData* data, double* residual) {
   int counter = 0;
 
   // float fps = 30.0;
@@ -99,7 +99,7 @@ void HumanoidCMU::ResidualTrackSequence(const double* parameters, const mjModel*
 // -------- Transition for HumanoidCMU tracking task ---------
 //   TODO(hartikainen)
 // -----------------------------------------------------------
-int HumanoidCMU::TransitionTrackSequence(int state, const mjModel* model, mjData* data) {
+int HumanoidCMU::TrackSequence::Transition(int state, const mjModel* model, mjData* data) {
   // TODO(hartikainen): Add distance-based target transition logic.
   // TODO(hartikainen): is `data->time` the right thing to index here?
   float fps = 30.0;

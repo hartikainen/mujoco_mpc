@@ -5,6 +5,9 @@
 
 namespace mjpc {
 struct HumanoidCMU {
+
+struct Stand {
+
   // -------------- Residuals for HumanoidCMU stand task ------------
   //   Number of residuals: 6
   //     Residual (0): control
@@ -16,8 +19,12 @@ struct HumanoidCMU {
   //   Number of parameters: 1
   //     Parameter (0): height_goal
   // ----------------------------------------------------------------
-  static void ResidualStand(const double* parameters, const mjModel* model,
-                            const mjData* data, double* residual);
+  static void Residual(const double* parameters, const mjModel* model,
+                       const mjData* data, double* residual);
+
+};
+
+struct Walk {
 
   // --------------- Residuals for HumanoidCMU walk task ------------
   //   Number of residuals:
@@ -33,8 +40,12 @@ struct HumanoidCMU {
   //     Parameter (0): torso height goal
   //     Parameter (1): speed goal
   // ----------------------------------------------------------------
-  static void ResidualWalk(const double* parameters, const mjModel* model,
-                            const mjData* data, double* residual);
+  static void Residual(const double* parameters, const mjModel* model,
+                       const mjData* data, double* residual);
+
+};
+
+struct TrackSequence {
 
   // ----------- Residuals for HumanoidCMU tracking task ------------
   //   Number of residuals: TODO(hartikainen)
@@ -42,15 +53,18 @@ struct HumanoidCMU {
   //   Number of parameters: TODO(hartikainen)
   //     Parameter (0): TODO(hartikainen)
   // ----------------------------------------------------------------
-  static void ResidualTrackSequence(const double* parameters, const mjModel* model,
-                                    const mjData* data, double* residual);
+  static void Residual(const double* parameters, const mjModel* model,
+                       const mjData* data, double* residual);
 
   // -------- Transition for HumanoidCMU tracking task ---------
   //   TODO(hartikainen)
   // -----------------------------------------------------------
-  static int TransitionTrackSequence(int state, const mjModel* model, mjData* data);
+  static int Transition(int state, const mjModel* model, mjData* data);
 
 };
+
+};
+
 }  // namespace mjpc
 
 #endif  // MJPC_TASKS_HUMANOID_CMU_HUMANOID_CMU_H_

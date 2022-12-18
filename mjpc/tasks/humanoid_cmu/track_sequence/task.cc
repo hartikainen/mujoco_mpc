@@ -103,8 +103,7 @@ int HumanoidCMU::TrackSequence::Transition(int state, const mjModel* model, mjDa
   // TODO(hartikainen): Add distance-based target transition logic.
   // TODO(hartikainen): is `data->time` the right thing to index here?
   float fps = 30.0;
-  // int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
-  int step_index = 0;
+  int step_index = std::min((int) (data->time * fps), (model->nkey) - 1);
   mju_copy(data->mocap_pos,
            model->key_mpos + model->nmocap * 3 * (step_index + 0),
            model->nmocap * 3);

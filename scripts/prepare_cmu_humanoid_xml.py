@@ -3,6 +3,7 @@ import xml.etree.cElementTree as ET
 from xml.dom import minidom
 
 import requests
+import numpy as np
 # import urllib.request
 
 DM_CONTROL_VERSION = "1.0.9"
@@ -89,39 +90,54 @@ def main():
 
   mocap_site_names_and_offsets = (
     # ("root", (0, 0, 0)),  # Root site already exists. See below.
-    ("head", (0, 0, 0.1)),
-    ("ltoes", (0, 0, 0)),
-    ("rtoes", (0, 0, 0)),
-    ("lfoot", (0, 0, 0.05)),
-    ("rfoot", (0, 0, 0.05)),
-    ("ltibia", (0, 0, 0)),
-    ("rtibia", (0, 0, 0)),
-    ("lhand", (0, 0, 0)),
-    ("rhand", (0, 0, 0)),
-    ("lradius", (0, 0, 0)),
-    ("rradius", (0, 0, 0)),
-    ("lhumerus", (0, 0, 0)),
-    ("rhumerus", (0, 0, 0)),
-    ("lfemur", (0, 0, 0)),
-    ("rfemur", (0, 0, 0)),
+    # ("head", (0, 0, 0.1)),  # Handle head manually. See below.
+    ("ltoes", (0.0, -0.02, 0.0)),
+    ("rtoes", (0.0, -0.02, 0.0)),
+    ("lfoot", (0.0, -0.030693, 0.0)),
+    ("rfoot", (0.0, -0.030693, 0.0)),
+    ("ltibia", (0.0, -0.02, 0.0)),
+    ("rtibia", (0.0, -0.02, 0.0)),
+    ("lhand", (0.0, 0.0, 0.0)),
+    ("rhand", (0.0, 0.0, 0.0)),
+    ("lradius", (0.0, 0.013157, 0.0)),
+    ("rradius", (0.0, 0.013157, 0.0)),
+    ("lhumerus", (0.002, 0.0325, -0.004)),
+    ("rhumerus", (-0.002, 0.0325, -0.004)),
+    ("lfemur", (0.031937, 0.01, 0.039446)),
+    ("rfemur", (-0.031937, 0.01, 0.039446)),
   )
 
   root_site = root_body_element.find("site[@name='root']")
   assert root_site is not None
   root_site.set("size", "0.05")
   root_site.set("class", "tracking_site")
+  root_site.set("pos", "0 -0.0121 0")
   del root_site.attrib["rgba"]
 
+  head_body_element = root_body_element.find(".//body[@name='head']")
+  head_site_element = ET.Element(
+      "site",
+      name="tracking[head]",
+      pos=" ".join(list(map(str, (0, 0, 0.1)))),
+      attrib={"class": "tracking_site"})
+  head_body_element.insert(0, head_site_element)
+
   for mocap_site_name, mocap_site_offset in mocap_site_names_and_offsets:
+    body_element = root_body_element.find(f".//body[@name='{mocap_site_name}']")
+    assert body_element is not None
+    body_element_parent = root_body_element.find(f".//body[@name='{mocap_site_name}']...")
+    assert body_element_parent is not None
+
+    body_pos = np.array(list(map(float, body_element.get("pos").split(" "))))
+    mocap_site_pos = body_pos - mocap_site_offset
+
     mocap_site_element = ET.Element(
       "site",
       name=f"tracking[{mocap_site_name}]",
-      pos=" ".join(map(str, mocap_site_offset)),
+      pos=" ".join(list(map(str, mocap_site_pos.round(3)))),
       attrib={"class": "tracking_site"})
-    body_element = root_body_element.find(f".//body[@name='{mocap_site_name}']")
-    assert body_element is not None
-    mocap_site_index = 0
-    body_element.insert(mocap_site_index, mocap_site_element)
+    mocap_site_index = list(body_element_parent).index(body_element)
+    body_element_parent.insert(mocap_site_index, mocap_site_element)
 
   # For pybullet:
   # joint_elements = root_body_element.findall(f".//joint")

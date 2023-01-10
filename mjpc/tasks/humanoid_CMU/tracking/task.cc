@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "tasks/humanoid/tracking/task.h"
+#include "tasks/humanoid_CMU/tracking/task.h"
 
 #include <array>
 #include <cassert>
@@ -25,14 +25,14 @@
 
 namespace mjpc {
 
-// ------------- Residuals for humanoid tracking task -------------
+// ----------- Residuals for CMU humanoid tracking task -----------
 //   Number of residuals: TODO(hartikainen)
 //     Residual (0): TODO(hartikainen)
 //   Number of parameters: TODO(hartikainen)
 //     Parameter (0): TODO(hartikainen)
 // ----------------------------------------------------------------
-  void Humanoid::Tracking::Residual(const double* parameters, const mjModel* model,
-                                    const mjData* data, double* residual) {
+  void HumanoidCMU::Tracking::Residual(const double* parameters, const mjModel* model,
+                                       const mjData* data, double* residual) {
     int counter = 0;
 
     // float fps = 30.0;
@@ -46,7 +46,7 @@ namespace mjpc {
     counter += model->nv;
 
     std::array<std::string, 16> body_names = {
-      "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
+      "root", "head", "ltoes", "rtoes", "lheel", "rheel", "lknee", "rknee",
       "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",
       "rhip",
     };
@@ -109,10 +109,10 @@ namespace mjpc {
 
   }
 
-  // -------- Transition for humanoid task ---------
+  // ------ Transition for CMU humanoid task -------
   //   TODO(hartikainen)
   // -----------------------------------------------
-  int Humanoid::Tracking::Transition(int state, const mjModel* model, mjData* data) {
+  int HumanoidCMU::Tracking::Transition(int state, const mjModel* model, mjData* data) {
     // TODO(hartikainen): Add distance-based target transition logic.
     // TODO(hartikainen): is `data->time` the right thing to index here?
     float fps = 30.0;

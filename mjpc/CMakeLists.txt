@@ -236,6 +236,8 @@ add_library(
   tasks/humanoid/tracking/task.h
   tasks/humanoid/walk/task.cc
   tasks/humanoid/walk/task.h
+  tasks/humanoid_CMU/tracking/task.cc
+  tasks/humanoid_CMU/tracking/task.h
   tasks/panda/panda.cc
   tasks/panda/panda.h
   tasks/particle/particle.cc

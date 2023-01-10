@@ -20,6 +20,7 @@
 #include "tasks/humanoid/stand/task.h"
 #include "tasks/humanoid/tracking/task.h"
 #include "tasks/humanoid/walk/task.h"
+#include "tasks/humanoid_CMU/tracking/task.h"
 #include "tasks/panda/panda.h"
 // DEEPMIND INTERNAL IMPORT
 #include "tasks/particle/particle.h"
@@ -35,6 +36,12 @@ namespace {
 // sized reference afterward. This way the compiler enforces equality between
 // kNumTasks and the size of the array initializer.
 const TaskDefinition<const char*> kTasksArray[]{
+    {
+        .name = "CMU Humanoid Track",
+        .xml_path = "humanoid_CMU/tracking/task.xml",
+        .residual = &HumanoidCMU::Tracking::Residual,
+        .transition = &HumanoidCMU::Tracking::Transition,
+    },
     {
         .name = "Humanoid Stand",
         .xml_path = "humanoid/stand/task.xml",

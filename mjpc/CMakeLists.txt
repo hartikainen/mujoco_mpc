@@ -326,6 +326,28 @@ if(APPLE)
   target_link_libraries(mjpc "-framework Cocoa")
 endif()
 
+add_executable(
+  main_headless
+  main_headless.cc
+)
+target_link_libraries(
+  main_headless
+  absl::flags
+  absl::flags_parse
+  absl::random_random
+  absl::strings
+  libmjpc
+  lodepng
+  mujoco::mujoco
+  glfw
+  threadpool
+  Threads::Threads
+)
+target_include_directories(main_headless PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(main_headless PUBLIC ${MJPC_COMPILE_OPTIONS})
+target_link_options(main_headless PRIVATE ${MJPC_LINK_OPTIONS})
+target_compile_definitions(main_headless PRIVATE MJSIMULATE_STATIC)
+
 add_subdirectory(tasks)
 
 if(BUILD_TESTING AND MJPC_BUILD_TESTS)

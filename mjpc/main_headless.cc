@@ -54,6 +54,25 @@ void sensor_callback(const mjModel* model, mjData* data, int stage) {
   }
 }
 
+// // sensor callback
+// void control_callback(const mjModel* m, mjData* d) {
+//     if (data != d) {
+//         return;
+//     }
+
+//   if (agent.action_enabled) {
+//     agent.ActivePlanner().ActionFromPolicy(
+//         d->ctrl, &agent.ActiveState().state()[0],
+//         agent.ActiveState().time());
+//   }
+//   // // if noise
+//   // if (!agent.allocate_enabled && false) {
+//   //   for (int j = 0; j < model->nu; j++) {
+//   //     d->ctrl[j] += ctrlnoise[j];
+//   //   }
+//   // }
+// }
+
 //--------------------------------- simulation ---------------------------------
 
 mjModel* LoadModel(std::string file) {
@@ -162,6 +181,9 @@ int main(int argc, char** argv) {
     // sensor callback
     mjcb_sensor = &sensor_callback;
 
+    // // control callback
+    // mjcb_control = &control_callback;
+
     // ----- initialize agent ----- //
     const char task_str[] = "";
     const char planners_str[] = "";
@@ -169,17 +191,15 @@ int main(int argc, char** argv) {
                       task.residual, task.transition);
 
     // pool
-    mjpc::ThreadPool plan_pool(1);
-
-    // ----- settings ----- //
-    std::atomic<bool> exitrequest(false);
-    std::atomic<int> uiloadrequest(0);
+    mjpc::ThreadPool plan_pool(agent.max_threads());
 
     // ----- switch to iLQG planner ----- //
     // TODO(hartikainen):
     // assert(agent.planner_ == 2);
     agent.Allocate();
     agent.Reset();
+
+    printf("Agent threads: %i\n", agent.max_threads());
 
     // ----- plan w/ iLQG planner ----- //
     agent.plan_enabled = true;
@@ -189,13 +209,17 @@ int main(int argc, char** argv) {
 
     // int plan_time_per_step_s = 1.0;
     float fps = 30.0;
-    float simulation_duration = (float)model->nkey / fps;
-    int num_timesteps = simulation_duration / model->opt.timestep;
+    float simulation_duration_s = (float)model->nkey / fps;
+    int num_timesteps = simulation_duration_s / model->opt.timestep;
     // int num_timesteps = model->nkey / fps;
-    num_timesteps = 5;
+    // num_timesteps = 5;
     std::cout << "num_timesteps: " << num_timesteps << "\n";
 
+    float plan_times[num_timesteps];
+    float total_times[num_timesteps];
+
     mj_resetData(model, data);
+    mj_forward(model, data);
 
     // set initial qpos via keyframe
     double* key_qpos = mjpc::KeyQPosByName(model, data, "home");
@@ -209,45 +233,42 @@ int main(int argc, char** argv) {
       mju_copy(data->qvel, key_qvel, model->nv);
     }
 
-    // mj_forward(model, data);
-
     int qpos_size = model->nq + model->nv;
     int action_size = model->nu;
-    double qpos[qpos_size];
-    double action[action_size];
-
-    mju_copy(qpos, data->qpos, qpos_size);
-    mju_copy(action, data->ctrl, action_size);
 
     double output_qpos[num_timesteps + 1][qpos_size];
     double output_action[num_timesteps + 1][action_size];
 
-    mju_copy(output_qpos[0], data->qpos, qpos_size);
+    mju_copy(output_qpos[0] + 0, data->qpos, model->nq);
+    mju_copy(output_qpos[0] + model->nq, data->qvel, model->nv);
 
-    std::stringstream data_output_path_stream;
-    data_output_path_stream << "/tmp/mjpc_data-main_headless-" << 0 << ".txt";
+    // std::cout << "data->time: " << data->time << std::endl;
+    // std::cout << "data->qpos: ";
+    // mju_printMat(data->qpos, 1, qpos_size);
+    // std::cout << "data-ctrl: ";
+    // mju_printMat(data->ctrl, 1, action_size);
+
+    // std::stringstream data_output_path_stream;
+    // data_output_path_stream << "/tmp/mjpc_data-main_headless-" << 0 << ".txt";
+    // mj_printFormattedData(model, data, data_output_path_stream.str().c_str(), "%.5f");
 
     for (int i = 0; i < num_timesteps; ++i) {
-        std::cout << "i: " << i << "\n";
+        // std::cout << "i: " << i << "\n";
 
         // std::cout << "agent.allocate_enabled: " << agent.allocate_enabled << "\n";
         // std::cout << "agent.plan_enabled: " << agent.plan_enabled << "\n";
 
-        auto start = std::chrono::steady_clock::now();
-        exitrequest.store(false);
-        plan_pool.Schedule([&exitrequest, &uiloadrequest]() {
-            agent.Plan(exitrequest, uiloadrequest);
-        });
+        auto loop_start = std::chrono::steady_clock::now();
+        auto plan_start = std::chrono::steady_clock::now();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        // std::this_thread::yield();
-        exitrequest.store(true);
-        plan_pool.WaitCount(1);
-        plan_pool.ResetCount();
+        agent.ActiveState().Set(model, data);
+        agent.PlanIteration(plan_pool);
 
-        auto end = std::chrono::steady_clock::now();
+        auto plan_end = std::chrono::steady_clock::now();
 
-        std::cout << "end - start: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+        int plan_time_ms = std::chrono::duration_cast
+            <std::chrono::milliseconds>(plan_end - plan_start).count();
+        plan_times[i] = plan_time_ms / 1000.0;
 
         agent.ActivePlanner().ActionFromPolicy(
             data->ctrl, &agent.ActiveState().state()[0],
@@ -256,35 +277,51 @@ int main(int argc, char** argv) {
         // Simulate one step.
         mj_step(model, data);
 
-        mju_copy(qpos, data->qpos, qpos_size);
-        mju_copy(action, data->ctrl, action_size);
+        // std::cout << "data->time: " << data->time << std::endl;
+        // std::cout << "data->qpos: ";
+        // mju_printMat(data->qpos, 1, qpos_size);
+        // std::cout << "data-ctrl: ";
+        // mju_printMat(data->ctrl, 1, action_size);
 
-        data_output_path_stream.str("");
-        data_output_path_stream.clear();
-        data_output_path_stream << "/tmp/mjpc_data-main_headless-" << i << ".txt";
-        mj_printFormattedData(model, data, data_output_path_stream.str().c_str(), "%.5f");
+        // data_output_path_stream.str("");
+        // data_output_path_stream.clear();
+        // data_output_path_stream << "/tmp/mjpc_data-main_headless-" << i << ".txt";
+        // mj_printFormattedData(model, data, data_output_path_stream.str().c_str(), "%.5f");
 
-        mju_copy(output_qpos[i+1], data->qpos, qpos_size);
-        mju_copy(output_action[i], action, action_size);
+        mju_copy(output_qpos[i+1] + 0, data->qpos, model->nq);
+        mju_copy(output_qpos[i+1] + model->nq, data->qvel, model->nv);
+        mju_copy(output_action[i], data->ctrl, action_size);
+
+        auto loop_end = std::chrono::steady_clock::now();
+
+        int total_time_ms = std::chrono::duration_cast
+            <std::chrono::milliseconds>(loop_end - loop_start).count();
+        total_times[i] = total_time_ms / 1000.0;
+
+        std::cout << "plan_time [s]: " << plan_times[i] << std::endl
+                  << "total_time [s]: " << total_times[i] << std::endl;
     }
 
     mju_printMat(*output_qpos, num_timesteps + 1, qpos_size);
     mju_printMat(*output_action, num_timesteps + 1, action_size);
+    // for (int i = 0; i < num_timesteps; ++i) {
+    //     mju_printMat(output_qpos[i], 1, qpos_size);
+    // }
 
     std::ofstream myfile;
     myfile.open("/tmp/what.json");
     myfile << "{" << std::endl;
     myfile << "\"qpos\": [" << std::endl;
 
-    for (int i = 0; i < num_timesteps; ++i) {
+    for (int i = 0; i < num_timesteps + 1; i++) {
         myfile << "[";
-        for (int j = 0; j < qpos_size; ++j) {
+        for (int j = 0; j < qpos_size; j++) {
             myfile << output_qpos[i][j];
             if (j < qpos_size - 1) {
                 myfile << ", ";
             }
         }
-        if (i < num_timesteps - 1) {
+        if (i < num_timesteps) {
             myfile << "]," << std::endl;
         } else {
             myfile << "]" << std::endl;
@@ -292,15 +329,15 @@ int main(int argc, char** argv) {
     }
     myfile << "]," << std::endl;
     myfile << "\"actions\": [" << std::endl;
-    for (int i = 0; i < num_timesteps; ++i) {
+    for (int i = 0; i < num_timesteps + 1; i++) {
         myfile << "[";
-        for (int j = 0; j < action_size; ++j) {
+        for (int j = 0; j < action_size; j++) {
             myfile << output_action[i][j];
             if (j < action_size - 1) {
                 myfile << ", ";
             }
         }
-        if (i < num_timesteps - 1) {
+        if (i < num_timesteps) {
             myfile << "]," << std::endl;
         } else {
             myfile << "]" << std::endl;

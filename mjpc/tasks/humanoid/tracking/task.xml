@@ -8,12 +8,12 @@
     <numeric name="sampling_representation" data="2" />
     <numeric name="agent_planner" data="2" />
     <numeric name="agent_horizon" data="0.5" />
-    <numeric name="agent_timestep" data="0.005" />
+    <numeric name="agent_timestep" data="0.01666666667" />
     <numeric name="sampling_spline_points" data="16" />
     <numeric name="sampling_exploration" data="0.15" />
     <numeric name="sampling_trajectories" data="32" />
     <numeric name="gradient_spline_points" data="5" />
-    <numeric name="ilqg_num_rollouts" data="16" />
+    <numeric name="ilqg_num_rollouts" data="256" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="2" />
   </custom>

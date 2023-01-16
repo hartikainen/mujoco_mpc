@@ -85,12 +85,12 @@
     <user name="rtoe pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="lheel pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="rheel pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
-    <user name="lknee pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="rknee pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="lhand pos error" dim="3" user="6 60.0 0.0 100.0 0.1" />
-    <user name="rhand pos error" dim="3" user="6 60.0 0.0 100.0 0.1" />
-    <user name="lelbow pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="relbow pos error" dim="3" user="6 10.0 0.0 100.0 0.1" />
+    <user name="lknee pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="rknee pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="lhand pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="rhand pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="lelbow pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="relbow pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="lshoulder pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="rshoulder pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="lhip pos error" dim="3" user="6 30.0 0.0 100.0 0.1" />

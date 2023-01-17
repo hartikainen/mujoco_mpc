@@ -41,10 +41,6 @@ namespace mjpc {
     mju_copy(&residual[counter], data->ctrl, model->nu);
     counter += model->nu;
 
-    // ----- joint velocity ----- //
-    mju_copy(residual + counter, data->qvel, model->nv);
-    counter += model->nv;
-
     std::array<std::string, 16> body_names = {
       "pelvis", "head", "ltoe", "rtoe", "lheel", "rheel", "lknee", "rknee",
       "lhand", "rhand", "lelbow", "relbow", "lshoulder", "rshoulder", "lhip",

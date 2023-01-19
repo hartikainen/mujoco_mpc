@@ -14,6 +14,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <filesystem>
 #include <thread>
 #include <string>
 #include <sstream>
@@ -23,6 +24,7 @@
 #include <absl/flags/flag.h>
 #include <absl/flags/parse.h>
 #include <absl/strings/match.h>
+#include <absl/strings/str_format.h>
 #include <mujoco/mujoco.h>
 #include "agent.h"
 #include "array_safety.h"
@@ -33,6 +35,11 @@
 #include "utilities.h"
 
 ABSL_FLAG(std::string, task, "", "Which model to load on startup.");
+ABSL_FLAG(
+    std::optional<std::string>,
+    mocap_id,
+    std::nullopt,
+    "Which mocap sequence to use for tracking.");
 
 namespace {
 namespace mju = mujoco::util_mjpc;
@@ -166,14 +173,61 @@ int main(int argc, char** argv) {
         }
     }
 
+    auto mocap_id_flag = absl::GetFlag(FLAGS_mocap_id);
+    if (!mocap_id_flag.has_value()) {
+        mju_error("Invalid `--mocap_id` flag.");
+        return -1;
+    }
+
+    auto mocap_id = mocap_id_flag.value();
+
+    std::cout << "mocap_id: " << mocap_id << std::endl;
+
     const auto& taskDef = mjpc::kTasks[agent.task().id];
 
     // default model + task
     std::string filename =
         mjpc::GetModelPath(mjpc::kTasks[agent.task().id].xml_path);
 
+    std::ifstream t(filename);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::string xml_string = buffer.str();
+
+    int keyframe_include_position = xml_string.find("</sensor>\n") + std::strlen("</sensor>\n");
+    std::string xml_string_head = xml_string.substr(0, keyframe_include_position);
+    std::string xml_string_tail = xml_string.substr(keyframe_include_position, xml_string.size());
+
+    // std::cout << "xml_string_head: " << xml_string_head << std::endl;
+    // std::cout << "xml_string_tail: " << xml_string_tail << std::endl;
+
+    auto xml_string_with_keyframe_include = (
+        xml_string_head
+        + absl::StrFormat("  <include file=\"./keyframes/%s\" />", mocap_id)
+        + xml_string_tail);
+
+    // std::cout << "xml_string_with_keyframe_include: " << xml_string_with_keyframe_include << std::endl;
+
+    std::filesystem::path task_xml_path = mjpc::GetModelPath(
+        mjpc::kTasks[agent.task().id].xml_path);
+
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    std::string thread_id = ss.str();
+    std::string xml_with_keyframe_filename = task_xml_path.replace_filename(
+        (std::string)task_xml_path.stem()
+        + "-with-keyframe-"
+        + thread_id
+        + (std::string)task_xml_path.extension());
+
+    // std::cout << "xml_with_keyframe_filename: " << xml_with_keyframe_filename << std::endl;
+    std::ofstream xml_with_keyframe_filestream;
+    xml_with_keyframe_filestream.open(xml_with_keyframe_filename);
+    xml_with_keyframe_filestream << xml_string_with_keyframe_include;
+    xml_with_keyframe_filestream.close();
+
     // load model + make data
-    model = LoadModel(filename);
+    model = LoadModel(xml_with_keyframe_filename);
 
     // create data
     data = mj_makeData(model);
@@ -331,4 +385,7 @@ int main(int argc, char** argv) {
 
     // delete model
     mj_deleteModel(model);
+
+    std::filesystem::remove(xml_with_keyframe_filename);
+
 }

@@ -296,6 +296,8 @@ int main(int argc, char** argv) {
     std::vector<double> residual;
     residual.resize(task.num_residual);
 
+    double total_cost = 0.0;
+
     for (int i = 0; i < num_timesteps; ++i) {
         auto loop_start = std::chrono::steady_clock::now();
         auto plan_start = std::chrono::steady_clock::now();
@@ -335,11 +337,17 @@ int main(int argc, char** argv) {
         task.Residuals(model, data, residual.data());
         auto cost = task.CostValue(residual.data());
 
-        std::cout << "step: " << i << "/" << num_timesteps << "; "
-                  << "plan_time [s]: " << plan_times[i] << "; "
-                  << "total_time [s]: " << total_times[i] << "; "
-                  << "cost: " << cost << std::endl;
+        // std::cout << "step: " << i << "/" << num_timesteps << "; "
+        //           << "plan_time [s]: " << plan_times[i] << "; "
+        //           << "total_time [s]: " << total_times[i] << "; "
+        //           << "cost: " << cost << std::endl;
+        total_cost += cost;
     }
+
+    std::cout << "total_cost: " << total_cost << "; "
+              << "total_cost per step: " << total_cost / (double)num_timesteps
+              << std::endl;
+
 
     std::ofstream myfile;
     myfile.open("/tmp/what.json");

@@ -41,6 +41,12 @@ ABSL_FLAG(
     std::nullopt,
     "Which mocap sequence to use for tracking.");
 
+ABSL_FLAG(
+    std::optional<std::string>,
+    output_path,
+    std::nullopt,
+    "Destination path for output json.");
+
 namespace {
 namespace mju = mujoco::util_mjpc;
 
@@ -182,6 +188,8 @@ int main(int argc, char** argv) {
     auto mocap_id = mocap_id_flag.value();
 
     std::cout << "mocap_id: " << mocap_id << std::endl;
+
+    auto output_path = absl::GetFlag(FLAGS_output_path);
 
     const auto& taskDef = mjpc::kTasks[agent.task().id];
 
@@ -348,45 +356,48 @@ int main(int argc, char** argv) {
               << "total_cost per step: " << total_cost / (double)num_timesteps
               << std::endl;
 
+    if (output_path.has_value()) {
+        std::filesystem::create_directories(
+            std::filesystem::path(output_path.value()).parent_path());
+        std::ofstream output_stream;
+        output_stream.open(output_path.value());
+        output_stream << "{" << std::endl;
+        output_stream << "\"qpos\": [" << std::endl;
 
-    std::ofstream myfile;
-    myfile.open("/tmp/what.json");
-    myfile << "{" << std::endl;
-    myfile << "\"qpos\": [" << std::endl;
-
-    for (int i = 0; i < num_timesteps + 1; i++) {
-        myfile << "[";
-        for (int j = 0; j < qpos_size; j++) {
-            myfile << output_qpos[i][j];
-            if (j < qpos_size - 1) {
-                myfile << ", ";
+        for (int i = 0; i < num_timesteps + 1; i++) {
+            output_stream << "[";
+            for (int j = 0; j < qpos_size; j++) {
+                output_stream << output_qpos[i][j];
+                if (j < qpos_size - 1) {
+                    output_stream << ", ";
+                }
+            }
+            if (i < num_timesteps) {
+                output_stream << "]," << std::endl;
+            } else {
+                output_stream << "]" << std::endl;
             }
         }
-        if (i < num_timesteps) {
-            myfile << "]," << std::endl;
-        } else {
-            myfile << "]" << std::endl;
-        }
-    }
-    myfile << "]," << std::endl;
-    myfile << "\"actions\": [" << std::endl;
-    for (int i = 0; i < num_timesteps + 1; i++) {
-        myfile << "[";
-        for (int j = 0; j < action_size; j++) {
-            myfile << output_action[i][j];
-            if (j < action_size - 1) {
-                myfile << ", ";
+        output_stream << "]," << std::endl;
+        output_stream << "\"actions\": [" << std::endl;
+        for (int i = 0; i < num_timesteps + 1; i++) {
+            output_stream << "[";
+            for (int j = 0; j < action_size; j++) {
+                output_stream << output_action[i][j];
+                if (j < action_size - 1) {
+                    output_stream << ", ";
+                }
+            }
+            if (i < num_timesteps) {
+                output_stream << "]," << std::endl;
+            } else {
+                output_stream << "]" << std::endl;
             }
         }
-        if (i < num_timesteps) {
-            myfile << "]," << std::endl;
-        } else {
-            myfile << "]" << std::endl;
-        }
+        output_stream << "]" << std::endl;
+        output_stream << "}" << std::endl;
+        output_stream.close();
     }
-    myfile << "]" << std::endl;
-    myfile << "}" << std::endl;
-    myfile.close();
 
     // delete data
     mj_deleteData(data);

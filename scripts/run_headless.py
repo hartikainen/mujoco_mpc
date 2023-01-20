@@ -122,7 +122,7 @@ def main():
     )
 
     mocap_id_sweep = ("CMU-CMU-02-02_04_poses.xml",)
-    ilqg_num_rollouts_sweep = (1, 4, 16, 64, 256)
+    ilqg_num_rollouts_sweep = (64,)
 
     sweep_grids = {
         "mocap_id": mocap_id_sweep,

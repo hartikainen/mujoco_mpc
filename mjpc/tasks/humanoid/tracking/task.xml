@@ -13,7 +13,7 @@
     <numeric name="sampling_exploration" data="0.15" />
     <numeric name="sampling_trajectories" data="32" />
     <numeric name="gradient_spline_points" data="5" />
-    <numeric name="ilqg_num_rollouts" data="256" />
+    <numeric name="ilqg_num_rollouts" data="64" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="2" />
   </custom>

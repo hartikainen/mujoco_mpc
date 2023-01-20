@@ -42,6 +42,11 @@ double* GetCustomNumericData(const mjModel* m, std::string_view name);
 // get text data from a custom element in mjModel with the given name
 char* GetCustomTextData(const mjModel* m, std::string_view name);
 
+
+// set mjModel's numerical custom element's data to value
+void SetCustomNumericData(
+    mjModel* m, std::string_view name, double value);
+
 // get a scalar value from a custom element in mjModel with the given name
 template <typename T>
 std::optional<T> GetNumber(const mjModel* m, std::string_view name) {

@@ -46,6 +46,31 @@ ABSL_FLAG(
     output_path,
     std::nullopt,
     "Destination path for output json.");
+ABSL_FLAG(
+    std::optional<double>,
+    agent_horizon,
+    std::nullopt,
+    "agent_horizon");
+ABSL_FLAG(
+    std::optional<double>,
+    agent_timestep,
+    std::nullopt,
+    "agent_timestep");
+ABSL_FLAG(
+    std::optional<int>,
+    ilqg_num_rollouts,
+    std::nullopt,
+    "ilqg_num_rollouts");
+ABSL_FLAG(
+    std::optional<int>,
+    ilqg_regularization_type,
+    std::nullopt,
+    "ilqg_regularization_type");
+ABSL_FLAG(
+    std::optional<int>,
+    ilqg_representation,
+    std::nullopt,
+    "ilqg_representation");
 
 namespace {
 namespace mju = mujoco::util_mjpc;
@@ -245,6 +270,38 @@ int main(int argc, char** argv) {
 
     // // control callback
     // mjcb_control = &control_callback;
+
+    auto agent_horizon_flag = absl::GetFlag(FLAGS_agent_horizon);
+    if (agent_horizon_flag.has_value()) {
+        std::cout << "agent_horizon_flag: " << agent_horizon_flag.value() << std::endl;
+        mjpc::SetCustomNumericData(
+            model, "agent_horizon", agent_horizon_flag.value());
+    }
+    auto agent_timestep_flag = absl::GetFlag(FLAGS_agent_timestep);
+    if (agent_timestep_flag.has_value()) {
+        std::cout << "agent_timestep_flag: " << agent_timestep_flag.value() << std::endl;
+        mjpc::SetCustomNumericData(
+            model, "agent_timestep", agent_timestep_flag.value());
+    }
+    auto ilqg_num_rollouts_flag = absl::GetFlag(FLAGS_ilqg_num_rollouts);
+    if (ilqg_num_rollouts_flag.has_value()) {
+        std::cout << "ilqg_num_rollouts_flag: " << ilqg_num_rollouts_flag.value() << std::endl;
+        mjpc::SetCustomNumericData(
+            model, "ilqg_num_rollouts", ilqg_num_rollouts_flag.value());
+    }
+    auto ilqg_regularization_type_flag = absl::GetFlag(
+        FLAGS_ilqg_regularization_type);
+    if (ilqg_regularization_type_flag.has_value()) {
+        std::cout << "ilqg_regularization_type_flag: " << ilqg_regularization_type_flag.value() << std::endl;
+        mjpc::SetCustomNumericData(
+            model, "ilqg_regularization_type", ilqg_regularization_type_flag.value());
+    }
+    auto ilqg_representation_flag = absl::GetFlag(FLAGS_ilqg_representation);
+    if (ilqg_representation_flag.has_value()) {
+        std::cout << "ilqg_representation_flag: " << ilqg_representation_flag.value() << std::endl;
+        mjpc::SetCustomNumericData(
+            model, "ilqg_representation", ilqg_representation_flag.value());
+    }
 
     // ----- initialize agent ----- //
     const char task_str[] = "";

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <memory>
 #include <new>
+#include <ostream>
 #include <string>
 #include <string_view>
 
@@ -81,6 +82,16 @@ char* GetCustomTextData(const mjModel* m, std::string_view name) {
     }
   }
   return nullptr;
+
+
+void SetCustomNumericData(mjModel* m, std::string_view name, double value) {
+  for (int i = 0; i < m->nnumeric; i++) {
+    if (std::string_view(m->names + m->name_numericadr[i]) == name) {
+      m->numeric_data[m->numeric_adr[i]] = value;
+      return;
+    }
+  }
+  mju_error("SetCustomNumericData: invalid name!");
 }
 
 // Clamp x between bounds, e.g., bounds[0] <= x[i] <= bounds[1]

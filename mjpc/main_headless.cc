@@ -25,6 +25,7 @@
 #include <absl/flags/parse.h>
 #include <absl/strings/match.h>
 #include <absl/strings/str_format.h>
+#include <absl/random/random.h>
 #include <mujoco/mujoco.h>
 #include "agent.h"
 #include "array_safety.h"
@@ -83,6 +84,23 @@ mjModel* model = nullptr;
 mjData* data = nullptr;
 mjpc::Agent agent;
 
+
+std::string UniformString(uint8_t len) {
+    absl::BitGen bit_gen;
+    static const std::string alphanum =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    std::string result(len, '0');
+    for (int i = 0; i < len; ++i) {
+        result[i] = alphanum[
+            absl::Uniform<uint8_t>(bit_gen, 0, alphanum.size())];
+    }
+    return result;
+}
+
+
 // --------------------------------- callbacks ---------------------------------
 
 // sensor callback
@@ -113,11 +131,11 @@ void sensor_callback(const mjModel* model, mjData* data, int stage) {
 
 //--------------------------------- simulation ---------------------------------
 
-mjModel* LoadModel(std::string file) {
+mjModel* LoadModel(std::string file, const mjVFS* vfs) {
   // this copy is needed so that the mju::strlen call below compiles
 
   char filename[1024];
-  mujoco::util_mjpc::strcpy_arr(filename, file.c_str());
+  mju::strcpy_arr(filename, file.c_str());
 
   // make sure filename is not empty
   if (!filename[0]) {
@@ -131,12 +149,12 @@ mjModel* LoadModel(std::string file) {
       !std::strncmp(
           filename + mju::strlen_arr(filename) - 4, ".mjb",
           mju::sizeof_arr(filename) - mju::strlen_arr(filename) + 4)) {
-    mnew = mj_loadModel(filename, nullptr);
+    mnew = mj_loadModel(filename, vfs);
     if (!mnew) {
       mju::strcpy_arr(loadError, "could not load binary model");
     }
   } else {
-    mnew = mj_loadXML(filename, nullptr, loadError, kMaxFilenameLength);
+    mnew = mj_loadXML(filename, vfs, loadError, kMaxFilenameLength);
     // remove trailing newline character from loadError
     if (loadError[0]) {
       int error_length = mju::strlen_arr(loadError);
@@ -162,6 +180,33 @@ mjModel* LoadModel(std::string file) {
   return mnew;
 }
 
+std::unique_ptr<mjVFS> CopyPathsToMjVFS(
+    std::vector<std::tuple<std::string, std::string>> filenames) {
+
+  // mjVFS structs need to be allocated on the heap, because it's ~2MB
+  auto vfs = std::make_unique<mjVFS>();
+  mj_defaultVFS(vfs.get());
+
+  std::cout << "Copying files to mujoco VFS." << std::endl;
+
+  for (const auto& [source_filename, target_filename] : filenames) {
+    std::cout << "source filename: " << source_filename << std::endl
+              << "target filename: " << target_filename << std::endl;
+
+    std::ifstream t(source_filename);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::string xml_string = buffer.str();
+    // std::cout << "xml_string: " << xml_string << std::endl;
+    mj_makeEmptyFileVFS(
+        vfs.get(), target_filename.c_str(), xml_string.size() + 1);
+    int file_idx = mj_findFileVFS(vfs.get(), target_filename.c_str());
+    memcpy(vfs->filedata[file_idx], xml_string.data(), xml_string.size() + 1);
+  }
+
+  return vfs;
+}
+
 // returns the index of a task, searching by name, case-insensitive.
 // -1 if not found.
 int TaskIdByName(std::string_view name) {
@@ -175,9 +220,7 @@ int TaskIdByName(std::string_view name) {
   return -1;
 }
 
-
 }  // namespace
-
 
 // run event loop
 int main(int argc, char** argv) {
@@ -195,7 +238,8 @@ int main(int argc, char** argv) {
     if (!task_flag.empty()) {
         agent.task().id = TaskIdByName(task_flag);
         if (agent.task().id == -1) {
-            std::cerr << "Invalid --task flag: '" << task_flag << "'. Valid values:\n";
+            std::cerr << "Invalid --task flag: '" << task_flag
+                      << "'. Valid values:\n";
             for (const auto& task : mjpc::kTasks) {
                 std::cerr << '\t' << task.name << '\n';
             }
@@ -227,43 +271,75 @@ int main(int argc, char** argv) {
     buffer << t.rdbuf();
     std::string xml_string = buffer.str();
 
-    int keyframe_include_position = xml_string.find("</sensor>\n") + std::strlen("</sensor>\n");
+    int keyframe_include_position =
+        xml_string.find("</sensor>\n") + std::strlen("</sensor>\n");
     std::string xml_string_head = xml_string.substr(0, keyframe_include_position);
-    std::string xml_string_tail = xml_string.substr(keyframe_include_position, xml_string.size());
+    std::string xml_string_tail =
+        xml_string.substr(keyframe_include_position, xml_string.size());
 
     // std::cout << "xml_string_head: " << xml_string_head << std::endl;
     // std::cout << "xml_string_tail: " << xml_string_tail << std::endl;
 
-    auto xml_string_with_keyframe_include = (
-        xml_string_head
-        + absl::StrFormat("  <include file=\"./keyframes/%s\" />", mocap_id)
-        + xml_string_tail);
+    auto xml_string_with_keyframe_include =
+        (xml_string_head +
+         absl::StrFormat("  <include file=\"./keyframes/%s\" />", mocap_id) +
+         xml_string_tail);
 
-    // std::cout << "xml_string_with_keyframe_include: " << xml_string_with_keyframe_include << std::endl;
+    // std::cout << "xml_string_with_keyframe_include: " <<
+    // xml_string_with_keyframe_include << std::endl;
 
-    std::filesystem::path task_xml_path = mjpc::GetModelPath(
-        mjpc::kTasks[agent.task().id].xml_path);
+    std::filesystem::path task_xml_path =
+        mjpc::GetModelPath(mjpc::kTasks[agent.task().id].xml_path);
 
-    std::stringstream ss;
-    ss << std::this_thread::get_id();
-    std::string thread_id = ss.str();
-    std::string xml_with_keyframe_filename = task_xml_path.replace_filename(
-        (std::string)task_xml_path.stem()
-        + "-with-keyframe-"
-        + thread_id
-        + (std::string)task_xml_path.extension());
+    std::string temp_filename = UniformString(10);
+    auto xml_with_keyframe_path = (
+        std::filesystem::temp_directory_path()
+        / temp_filename
+    ).replace_extension(".xml");
 
-    // std::cout << "xml_with_keyframe_filename: " << xml_with_keyframe_filename << std::endl;
+    std::cout << "temp_filepath: " << temp_filename << std::endl;
+
+    // mjpc/tasks/humanoid/tracking/task.xml
+    // mjpc/tasks/common.xml
+    // mjpc/tasks/humanoid/humanoid.xml
+    // std::cout << "xml_with_keyframe_path: "
+    //           << xml_with_keyframe_path
+    //           << std::endl;
+
     std::ofstream xml_with_keyframe_filestream;
-    xml_with_keyframe_filestream.open(xml_with_keyframe_filename);
+    xml_with_keyframe_filestream.open(xml_with_keyframe_path);
     xml_with_keyframe_filestream << xml_string_with_keyframe_include;
     xml_with_keyframe_filestream.close();
 
+    std::filesystem::path vfs_base_path = "mjpc/tasks/";
+
+    std::vector<
+        std::tuple<std::string, std::string>> vfs_source_and_target_paths = {
+      {xml_with_keyframe_path,
+            vfs_base_path / mjpc::kTasks[agent.task().id].xml_path},
+      {mjpc::GetModelPath("humanoid/humanoid.xml"),
+            vfs_base_path / "humanoid/humanoid.xml"},
+      {mjpc::GetModelPath("common.xml"), vfs_base_path / "common.xml"},
+      {mjpc::GetModelPath("humanoid/tracking/keyframes/" + mocap_id),
+            vfs_base_path / "humanoid/tracking/keyframes" / mocap_id},
+    };
+
+    auto vfs = CopyPathsToMjVFS(vfs_source_and_target_paths);
+
     // load model + make data
-    model = LoadModel(xml_with_keyframe_filename);
+    model = LoadModel(xml_with_keyframe_path, vfs.get());
 
     // create data
     data = mj_makeData(model);
+
+    // remove temporary data.
+    // TODO(hartikainen): `mj_deleteFileVFS` has a bug resulting in infinite loop.
+    // for (const auto& [_, vfs_filename] : vfs_source_and_target_paths) {
+    //     std::cout << "what: " << vfs_filename << std::endl;
+    //     assert(mj_deleteFileVFS(vfs.get(), vfs_filename.c_str()));
+    // }
+    mj_deleteVFS(vfs.get());
+    std::filesystem::remove(xml_with_keyframe_path);
 
     // sensor callback
     mjcb_sensor = &sensor_callback;
@@ -461,7 +537,5 @@ int main(int argc, char** argv) {
 
     // delete model
     mj_deleteModel(model);
-
-    std::filesystem::remove(xml_with_keyframe_filename);
 
 }

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
-#define MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#ifndef MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_
+#define MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_
 
 #include <mujoco/mujoco.h>
 #include "mjpc/task.h"
 
 namespace mjpc {
-namespace humanoid {
+namespace humanoid_cmu {
 
 class Tracking : public Task {
  public:
@@ -49,7 +49,7 @@ class Tracking : public Task {
   double reference_time_;
 };
 
-}  // namespace humanoid
+}  // namespace humanoid_cmu
 }  // namespace mjpc
 
-#endif  // MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#endif  // MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mjpc/tasks/humanoid/tracking/tracking.h"
+#include "mjpc/tasks/humanoid_cmu/tracking/tracking.h"
 
 #include <mujoco/mujoco.h>
 
@@ -90,7 +90,7 @@ int MotionStartIndex(int id) {
 
 // names for humanoid bodies
 const std::array<std::string, 16> body_names = {
-    "pelvis",    "head",      "ltoe",  "rtoe",  "lheel",  "rheel",
+    "root",      "head",      "ltoes",  "rtoes",  "lheel",  "rheel",
     "lknee",     "rknee",     "lhand", "rhand", "lelbow", "relbow",
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
@@ -99,12 +99,12 @@ const std::array<std::string, 16> body_names = {
 
 namespace mjpc {
 
-std::string humanoid::Tracking::XmlPath() const {
-  return GetModelPath("humanoid/tracking/task.xml");
+std::string humanoid_cmu::Tracking::XmlPath() const {
+  return GetModelPath("humanoid_cmu/tracking/task.xml");
 }
-std::string humanoid::Tracking::Name() const { return "Humanoid Track"; }
+std::string humanoid_cmu::Tracking::Name() const { return "HumanoidCMU Track"; }
 
-// ------------- Residuals for humanoid tracking task -------------
+// ----------- Residuals for CMU humanoid tracking task -----------
 //   Number of residuals:
 //     Residual (0): Joint vel: minimise joint velocity
 //     Residual (1): Control: minimise control
@@ -114,8 +114,8 @@ std::string humanoid::Tracking::Name() const { return "Humanoid Track"; }
 //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
 //   Number of parameters: 0
 // ----------------------------------------------------------------
-void humanoid::Tracking::Residual(const mjModel *model, const mjData *data,
-                                  double *residual) const {
+void humanoid_cmu::Tracking::Residual(const mjModel *model, const mjData *data,
+                                      double *residual) const {
   // ----- get mocap frames ----- //
   // Hardcoded constant matching keyframes from CMU mocap dataset.
   float fps = 30.0;
@@ -238,12 +238,12 @@ void humanoid::Tracking::Residual(const mjModel *model, const mjData *data,
   CheckSensorDim(model, counter);
 }
 
-// --------------------- Transition for humanoid task -------------------------
+// ------------------- Transition for CMU humanoid task -----------------------
 //   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
 //   Linearly interpolate between two consecutive key frames in order to
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
-void humanoid::Tracking::Transition(const mjModel *model, mjData *d) {
+void humanoid_cmu::Tracking::Transition(const mjModel *model, mjData *d) {
   // Hardcoded constant matching keyframes from CMU mocap dataset.
   float fps = 30.0;
 

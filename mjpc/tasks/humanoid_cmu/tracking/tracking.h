@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
-#define MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#ifndef MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_
+#define MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_
 
 #include <mujoco/mujoco.h>
 #include "mjpc/task.h"
 
 namespace mjpc {
-namespace humanoid {
+namespace humanoid_cmu {
 
 class Tracking : public ThreadSafeTask {
  public:
@@ -31,7 +31,7 @@ class Tracking : public ThreadSafeTask {
           current_mode_(current_mode),
           reference_time_(reference_time) {}
 
-    // ------------- Residuals for humanoid tracking task -------------
+    // ----------- Residuals for CMU humanoid tracking task -----------
     //   Number of residuals:
     //     Residual (0): Joint vel: minimise joint velocity
     //     Residual (1): Control: minimise control
@@ -51,11 +51,11 @@ class Tracking : public ThreadSafeTask {
 
   Tracking() : residual_(this) {}
 
-  // --------------------- Transition for humanoid task ------------------------
+  // --------------- Transition for CMU humanoid task ------------------
   //   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
   //   Linearly interpolate between two consecutive key frames in order to
   //   smooth the transitions between keyframes.
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------
   void TransitionLocked(mjModel* model, mjData* data) override;
 
   std::string Name() const override;
@@ -74,7 +74,7 @@ class Tracking : public ThreadSafeTask {
   ResidualFn residual_;
 };
 
-}  // namespace humanoid
+}  // namespace humanoid_cmu
 }  // namespace mjpc
 
-#endif  // MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#endif  // MJPC_TASKS_HUMANOID_CMU_TRACKING_TASK_H_

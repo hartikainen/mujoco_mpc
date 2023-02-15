@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mjpc/tasks/humanoid/tracking/tracking.h"
+#include "mjpc/tasks/humanoid_cmu/tracking/tracking.h"
 
 #include <algorithm>
 #include <array>
@@ -67,21 +67,21 @@ int MotionStartIndex(int id) {
 
 // names for humanoid bodies
 const std::array<std::string, 16> body_names = {
-    "pelvis",    "head",      "ltoe",  "rtoe",  "lheel",  "rheel",
+    "root",      "head",      "ltoe",  "rtoe",  "lheel",  "rheel",
     "lknee",     "rknee",     "lhand", "rhand", "lelbow", "relbow",
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
 
 }  // namespace
 
-namespace mjpc::humanoid {
+namespace mjpc::humanoid_cmu {
 
 std::string Tracking::XmlPath() const {
-  return GetModelPath("humanoid/tracking/task.xml");
+  return GetModelPath("humanoid_cmu/tracking/task.xml");
 }
-std::string Tracking::Name() const { return "Humanoid Track"; }
+std::string Tracking::Name() const { return "HumanoidCMU Track"; }
 
-// ------------- Residuals for humanoid tracking task -------------
+// ----------- Residuals for CMU humanoid tracking task -----------
 //   Number of residuals:
 //     Residual (0): Joint vel: minimise joint velocity
 //     Residual (1): Control: minimise control
@@ -215,7 +215,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   CheckSensorDim(model, counter);
 }
 
-// --------------------- Transition for humanoid task -------------------------
+// ------------------- Transition for CMU humanoid task -----------------------
 //   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
 //   Linearly interpolate between two consecutive key frames in order to
 //   smooth the transitions between keyframes.
@@ -266,4 +266,4 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
   mj_freeStack(d);
 }
 
-}  // namespace mjpc::humanoid
+}  // namespace mjpc::humanoid_cmu

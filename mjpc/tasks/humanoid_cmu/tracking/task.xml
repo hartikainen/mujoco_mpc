@@ -1,7 +1,7 @@
 <mujoco model="Humanoid Track">
   <include file="../../common.xml"/>
-  <include file="../humanoid.xml" />
-  <size memory="400K"/>
+  <include file="../cmu_humanoid.xml" />
+  <size memory="2M"/>
 
   <custom>
     <text name="task_transition" data="Jump|Kick Spin|Spin Kick|Cartwheel (1)|Crouch Flip|Cartwheel (2)|Monkey Flip|Dance|Run|Walk" />
@@ -27,8 +27,8 @@
   <option timestep="0.005"/>
 
   <worldbody>
-    <body name="mocap[pelvis]" mocap="true">
-      <site name="mocap[pelvis]" class="mocap_site" size="0.05" />
+    <body name="mocap[root]" mocap="true">
+      <site name="mocap[root]" class="mocap_site" size="0.05" />
     </body>
     <body name="mocap[head]" mocap="true">
       <site name="mocap[head]" class="mocap_site" />
@@ -78,12 +78,12 @@
   </worldbody>
 
   <sensor>
-    <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
-    <user name="Control" dim="21" user="3 0.1 0 1.0 0.3" />
+    <user name="Joint Vel." dim="56" user="0 0.001 0.0 0.01" />
+    <user name="Control" dim="56" user="3 0.1 0 1.0 0.3" />
 
     <user name="Pos[avg]" dim="3" user="6 100.0 0.0 100.0 0.1" />
-    <user name="Pos[pelvis]" dim="3" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[head]" dim="3" user="6 0.0 0.0 100.0 0.1" />
+    <user name="Pos[root]" dim="3" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[head]" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[toe]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
     <user name="Pos[heel]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
     <user name="Pos[knee]" dim="6" user="6 30.0 0.0 100.0 0.1" />
@@ -93,7 +93,7 @@
     <user name="Pos[hip]" dim="6" user="6 30.0 0.0 100.0 0.1" />
 
     <user name="Vel[root]" dim="3" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[head]" dim="3" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[head]" dim="3" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[toe]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[heel]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[knee]" dim="6" user="6 0.1 0 1.0 0.3" />
@@ -102,9 +102,9 @@
     <user name="Vel[shoulder]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
 
-    <framepos name="trace0" objtype="body" objname="torso"/>
+    <framepos name="trace0" objtype="body" objname="root"/>
 
-    <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />
+    <framepos name="tracking_pos[root]" objtype="site" objname="root" />
     <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]" />
     <framepos name="tracking_pos[ltoe]" objtype="site" objname="tracking[ltoe]" />
     <framepos name="tracking_pos[rtoe]" objtype="site" objname="tracking[rtoe]" />
@@ -121,7 +121,7 @@
     <framepos name="tracking_pos[lhip]" objtype="site" objname="tracking[lhip]" />
     <framepos name="tracking_pos[rhip]" objtype="site" objname="tracking[rhip]" />
 
-    <framelinvel name="tracking_linvel[pelvis]" objtype="site" objname="tracking[pelvis]" />
+    <framelinvel name="tracking_linvel[root]" objtype="site" objname="root" />
     <framelinvel name="tracking_linvel[head]" objtype="site" objname="tracking[head]" />
     <framelinvel name="tracking_linvel[ltoe]" objtype="site" objname="tracking[ltoe]" />
     <framelinvel name="tracking_linvel[rtoe]" objtype="site" objname="tracking[rtoe]" />

@@ -135,6 +135,10 @@ void humanoid::Tracking::Residual(const mjModel *model, const mjData *data,
   // ----- residual ----- //
   int counter = 0;
 
+  // ----- act_dot ----- //
+  mju_copy(residual + counter, data->act_dot, model->na);
+  counter += model->na;
+
   // ----- joint velocity ----- //
   mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
   counter += model->nv - 6;

@@ -167,6 +167,13 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   // residual for averages
   mju_sub3(&residual[counter], avg_mpos, avg_sensor_pos);
+
+  double root_sensor_pos[3];
+  get_body_sensor_pos("root", root_sensor_pos);
+  if (0.85 < root_sensor_pos[2] && root_sensor_pos[2] < 0.95) {
+    residual[counter + 2] = residual[counter + 2] * 0.3;
+  }
+
   counter += 3;
 
   for (const auto &body_name : body_names) {

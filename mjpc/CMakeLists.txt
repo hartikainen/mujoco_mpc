@@ -44,6 +44,8 @@ add_library(
   tasks/cartpole/cartpole.h
   tasks/hand/hand.cc
   tasks/hand/hand.h
+  tasks/humanoid/skateboard/skateboard.cc
+  tasks/humanoid/skateboard/skateboard.h
   tasks/humanoid/stand/stand.cc
   tasks/humanoid/stand/stand.h
   tasks/humanoid/tracking/tracking.cc

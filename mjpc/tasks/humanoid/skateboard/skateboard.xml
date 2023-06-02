@@ -24,43 +24,41 @@
       <freejoint/>
 
       <!-- board -->
-      <geom name="board" type="box" size="0.3 0.13 0.01" rgba="0.5859 0.4336 0.1992 1"/>
-      <geom name="nose" type="box" size="0.075 0.13 0.01" pos="0.35 0.0 0.01" quat="-0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
-      <geom name="tail" type="box" size="0.075 0.13 0.01" pos="-0.35 0.0 0.01" quat="0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
+      <geom name="board-base" type="box" size="0.3 0.13 0.01" rgba="0.5859 0.4336 0.1992 1"/>
+      <geom name="board-nose" type="box" size="0.075 0.13 0.01" pos="0.35 0.0 0.01" quat="-0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
+      <geom name="board-tail" type="box" size="0.075 0.13 0.01" pos="-0.35 0.0 0.01" quat="0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
 
       <!-- trucks -->
-      <geom name="nosetruck" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020"/>
-      <geom name="tailtruck" class="truck" fromto="-0.20 0.0 -0.020 -0.30 0.0 -0.020"/>
+      <geom name="truck-nose" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020"/>
+      <geom name="truck-tail" class="truck" fromto="-0.20 0.0 -0.020 -0.30 0.0 -0.020"/>
 
-      <!-- front hanger TODO(hartikainen): front or read? -->
-      <body name="hanger1" pos="0.25 0.0 -0.01">
-        <!-- <joint name="hanger1_joint" class="hanger"/> -->
-        <geom name="hanger1_geom" class="hanger"/>
-        <!-- left wheel TODO(hartikainen): left or right? -->
-        <body name="wheel1" pos="0.0 0.1 -0.05">
-          <joint name="wheel1_joint" class="wheel"/>
-          <geom name="wheel1_geom" class="wheel"/>
+      <!-- TODO(hartikainen): front or rear? -->
+      <body name="hanger-front" pos="0.25 0.0 -0.01">
+        <geom name="hanger-front" class="hanger"/>
+        <!-- TODO(hartikainen): left or right? -->
+        <body name="wheel-front-left" pos="0.0 0.1 -0.05">
+          <joint name="wheel-front-left" class="wheel"/>
+          <geom name="wheel-front-left" class="wheel"/>
         </body>
-        <!-- right wheel TODO(hartikainen): left or right? -->
-        <body name="wheel2" pos="0.0 -0.1 -0.05">
-          <joint name="wheel2_joint" class="wheel"/>
-          <geom name="wheel2_geom" class="wheel"/>
+        <!-- TODO(hartikainen): left or right? -->
+        <body name="wheel-front-right" pos="0.0 -0.1 -0.05">
+          <joint name="wheel-front-right" class="wheel"/>
+          <geom name="wheel-front-right" class="wheel"/>
         </body>
       </body>
 
-      <!-- rear hanger TODO(hartikainen): front or read? -->
-      <body name="hanger2" pos="-0.25 0.0 -0.01">
-        <!-- <joint name="hanger2_joint" class="hanger"/> -->
-        <geom name="hanger2_geom" class="hanger"/>
-        <!-- left wheel TODO(hartikainen): left or right? -->
-        <body name="wheel3" pos="0.0 0.1 -0.05">
-          <joint name="wheel3_joint" class="wheel"/>
-          <geom name="wheel3_geom" class="wheel"/>
+      <!-- TODO(hartikainen): front or rear? -->
+      <body name="hanger-rear" pos="-0.25 0.0 -0.01">
+        <geom name="hanger-rear" class="hanger"/>
+        <!-- TODO(hartikainen): left or right? -->
+        <body name="wheel-rear-left" pos="0.0 0.1 -0.05">
+          <joint name="wheel-rear-left" class="wheel"/>
+          <geom name="wheel-rear-left" class="wheel"/>
         </body>
-        <!-- right wheel TODO(hartikainen): left or right? -->
-        <body name="wheel4" pos="0.0 -0.1 -0.05">
-          <joint name="wheel4_joint" class="wheel"/>
-          <geom name="wheel4_geom" class="wheel"/>
+        <!-- TODO(hartikainen): left or right? -->
+        <body name="wheel-rear-right" pos="0.0 -0.1 -0.05">
+          <joint name="wheel-rear-right" class="wheel"/>
+          <geom name="wheel-rear-right" class="wheel"/>
         </body>
       </body>
     </body>

@@ -21,8 +21,9 @@ Skateboard::ResidualFn::ResidualFn(const Skateboard* task) : mjpc::BaseResidualF
 //     Residual (0): Desired height
 //     Residual (1): Balance: COM_xy - average(feet position)_xy
 //     Residual (2): Com Vel: should be 0 and equal feet average vel
-//     Residual (3): Control: minimise control
-//     Residual (4): Joint vel: minimise joint velocity
+//     Residual (3): Feet on Board: Feet should touch the skateboard.
+//     Residual (4): Control: minimise control
+//     Residual (5): Joint vel: minimise joint velocity
 //   Number of parameters: 1
 //     Parameter (0): height_goal
 // ----------------------------------------------------------------
@@ -68,9 +69,16 @@ void Skateboard::ResidualFn::Residual(const mjModel* model, const mjData* data,
   mju_copy(&residual[counter], com_velocity, 2);
   counter += 2;
 
+  // ----- Skateboard: Feet should be on the skateboard ----- //
+
+  // TODO(hartikainen): Implement.
+  residual[counter++] = 0.0;  // Left foot error
+  residual[counter++] = 0.0;  // Right foot error
+
   // ----- joint velocity ----- //
-  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
-  counter += model->nv - 6;
+  mju_copy(residual + counter, data->qvel + 6, model->nv - 16);
+  counter += model->nv - 16;
+
 
   // ----- action ----- //
   mju_copy(&residual[counter], data->ctrl, model->nu);

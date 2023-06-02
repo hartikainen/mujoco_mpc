@@ -1,6 +1,7 @@
 <mujoco model="Humanoid">
   <include file="../../common.xml"/>
   <include file="../humanoid.xml" />
+  <include file="./skateboard.xml" />
   <size memory="400K"/>
 
   <custom>
@@ -34,4 +35,9 @@
     <subtreelinvel name="foot_right_vel" body="foot_right"/>
     <subtreelinvel name="foot_left_vel" body="foot_left"/>
   </sensor>
+
+  <keyframe>
+    <key name="home" qpos='0.947067 0 1.38526 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0.1 1 0 0 0 0 0 0 0'/>
+  </keyframe>
+
 </mujoco>

@@ -141,25 +141,11 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_copy3(result, sensor_pos);
   };
 
-  // compute marker and sensor averages
-  double avg_mpos[3] = {0};
-  double avg_sensor_pos[3] = {0};
-  int num_body = 0;
-  for (const auto &body_name : body_names) {
-    double body_mpos[3];
-    double body_sensor_pos[3];
-    get_body_mpos(body_name, body_mpos);
-    mju_addTo3(avg_mpos, body_mpos);
-    get_body_sensor_pos(body_name, body_sensor_pos);
-    mju_addTo3(avg_sensor_pos, body_sensor_pos);
-    num_body++;
-  }
-  mju_scl3(avg_mpos, avg_mpos, 1.0/num_body);
-  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0/num_body);
+  double pelvis_mpos[3];
+  get_body_mpos("pelvis", pelvis_mpos);
 
-  // residual for averages
-  mju_sub3(&residual[counter], avg_mpos, avg_sensor_pos);
-  counter += 3;
+  double pelvis_sensor_pos[3];
+  get_body_sensor_pos("pelvis", pelvis_sensor_pos);
 
   for (const auto &body_name : body_names) {
     double body_mpos[3];
@@ -169,10 +155,18 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    mju_subFrom3(body_mpos, avg_mpos);
-    mju_subFrom3(body_sensor_pos, avg_sensor_pos);
+    if (body_name != "pelvis") {
+      mju_subFrom3(body_mpos, pelvis_mpos);
+      mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
+    }
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
+
+    // if (body_name == "pelvis"
+    //     && 0.85 < pelvis_sensor_pos[2]
+    //     && pelvis_sensor_pos[2] < 0.95) {
+    //   residual[counter + 2] = residual[counter + 2] * 0.3;
+    // }
 
     counter += 3;
   }

@@ -166,11 +166,21 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
 
-    // if (body_name == "pelvis"
-    //     && 0.85 < pelvis_sensor_pos[2]
-    //     && pelvis_sensor_pos[2] < 0.95) {
-    //   residual[counter + 2] = residual[counter + 2] * 0.3;
-    // }
+    int torso_body_id = mj_name2id(model, mjOBJ_XBODY, "walker/torso");
+    if (torso_body_id < 0) {
+      torso_body_id = mj_name2id(model, mjOBJ_XBODY, "torso");
+    }
+    if (torso_body_id < 0) mju_error("body 'torso' not found");
+    double* torso_xmat = data->xmat + 9*torso_body_id;
+
+    double normalized_gravity = (torso_xmat[8] + 1) / 2.0;
+    bool is_standing = 0.95 < normalized_gravity;
+    if (body_name == "pelvis"
+        && is_standing
+        && 0.85 < pelvis_sensor_pos[2]
+        && pelvis_sensor_pos[2] < 0.95) {
+      residual[counter + 2] = residual[counter + 2] * 0.3;
+    }
 
     counter += 3;
   }
@@ -200,7 +210,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
     counter += 3;
   }
-
 
   CheckSensorDim(model, counter);
 }

@@ -151,7 +151,29 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   double pelvis_sensor_pos[3];
   get_body_sensor_pos("pelvis", pelvis_sensor_pos);
 
+  int torso_body_id = mj_name2id(model, mjOBJ_XBODY, "walker/torso");
+  if (torso_body_id < 0) {
+    torso_body_id = mj_name2id(model, mjOBJ_XBODY, "torso");
+  }
+  if (torso_body_id < 0) mju_error("body 'torso' not found");
+  double* torso_xmat = data->xmat + 9*torso_body_id;
+
+  double normalized_gravity = (torso_xmat[8] + 1) / 2.0;
+  bool is_standing = 0.95 < normalized_gravity;
+
+  mju_sub3(&residual[counter], pelvis_mpos, pelvis_sensor_pos);
+
+  if (is_standing
+      && 0.85 < pelvis_sensor_pos[2]
+      && pelvis_sensor_pos[2] < 0.95) {
+    residual[counter + 2] = residual[counter + 2] * 0.3;
+  }
+
+  counter += 3;
+
   for (const auto &body_name : body_names) {
+    if (body_name == "pelvis") continue;  // Pelvis handled above.
+
     double body_mpos[3];
     get_body_mpos(body_name, body_mpos);
 
@@ -159,28 +181,10 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    if (body_name != "pelvis") {
-      mju_subFrom3(body_mpos, pelvis_mpos);
-      mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
-    }
+    mju_subFrom3(body_mpos, pelvis_mpos);
+    mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
-
-    int torso_body_id = mj_name2id(model, mjOBJ_XBODY, "walker/torso");
-    if (torso_body_id < 0) {
-      torso_body_id = mj_name2id(model, mjOBJ_XBODY, "torso");
-    }
-    if (torso_body_id < 0) mju_error("body 'torso' not found");
-    double* torso_xmat = data->xmat + 9*torso_body_id;
-
-    double normalized_gravity = (torso_xmat[8] + 1) / 2.0;
-    bool is_standing = 0.95 < normalized_gravity;
-    if (body_name == "pelvis"
-        && is_standing
-        && 0.85 < pelvis_sensor_pos[2]
-        && pelvis_sensor_pos[2] < 0.95) {
-      residual[counter + 2] = residual[counter + 2] * 0.3;
-    }
 
     counter += 3;
   }

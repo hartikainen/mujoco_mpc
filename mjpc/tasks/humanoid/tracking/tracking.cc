@@ -21,6 +21,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <span>
 #include <string>
 
 #include <mujoco/mujoco.h>
@@ -113,7 +114,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   counter += model->nv - 6;
 
   // ----- action ----- //
-  mju_copy(&residual[counter], data->ctrl, model->nu);
+  mju_copy(residual + counter, data->ctrl, model->nu);
   counter += model->nu;
 
   // ----- position ----- //
@@ -151,29 +152,38 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   double pelvis_sensor_pos[3];
   get_body_sensor_pos("pelvis", pelvis_sensor_pos);
 
-  int torso_body_id = mj_name2id(model, mjOBJ_XBODY, "walker/torso");
-  if (torso_body_id < 0) {
-    torso_body_id = mj_name2id(model, mjOBJ_XBODY, "torso");
-  }
-  if (torso_body_id < 0) mju_error("body 'torso' not found");
-  double* torso_xmat = data->xmat + 9*torso_body_id;
+  auto &body_name = std::span(body_names).front();
+  assert(body_name == "pelvis");
 
-  double normalized_gravity = (torso_xmat[8] + 1) / 2.0;
-  bool is_standing = 0.95 < normalized_gravity;
+  double pelvis_distance_xyz[3];
+  mju_sub3(pelvis_distance_xyz, pelvis_mpos, pelvis_sensor_pos);
 
-  mju_sub3(&residual[counter], pelvis_mpos, pelvis_sensor_pos);
+  double ltoe_mpos[3];
+  get_body_mpos("ltoe", ltoe_mpos);
+  double rtoe_mpos[3];
+  get_body_mpos("rtoe", rtoe_mpos);
 
-  if (is_standing
-      && 0.85 < pelvis_sensor_pos[2]
-      && pelvis_sensor_pos[2] < 0.95) {
-    residual[counter + 2] = residual[counter + 2] * 0.3;
-  }
+  double min_toe_z = std::min({ltoe_mpos[2], rtoe_mpos[2]});
 
+  auto sigmoid = [] (double x) { return 1.0 / (1.0 + std::exp(-x)); };
+
+  double pelvis_xy_multiplier = 20.0;
+  // We ease the root's z-position tolerance when the toes are slightly off the
+  // ground, because some of the motion sequences have small vertical errors
+  // perhaps due to hidden platforms in the scene. The fix is roughly a soft
+  // version of following:
+  // `(0.04 < min_toe_z && min_toe_z < 0.09) ? 6.0 : 20.0;`
+  // TODO(hartikainen): Fix/filter the mocap sequences and remove the custom
+  // `pelvis_z_multiplier` from here.
+  double pelvis_z_multiplier =
+    pelvis_xy_multiplier - 14.0 * (sigmoid(200.0 * (min_toe_z - 0.04))
+                                   - sigmoid(200.0 * (min_toe_z - 0.09)));
+  residual[counter + 0] = pelvis_distance_xyz[0] * pelvis_xy_multiplier;
+  residual[counter + 1] = pelvis_distance_xyz[1] * pelvis_xy_multiplier;
+  residual[counter + 2] = pelvis_distance_xyz[2] * pelvis_z_multiplier;
   counter += 3;
 
-  for (const auto &body_name : body_names) {
-    if (body_name == "pelvis") continue;  // Pelvis handled above.
-
+  for (const auto &body_name : std::span(body_names).subspan(1)) {
     double body_mpos[3];
     get_body_mpos(body_name, body_mpos);
 
@@ -185,7 +195,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
-
     counter += 3;
   }
 

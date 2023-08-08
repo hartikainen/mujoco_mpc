@@ -106,7 +106,11 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // ----- residual ----- //
 
   // ----- act_dot ----- //
-  mju_copy(residual + counter, data->act_dot, model->na);
+  if (data->time == 0) {
+    mju_zero(residual + counter, model->na);
+  } else {
+    mju_copy(residual + counter, data->act_dot, model->na);
+  }
   counter += model->na;
 
   // ----- joint velocity ----- //

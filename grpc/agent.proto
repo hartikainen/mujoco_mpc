@@ -69,6 +69,8 @@ message State {
   repeated double mocap_pos = 5 [packed = true];
   repeated double mocap_quat = 6 [packed = true];
   repeated double userdata = 7 [packed = true];
+  repeated double ctrl = 8 [packed = true];
+  repeated double act_dot = 9 [packed = true];
 }
 
 message GetStateRequest {}

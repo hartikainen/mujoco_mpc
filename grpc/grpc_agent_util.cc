@@ -64,6 +64,12 @@ grpc::Status GetState(const mjModel* model, const mjData* data,
   for (int i = 0; i < model->na; i++) {
     output_state->add_act(data->act[i]);
   }
+  for (int i = 0; i < model->nu; i++) {
+    output_state->add_ctrl(data->ctrl[i]);
+  }
+  for (int i = 0; i < model->na; i++) {
+    output_state->add_act_dot(data->act_dot[i]);
+  }
   for (int i = 0; i < model->nmocap * 3; i++) {
     output_state->add_mocap_pos(data->mocap_pos[i]);
   }
@@ -118,6 +124,17 @@ grpc::Status SetState(const SetStateRequest* request, mjpc::Agent* agent,
   if (state.act_size() > 0) {
     CHECK_SIZE("act", model->na, state.act_size());
     mju_copy(data->act, state.act().data(), model->na);
+    // mju_copy(data->ctrl, state.act().data(), model->na);
+  }
+
+  if (state.ctrl_size() > 0) {
+    CHECK_SIZE("ctrl", model->nu, state.ctrl_size());
+    mju_copy(data->ctrl, state.ctrl().data(), model->nu);
+  }
+
+  if (state.act_dot_size() > 0) {
+    CHECK_SIZE("act_dot", model->na, state.act_dot_size());
+    mju_copy(data->act_dot, state.act_dot().data(), model->na);
   }
 
   if (state.mocap_pos_size() > 0) {

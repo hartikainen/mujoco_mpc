@@ -189,8 +189,8 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // TODO(hartikainen): Fix/filter the mocap sequences and remove the custom
   // `pelvis_z_multiplier` from here.
   double pelvis_z_multiplier =
-    pelvis_xy_multiplier - 14.0 * (sigmoid(200.0 * (min_toe_z - 0.04))
-                                   - sigmoid(200.0 * (min_toe_z - 0.09)));
+    pelvis_xy_multiplier - 18.0 * (sigmoid(200.0 * (min_toe_z - 0.00))
+                                   - sigmoid(200.0 * (min_toe_z - 0.20)));
   residual[counter + 0] = pelvis_distance_xyz[0] * pelvis_xy_multiplier;
   residual[counter + 1] = pelvis_distance_xyz[1] * pelvis_xy_multiplier;
   residual[counter + 2] = pelvis_distance_xyz[2] * pelvis_z_multiplier;

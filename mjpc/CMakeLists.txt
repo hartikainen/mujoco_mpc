@@ -81,6 +81,8 @@ add_library(
   tasks/humanoid/tracking/tracking.h
   tasks/humanoid/walk/walk.cc
   tasks/humanoid/walk/walk.h
+  tasks/humanoid_phc/tracking/tracking.cc
+  tasks/humanoid_phc/tracking/tracking.h
   tasks/manipulation/common.cc
   tasks/manipulation/common.h
   tasks/manipulation/manipulation.cc

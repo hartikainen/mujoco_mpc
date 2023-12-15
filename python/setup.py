@@ -244,7 +244,7 @@ class BuildCMakeExtension(build_ext.build_ext):
             str(mujoco_mpc_build_dir.resolve()),
             "--target",
             "agent_server",
-            "ui_agent_server",
+            # "ui_agent_server",
             f"-j{os.cpu_count()}",
             "--config",
             build_cfg,
@@ -273,13 +273,13 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     python_requires=">=3.8",
-    setup_requires=[
-        "grpcio-tools",
-        "grpcio",
-    ],
+    # setup_requires=[
+    #     "grpcio-tools",
+    #     "grpcio",
+    # ],
     install_requires=[
         "grpcio",
-        "mujoco >= 2.3.3",
+        "mujoco==3.1.0",
         "protobuf",
     ],
     extras_require={

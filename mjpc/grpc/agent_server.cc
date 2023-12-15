@@ -36,6 +36,9 @@ ABSL_FLAG(int32_t, mjpc_workers, -1,
           "of available hardware threads.");
 
 int main(int argc, char** argv) {
+  std::cout.setf( std::ios_base::unitbuf );
+  setbuf(stdout, NULL);
+
   absl::ParseCommandLine(argc, argv);
   int port = absl::GetFlag(FLAGS_mjpc_port);
 

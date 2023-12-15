@@ -187,6 +187,16 @@ void iLQGPlanner::NominalTrajectory(int horizon, ThreadPool& pool) {
   // evaluate rollouts
   int best_nominal = this->BestRollout();
 
+  printf("BEGIN NOMINAL DEBUG\n");
+  for (int j = num_trajectory_ - 1; j >= 0; j--) {
+    printf(
+      "j=%02d; failure=%d; return=%010.8f;\n",
+      j,
+      trajectory[j].failure,
+      trajectory[j].total_return);
+  }
+  printf("END NOMINAL DEBUG\n");
+
   // check for all rollout failures
   if (best_nominal == -1) {
     // The policy's traj's first state is not the correct initial state, but

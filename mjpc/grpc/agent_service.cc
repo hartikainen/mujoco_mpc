@@ -167,8 +167,12 @@ grpc::Status AgentService::GetAction(grpc::ServerContext* context,
   if (!Initialized()) {
     return {grpc::StatusCode::FAILED_PRECONDITION, "Init not called."};
   }
-  return grpc_agent_util::GetAction(
+  auto result = grpc_agent_util::GetAction(
       request, &agent_, model, rollout_data_.get(), &rollout_state_, response);
+  // Flush to ensure that we can catch the logs on the python side.
+  fflush(stdout);
+  std::cout.flush();
+  return result;
 }
 
 grpc::Status AgentService::GetCostValuesAndWeights(

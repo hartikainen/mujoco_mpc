@@ -94,6 +94,7 @@ void Agent::Initialize(const mjModel* model) {
   // time step
   timestep_ = GetNumberOrDefault(1.0e-2, model, "agent_timestep");
 
+  assert(horizon_ / timestep_ < kMaxTrajectoryHorizon);
   // planning steps
   steps_ = mju_max(mju_min(horizon_ / timestep_ + 1, kMaxTrajectoryHorizon), 1);
 
@@ -320,6 +321,8 @@ void Agent::PlanIteration(ThreadPool* pool) {
   // set agent time and time step
   model_->opt.timestep = timestep_;
   model_->opt.integrator = integrator_;
+
+  assert(horizon_ / timestep_ < kMaxTrajectoryHorizon);
 
   // set planning steps
   steps_ =

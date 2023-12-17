@@ -74,6 +74,8 @@ TEST(iLQGTest, Particle) {
   int iterations = 25;
   double horizon = 2.5;
   double timestep = 0.1;
+  assert(horizon / timestep < kMaxTrajectoryHorizon);
+
   int steps =
       mju_max(mju_min(horizon / timestep + 1, kMaxTrajectoryHorizon), 1);
   model->opt.timestep = timestep;

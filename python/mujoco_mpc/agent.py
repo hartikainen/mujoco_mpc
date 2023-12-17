@@ -20,6 +20,7 @@ import contextlib
 import pathlib
 import re
 import socket
+import signal
 import subprocess
 import tempfile
 from typing import Any, Literal, Mapping, Optional, Sequence
@@ -129,8 +130,12 @@ class Agent(contextlib.AbstractContextManager):
     self.channel.close()
 
     if self.server_process is not None:
-      self.server_process.kill()
-      self.server_process.wait()
+      self.server_process.send_signal(signal.SIGINT)
+      try:
+        self.server_process.wait(timeout=5)
+      except subprocess.TimeoutExpired:
+        self.server_process.kill()
+        self.server_process.wait()
 
   def init(
       self,

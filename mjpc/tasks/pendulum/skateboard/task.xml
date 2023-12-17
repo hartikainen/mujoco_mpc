@@ -1,0 +1,63 @@
+<mujoco model="Pendulum">
+  <include file="../../common.xml"/>
+  <size memory="800K"/>
+  <!-- weld the center of skateboard to the center of pendulum -->
+  
+
+  <!-- COMBINED -->
+
+  <!-- <include file="./skateboard_plus_pendulum.xml" />
+  <keyframe>
+    <key name="home" qpos='0 0 0.1594 0 0 0 0 0 0 0 0 0 0'/>
+  </keyframe> -->
+  
+   <!-- /COMBINED -->
+
+
+  <!-- WELDED -->
+
+  <include file="../pendulum.xml" />
+  <include file="./skateboard.xml" />
+  <equality>
+    <weld body1="pendulum_center" body2="board_center" solref="0.01 1" solimp="0.9 0.95 0.001" anchor="0 0 0" />
+  </equality> 
+
+  <keyframe>
+    <key name="home" qpos="1.08624e-07 6.38521e-09 0.152725 1 1.12503e-09 3.66045e-10 6.7529e-16 -2.14371e-07 -9.18235e-08 1.08571e-07 6.48736e-09 0.139471 1 1.02144e-09 2.96843e-10 6.645e-16 2.93223e-06 2.93223e-06 2.93223e-06 2.93223e-06"/>
+  </keyframe>
+  
+  <!-- /WELDED -->
+
+  <custom>
+    <numeric name="agent_planner" data="3" />
+    <numeric name="agent_horizon" data="0.3" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="6" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="residual_Height Goal" data="1.155 0.0 1.5" />
+    <numeric name="residual_Velocity" data="0 -5 5" />
+    <numeric name="residual_Heading" data="0 -3.14 3.14" />
+    <numeric name="ilqg_num_rollouts" data="8" />
+    <numeric name="ilqg_regularization_type" data="1" />
+    <numeric name="ilqg_representation" data="2" />
+  </custom>
+  
+  <sensor>
+    <user name="Height" dim="1" user="6 100.0 0.0 100.0 0.1" />
+    <!-- <user name="Balance" dim="1" user="6 50.0 0.0 100.0 0.1" /> -->
+    <user name="Velocity." dim="1" user="0 10.0 0.0 100.0" />
+    <user name="Heading" dim="2" user="0 10 0 .03" />
+    <user name="Joint Vel." dim="3" user="0 0.01 0.0 0.1" />
+    <user name="Control" dim="3" user="3 0.025 0.0 0.1 0.3" />
+    <framepos name="trace0" objtype="body" objname="cube"/>
+    <framelinvel name="skateboard_framelinvel" objtype="body" objname="skateboard"/>
+    <framelinvel name="cube_framelinvel" objtype="body" objname="cube"/>
+    <framepos name="cube_position" objtype="body" objname="cube"/>
+    <!-- <frameyaxis name="cube_y_axis" objtype="body" objname="cube"/> -->
+    <framelinvel name="cube_subtreelinvel" objtype="body" objname="cube" />
+    <subtreecom name="cube_subtreecom" body="cube"/>
+    <!-- <framexaxis name="cube_forward" objtype="body" objname="cube" /> -->
+    <!-- <framepos name="sp0" objtype="site" objname="sp0"/> -->
+  </sensor>
+
+</mujoco>

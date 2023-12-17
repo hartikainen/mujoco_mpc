@@ -26,11 +26,21 @@
 #include "mjpc/tasks/humanoid/walk/walk.h"
 #include "mjpc/tasks/panda/panda.h"
 #include "mjpc/tasks/manipulation/manipulation.h"
+
+
+// SKATEBOARD STUFF
+#include "mjpc/tasks/pendulum/skateboard/skateboard.h"
+#include "mjpc/tasks/skateboard/pendulum_3d/pendulum_3d.h"
+#include "mjpc/tasks/skateboard/humanoid/skateboard.h"
+#include "mjpc/tasks/skateboard/humanoid_welded/skateboard.h"
+
 // DEEPMIND INTERNAL IMPORT
 #include "mjpc/tasks/particle/particle.h"
 #include "mjpc/tasks/quadrotor/quadrotor.h"
 #include "mjpc/tasks/quadruped/quadruped.h"
 #include "mjpc/tasks/swimmer/swimmer.h"
+#include "mjpc/tasks/skateboard/no_rider/no_rider.h"
+#include "mjpc/tasks/skateboard/cart_pole/cart_pole.h"
 #include "mjpc/tasks/walker/walker.h"
 
 namespace mjpc {
@@ -41,7 +51,13 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
     std::make_shared<Cartpole>(),
     std::make_shared<Fingers>(),
     std::make_shared<Hand>(),
+    std::make_shared<weldedhumanoid::Skateboard>(),
     std::make_shared<humanoid::Stand>(),
+    std::make_shared<pendulum::Skateboard>(),
+    std::make_shared<humanoid::Skateboard>(),
+    std::make_shared<pendulum3d::Skateboard>(),
+    std::make_shared<skateboard::NoRider>(),
+    std::make_shared<skateboard::CartPole>(),
     std::make_shared<humanoid::Tracking>(),
     std::make_shared<humanoid::Walk>(),
     std::make_shared<manipulation::Bring>(),

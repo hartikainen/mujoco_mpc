@@ -54,6 +54,155 @@ extern "C" {
 }
 
 namespace mjpc {
+int GetJointNqById(const mjModel* model, int joint_id) {
+  if (joint_id == -1) {
+    std::ostringstream err_msg;
+    err_msg << "Joint with id '" << joint_id << "' not found in the model.";
+    throw std::runtime_error(err_msg.str());
+  }
+  // The ball joint (`mjJNT_BALL`) is modeled as a quaternion and hence has 4
+  // degrees of freedom. However, note that while the joint is modeled with 4
+  // parameters, it represents 3 rotational degrees of freedom because the
+  // quaternion is a unit quaternion. In this sense, a ball joint can be said to
+  // have 3 DOFs. So, for example, comparing this functions output is different for
+  // `model->nq` and `model->nq`.
+
+  switch (model->jnt_type[joint_id]) {
+      case mjJNT_HINGE:
+      case mjJNT_SLIDE:
+          return 1;
+      case mjJNT_BALL:
+          return 4;
+      case mjJNT_FREE:
+          return 7;
+      default:
+          return 0;
+  }
+}
+
+int GetJointNqByName(const mjModel* model, const std::string& joint_name) {
+  int joint_id = mj_name2id(model, mjOBJ_JOINT, joint_name.c_str());
+  return GetJointNqById(model, joint_id);
+}
+
+int GetJointNvById(const mjModel* model, int joint_id) {
+  if (joint_id == -1) {
+    std::ostringstream err_msg;
+    err_msg << "Joint with id '" << joint_id << "' not found in the model.";
+    throw std::runtime_error(err_msg.str());
+  }
+  // The ball joint (`mjJNT_BALL`) is modeled as a quaternion and hence has 4
+  // degrees of freedom. However, note that while the joint is modeled with 4
+  // parameters, it represents 3 rotational degrees of freedom because the
+  // quaternion is a unit quaternion. In this sense, a ball joint can be said to
+  // have 3 DOFs. So, for example, comparing this functions output is different for
+  // `model->nv` and `model->nq`.
+
+  switch (model->jnt_type[joint_id]) {
+      case mjJNT_HINGE:
+      case mjJNT_SLIDE:
+          return 1;
+      case mjJNT_BALL:
+          return 3;
+      case mjJNT_FREE:
+          return 6;
+      default:
+          return 0;
+  }
+}
+
+int GetJointNvByName(const mjModel* model, const std::string& joint_name) {
+  int joint_id = mj_name2id(model, mjOBJ_JOINT, joint_name.c_str());
+  return GetJointNvById(model, joint_id);
+}
+
+int CountJointNqUnderBodyRecursive(const mjModel* model, int body_id) {
+    // Count the joint nq associated with this body
+  int joint_nq = 0;
+  for (int i = 0; i < model->njnt; i++) {
+    if (model->jnt_bodyid[i] == body_id) {
+      joint_nq += GetJointNqById(model, i);
+    }
+  }
+
+  // Recursively count the joint nq of all child bodies
+  for (int i = 0; i < model->nbody; i++) {
+    if (model->body_parentid[i] == body_id) {
+      joint_nq += CountJointNqUnderBodyRecursive(model, i);
+    }
+  }
+
+  return joint_nq;
+}
+
+int CountJointNqUnderBody(const mjModel* model, std::string body_name) {
+  // Get the body id
+  int body_id = mj_name2id(model, mjOBJ_BODY, body_name.c_str());
+
+  // If the body id is -1, it means the body name was not found
+  if (body_id == -1) {
+    std::ostringstream err_msg;
+    err_msg << "Body name '" << body_name << "' not found in the model";
+    throw std::runtime_error(err_msg.str());
+  }
+
+  // Count the joint nq of this body and all its nested children
+  return CountJointNqUnderBodyRecursive(model, body_id);
+}
+
+int CountJointNvUnderBodyRecursive(const mjModel* model, int body_id) {
+    // Count the joint nv associated with this body
+  int joint_nv = 0;
+  for (int i = 0; i < model->njnt; i++) {
+    if (model->jnt_bodyid[i] == body_id) {
+      joint_nv += GetJointNvById(model, i);
+    }
+  }
+
+  // Recursively count the joint nv of all child bodies
+  for (int i = 0; i < model->nbody; i++) {
+    if (model->body_parentid[i] == body_id) {
+      joint_nv += CountJointNvUnderBodyRecursive(model, i);
+    }
+  }
+
+  return joint_nv;
+}
+
+int CountJointNvUnderBody(const mjModel* model, std::string body_name) {
+  // Get the body id
+  int body_id = mj_name2id(model, mjOBJ_BODY, body_name.c_str());
+
+  // If the body id is -1, it means the body name was not found
+  if (body_id == -1) {
+    std::ostringstream err_msg;
+    err_msg << "Body name '" << body_name << "' not found in the model";
+    throw std::runtime_error(err_msg.str());
+  }
+
+  // Count the joint nv of this body and all its nested children
+  return CountJointNvUnderBodyRecursive(model, body_id);
+}
+
+void PrintJointDebugInfo(const mjModel* model) {
+  for (int i = 0; i < model->njnt; i++) {
+    const char* joint_name = mj_id2name(model, mjOBJ_JOINT, i);
+    int qpos_addr = model->jnt_qposadr[i];
+    int qvel_addr = model->jnt_dofadr[i];
+
+    int dof_nq = GetJointNqById(model, i);
+    int dof_nv = GetJointNvById(model, i);
+
+    std::cout << "Joint " << i;
+    if (joint_name) {
+      std::cout << " (" << joint_name << ")";
+    }
+    std::cout << ":" << std::endl;
+    std::cout << "  nq=" << dof_nq << " at qpos[" << qpos_addr << ":" << qpos_addr + dof_nq << "]" << std::endl;
+    std::cout << "  nv=" << dof_nv << " at qvel[" << qvel_addr << ":" << qvel_addr + dof_nv << "]" << std::endl;
+  }
+}
+
 // set mjData state
 void SetState(const mjModel* model, mjData* data, const double* state) {
   mju_copy(data->qpos, state, model->nq);

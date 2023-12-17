@@ -1,0 +1,51 @@
+<mujoco model="pendulumboard">
+   <statistic extent="2" center="0 0 1"/>
+
+  <default>
+    <motor ctrlrange="-1 1" ctrllimited="true"/>
+    <site size=".04" group="3"/>
+    <default class="body">
+      <!-- tracking site -->
+      <default class="tracking_site">
+        <site type="sphere" size="0.027" rgba="1 0 0 1" group="3"/>
+      </default>
+      <joint type="hinge" damping=".2" stiffness="1" armature=".01" limited="true" solimplimit="0 .99 .01"/>
+    </default>
+  </default>
+  <worldbody>
+    <!-- <geom name="floor_2" type="plane" conaffinity="1" size="50 50 .05"/> -->
+
+  
+    <body name="pendulum_root" pos="0 0 0">
+      <freejoint name="root"/>
+      <body name="pendulum_center">
+        <geom name="pendulum_root_geom" pos="0 0 0.02" size="0.15 0.15 0.02" type="box" rgba="0 0 1 1"/>
+      </body>
+      <!-- horizontal capsule below the front_capsule for tipping -->
+      <body name="horizontal_capsule">
+        <joint name="horizontal_capsule" type="hinge" axis="0 1 0" range="-10 10" limited="true"/>
+        <geom name="horizontal_geom_capsule" fromto="0 -0.25 0.2 0 0.25 0.2" size="0.05" type="capsule" rgba="1 0 0 1"/>
+        <body name="front_capsule">
+          <joint name="front_capsule" type="hinge" axis="1 0 0" range="-20 20" limited="true"/>
+          <geom name="front_geom_capsule" fromto="0 0 0.3 0 0 1" size="0.05" type="capsule" rgba="1 0 0 1" mass="40.8"/>
+          <body name="cube">
+            <geom name="cube_geom" pos="0 0 1" size="0.125 0.125 0.125" type="box" rgba="0 1 0 1"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor joint="front_capsule" ctrlrange="-1.0 1.0" gear="200" ctrllimited="true"/>
+    <motor joint="horizontal_capsule" ctrlrange="-1.0 1.0" gear="200" ctrllimited="true"/>
+  </actuator>
+   <contact>
+        <exclude body1="pendulum_root" body2="horizontal_capsule"/>
+        <exclude body1="pendulum_root" body2="front_capsule"/>
+        <exclude body1="pendulum_root" body2="cube"/>
+        <exclude body1="horizontal_capsule" body2="front_capsule"/>
+        <exclude body1="horizontal_capsule" body2="cube"/>
+        <exclude body1="front_capsule" body2="cube"/>
+    </contact>
+
+</mujoco>

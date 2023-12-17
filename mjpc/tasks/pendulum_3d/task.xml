@@ -1,0 +1,65 @@
+<mujoco model="Pendulum">
+  <include file="../../common.xml"/>
+  <size memory="800K"/>
+  <custom>
+    <numeric name="agent_planner" data="2" />
+    <numeric name="agent_horizon" data="1.3" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="6" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="residual_Height Goal" data="1.155 0.0 1.5" />
+    <numeric name="residual_Velocity" data="0 -5 5" />
+    <numeric name="residual_Heading" data="0 -3.14 3.14" />
+    <numeric name="ilqg_num_rollouts" data="8" />
+    <numeric name="ilqg_regularization_type" data="1" />
+    <numeric name="ilqg_representation" data="2" />
+  </custom>
+
+  <!-- WELDED -->
+
+  <include file="./pendulum.xml" />
+  <include file="../skateboard.xml" />
+  
+  <!-- /WELDED -->
+
+  <worldbody>
+    <camera name="side" mode="trackcom" pos="-3.794 -2.634 2.085" xyaxes="0.536 -0.844 0.000 0.294 0.187 0.937"/>
+    <camera name="close" mode="trackcom"  pos="-1.695 -1.870 1.312" xyaxes="0.702 -0.713 -0.000 0.261 0.257 0.930"/>
+    <camera name="top" mode="trackcom" pos="-0.405 -1.688 20.714" xyaxes="-0.008 -1.000 0.000 1.000 -0.008 0.017"/>
+
+    <body name="goal" mocap="true" pos=".3 0 0.26">
+      <geom size="0.15" contype="0" conaffinity="0" rgba="1 0 0 1" group="2"/>
+    </body>
+    <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
+  </worldbody>
+  
+  <sensor>
+    <user name="Height" dim="1" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Velocity." dim="1" user="0 10.0 0.0 100.0" />
+
+    <user name="Goal Position" dim="3" user="2 0.2 0 0.5 0.1" />
+    <user name="Goal Orientation" dim="1" user="0 10.0 0 100.0" />
+
+    <user name="Joint Vel." dim="3" user="0 0.01 0.0 0.1" />
+    <user name="Control" dim="3" user="3 0.025 0.0 0.1 0.3" />
+
+    <framepos name="trace0" objtype="body" objname="cube"/>
+    <framepos name="trace1" objtype="body" objname="board_center"/>
+    <framelinvel name="skateboard_framelinvel" objtype="body" objname="skateboard"/>
+    <framelinvel name="pendulum_framelinvel" objtype="body" objname="front_capsule"/>
+    <framepos name="cube_position" objtype="body" objname="cube"/>
+    <!-- <frameyaxis name="cube_y_axis" objtype="body" objname="cube"/> -->
+    <framelinvel name="cube_subtreelinvel" objtype="body" objname="cube" />
+    <subtreecom name="cube_subtreecom" body="cube"/>
+    <!-- <framexaxis name="cube_forward" objtype="body" objname="cube" /> -->
+    <!-- <framepos name="sp0" objtype="site" objname="sp0"/> -->
+  </sensor>
+   <equality>
+    <weld body1="pendulum_center" body2="board_center" solref="0.01 1" solimp="0.9 0.95 0.001" anchor="0 0 0" />
+  </equality> 
+
+  <keyframe>
+    <key name="home" qpos='0.00397023 0.00567722 0.142613 0.99998 0.00531942 -1.77776e-05 -0.00334994 -0.0049184 -0.00273437 0.00397044 0.00573152 0.137886 0.999994 -0.000236665 8.53885e-07 -0.00334904 -0.00264243 -0.00052524 0.34482 -0.00616686 -0.000493956 -1.96575 3.12779'/>
+  </keyframe>
+
+</mujoco>

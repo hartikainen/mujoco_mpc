@@ -44,6 +44,19 @@ add_library(
   tasks/fingers/fingers.h
   tasks/hand/hand.cc
   tasks/hand/hand.h
+  # custom tasks
+  tasks/skateboard/humanoid/skateboard.cc
+  tasks/skateboard/humanoid/skateboard.h
+  tasks/pendulum/skateboard/skateboard.cc
+  tasks/pendulum/skateboard/skateboard.h
+  tasks/skateboard/pendulum_3d/pendulum_3d.cc
+  tasks/skateboard/pendulum_3d/pendulum_3d.h
+  tasks/skateboard/no_rider/no_rider.cc
+  tasks/skateboard/no_rider/no_rider.h
+  tasks/skateboard/cart_pole/cart_pole.cc
+  tasks/skateboard/cart_pole/cart_pole.h
+  tasks/skateboard/humanoid_welded/skateboard.cc
+  tasks/skateboard/humanoid_welded/skateboard.h
   tasks/humanoid/stand/stand.cc
   tasks/humanoid/stand/stand.h
   tasks/humanoid/tracking/tracking.cc

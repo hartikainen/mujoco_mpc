@@ -33,6 +33,17 @@ namespace mjpc {
 // maximum number of traces that are visualized
 inline constexpr int kMaxTraces = 99;
 
+// Count the joint dimensions under certain body.
+int GetJointNvById(const mjModel* model, int joint_id);
+int GetJointNvByName(const mjModel* model, const std::string& joint_name);
+int GetJointNqById(const mjModel* model, int joint_id);
+int GetJointNqByName(const mjModel* model, const std::string& joint_name);
+int CountJointNqUnderBodyRecursive(const mjModel* model, int body_id);
+int CountJointNqUnderBody(const mjModel* model, std::string body_name);
+int CountJointNvUnderBodyRecursive(const mjModel* model, int body_id);
+int CountJointNvUnderBody(const mjModel* model, std::string body_name);
+void PrintJointDebugInfo(const mjModel* model);
+
 // set mjData state
 void SetState(const mjModel* model, mjData* data, const double* state);
 

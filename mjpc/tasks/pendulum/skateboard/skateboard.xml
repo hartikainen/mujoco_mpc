@@ -1,0 +1,153 @@
+<mujoco model="skateboard">
+  <default>
+    <default class="skateboard">
+      <default class="truck">
+        <geom type="capsule" size="0.03" rgba="0.4414 0.4727 0.4922 1"/>
+      </default>
+      <default class="hanger">
+        <!-- TODO(hartikainen): need to fix the orientation for the bodies previously -->
+        <!-- welded by these fixed joints. -->
+        <!-- <joint type="fixed" pos="0.0 0.0 0.0" axis="0 1 0" range="-45 45"/> -->
+        <geom type="capsule" fromto="0.0 0.1 -0.05 0.0 -0.1 -0.05" size="0.015" rgba="0.4414 0.4727 0.4922 1"/>
+      </default>
+      <default class="wheel">
+        <!-- TODO(hartikainen): need to fix the orientation for the bodies previously -->
+        <!-- welded by these fixed joints. -->
+        <!-- <joint type="fixed" pos="0.0 0.0 0.0" axis="0 1 0" range="-45 45"/> -->
+        <geom type="sphere" size="0.03" rgba="0.8867 0.2383 0.5781 1"/>
+      </default>
+      <default class="board-base-ball">
+        <default class="board-slider">
+          <joint type="slide" limited="false" stiffness="0" damping="1" frictionloss="0" armature="0"/>
+          <motor ctrllimited="true" ctrlrange="-1 1" gear="100" />
+        </default>
+        <default class="board-ball">
+          <joint type="ball" limited="false" damping="3"/>
+        </default>
+      </default>
+    </default>
+
+  </default>
+
+  <worldbody>
+    <!-- for tweaking Skateboard.xml alone in MuJoCo <geom name="floor_2" type="plane" conaffinity="1" size="50 50 .05"/> -->
+    <!-- <geom name="floor_2" type="plane" conaffinity="1" size="50 50 .05"/> -->
+
+    <body name="skateboard" pos="0 0 0">
+      <joint name="board-x" axis="1 0 0" class="board-slider"/>
+      <joint name="board-y" axis="0 1 0" class="board-slider"/>
+      <joint name="board-z" axis="0 0 1" class="board-slider"/>
+      <joint name="board-ball" class="board-ball"/>
+
+      <!-- board -->
+      <body name="board">
+        <body name="board_center">
+          <geom name="board-base" type="box" size="0.3 0.13 0.01" rgba="0.5859 0.4336 0.1992 1"/>
+        </body>
+        <geom name="board-nose" type="box" size="0.075 0.13 0.01" pos="0.35 0.0 0.01" quat="-0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
+        <geom name="board-tail" type="box" size="0.075 0.13 0.01" pos="-0.35 0.0 0.01" quat="0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
+      </body>
+      <!-- trucks -->
+      <geom name="truck-nose" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020"/>
+      <geom name="truck-tail" class="truck" fromto="-0.20 0.0 -0.020 -0.30 0.0 -0.020"/>
+
+       <!-- Baseplate -->
+      <body name="baseplate-front" pos="0.25 0.0 -0.01">
+        <geom type="box" size="0.05 0.1 0.01" rgba="0.5 0.5 0.5 1"/>
+        <body name="kingpin-front" pos="0 0 -0.01">
+          <geom type="capsule" fromto="0 0 0 0 0 -0.05" size="0.01" rgba="0.5 0.5 0.5 1"/>
+
+          <!-- Bushings and hanger -->
+          <body name="bushings-and-hanger-front" pos="0 0 -0.06">
+            <geom name="bottom-bushing-front" type="ellipsoid" size="0.03 0.03 0.01" rgba="1 0 0 1"/>
+            <geom name="hanger-front" type="box" size="0.02 0.12 0.02" pos="0 0 -0.03" rgba="0.5 0.5 0.5 1"/>
+
+            <!-- Wheels -->
+            <body name="wheel-front-left" pos="0.0 0.15 -0.02">
+              <joint name="wheel-front-left" type="hinge" axis="0 1 0"/>
+              <geom type="cylinder" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+            </body>
+            <body name="wheel-front-right" pos="0.0 -0.15 -0.02">
+              <joint name="wheel-front-right" type="hinge" axis="0 1 0"/>
+              <geom type="cylinder" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+            </body>
+
+            <!-- Hinge joint that allows the hanger to rotate -->
+            <!-- <joint name="hanger-rotate" type="hinge" axis="1 0 0" range="-1 1" limited="true" damping="1" stiffness="100"/> -->
+          </body>
+        </body>
+      </body>
+      <!-- identical but for back truck -->
+      <body name="baseplate-back" pos="-0.25 0.0 -0.01">
+        <geom type="box" size="0.05 0.1 0.01" rgba="0.5 0.5 0.5 1"/>
+        <body name="kingpin-back" pos="0 0 -0.01">
+          <geom type="capsule" fromto="0 0 0 0 0 -0.05" size="0.01" rgba="0.5 0.5 0.5 1"/>
+
+          <!-- Bushings and hanger -->
+          <body name="bushings-and-hanger-back" pos="0 0 -0.06">
+            <geom name="bottom-bushing-back" type="ellipsoid" size="0.03 0.03 0.01" rgba="1 0 0 1"/>
+            <geom name="hanger-back" type="box" size="0.02 0.12 0.02" pos="0 0 -0.03" rgba="0.5 0.5 0.5 1"/>
+
+            <!-- Wheels -->
+            <body name="wheel-back-left" pos="0.0 0.15 -0.02">
+              <joint name="wheel-back-left" type="hinge" axis="0 1 0"/>
+              <geom type="cylinder" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+            </body>
+            <body name="wheel-back-right" pos="0.0 -0.15 -0.02">
+              <joint name="wheel-back-right" type="hinge" axis="0 1 0"/>
+              <geom type="cylinder" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+            </body>
+
+            <!-- Hinge joint that allows the hanger to rotate -->
+            <!-- TODO(elias): need to update losses of numbered joints in order to work -->
+            <!-- <joint name="hanger-rotate-back" type="hinge" axis="1 0 0" range="-1 1" limited="true" damping="1" stiffness="100"/> -->
+          </body>
+        </body>
+      </body>
+      <!-- exlude contact between all board parts,   trucks and kingpins and hangars -->
+      
+    </body>
+  </worldbody>
+  <actuator>
+    <!-- Control the x-translation of the cube. We leave the
+         yz-axes unactuated. This acts as a throttle -->
+    <motor name="throttle-actuator" joint="board-x" class="board-slider" />
+  </actuator>
+  <contact>
+        <exclude body1="board" body2="baseplate-front"/>
+        <exclude body1="board" body2="baseplate-back"/>
+        <exclude body1="board" body2="wheel-front-left"/>
+        <exclude body1="board" body2="wheel-front-right"/>
+        <exclude body1="board" body2="wheel-back-left"/>
+        <exclude body1="board" body2="wheel-back-right"/>
+        <exclude body1="baseplate-front" body2="wheel-front-left"/>
+        <exclude body1="baseplate-front" body2="wheel-front-right"/>
+        <exclude body1="baseplate-front" body2="wheel-back-left"/>
+        <exclude body1="baseplate-front" body2="wheel-back-right"/>
+        <exclude body1="baseplate-back" body2="wheel-front-left"/>
+        <exclude body1="baseplate-back" body2="wheel-front-right"/>
+        <exclude body1="baseplate-back" body2="wheel-back-left"/>
+        <exclude body1="baseplate-back" body2="wheel-back-right"/>
+        <exclude body1="wheel-front-left" body2="wheel-front-right"/>
+        <exclude body1="wheel-front-left" body2="wheel-back-left"/>
+        <exclude body1="wheel-front-left" body2="wheel-back-right"/>
+        <exclude body1="wheel-front-right" body2="wheel-back-left"/>
+        <exclude body1="wheel-front-right" body2="wheel-back-right"/>
+        <exclude body1="wheel-back-left" body2="wheel-back-right"/>
+        <exclude body1="baseplate-front" body2="baseplate-back"/>
+        <exclude body1="baseplate-front" body2="kingpin-front"/>
+        <exclude body1="baseplate-front" body2="kingpin-back"/>
+        <exclude body1="baseplate-front" body2="bushings-and-hanger-front"/>
+        <exclude body1="baseplate-front" body2="bushings-and-hanger-back"/>
+        <exclude body1="baseplate-back" body2="kingpin-front"/>
+        <exclude body1="baseplate-back" body2="kingpin-back"/>
+        <exclude body1="baseplate-back" body2="bushings-and-hanger-front"/>
+        <exclude body1="baseplate-back" body2="bushings-and-hanger-back"/>
+        <exclude body1="kingpin-front" body2="kingpin-back"/>
+        <exclude body1="kingpin-front" body2="bushings-and-hanger-front"/>
+        <exclude body1="kingpin-front" body2="bushings-and-hanger-back"/>
+        <exclude body1="kingpin-back" body2="bushings-and-hanger-front"/>
+        <exclude body1="kingpin-back" body2="bushings-and-hanger-back"/>
+        <exclude body1="bushings-and-hanger-front" body2="bushings-and-hanger-back"/>
+      </contact>
+</mujoco>

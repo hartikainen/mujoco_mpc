@@ -1,0 +1,38 @@
+
+<mujoco model="skateboard">
+    <default>
+        <default class="cartpole">
+            <default class="box-slider">
+                <joint type="slide" limited="true" stiffness="0" damping="1" frictionloss="0" armature="0" range="-0.1 0.1"/>
+                <motor ctrllimited="true" ctrlrange="-1 1" gear="200" />
+            </default>
+            <default class="cartpole-ball">
+                <joint type="ball" limited="true" range="-90 90" damping="3"/>
+                <motor ctrllimited="true" ctrlrange="-1 1" gear="50" />
+            </default>
+        </default>
+    </default>
+    
+    <worldbody>
+        <body name="cartpole" pos="0 0 0" childclass="cartpole">
+            <geom name="cartpole" type="box" size="0.05 0.15 0.01"  mass="1"/>  
+            <freejoint/>
+            <!-- y-axis slider for weight transfer -->
+            <body name="weight-slider" pos="0 0 0.05">
+                <geom name="cartpole-weight" type="box" size="0.05 0.05 0.05"  mass="30.8" rgba="1 0 0 1"/>  <!-- `40.8` for the mass of humanoid -->
+                <joint name="slider-y" axis="0 1 0" class="box-slider"/>
+                <body name="pole" pos="0 0 0.05">
+                    <geom name="pole" type="capsule" mass="10" rgba="0 1 0 1" fromto="0 0 0 0 0 0.5" size="0.02"/>
+                    <joint name="cartpole-ball" axis="1 0 0" class="cartpole-ball" type="hinge"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+    <!-- Control the y-translation of the cube for weight shift -->
+    <motor name="slider-y" joint="slider-y" class="box-slider" />
+    <!-- Control the rotation of the pole -->
+    <motor name="cartpole-ball" joint="cartpole-ball" class="cartpole-ball" />
+    
+  </actuator>
+</mujoco>

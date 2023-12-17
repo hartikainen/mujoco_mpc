@@ -1,0 +1,84 @@
+<mujoco model="Skateboard NoRider">
+  <include file="../../common.xml"/>
+  <include file="../skateboard.xml" />
+  <size memory="800K"/>
+
+  <custom>  
+    <numeric name="agent_planner" data="3" />
+    <numeric name="agent_horizon" data="1.35" />
+    <numeric name="agent_timestep" data="0.015" />
+    <numeric name="sampling_spline_points" data="3" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="gradient_spline_points" data="5" />
+    <numeric name="residual_Heading" data="0.0 -1.57079 +1.57079" />
+    <numeric name="residual_Velocity" data="0.0 -3 +3" />
+  </custom>
+
+  <default>
+    <default class="wheel-spin">
+        <joint type="hinge" axis="0 1 0" limited="false"  damping="1" stiffness="50" />
+        <motor ctrllimited="true" ctrlrange="-1 1" gear="5"/>
+      </default>
+    <default class="no-rider">
+      <default class="no-rider-slider">
+          <joint type="slide" limited="true" stiffness="0" damping="1" frictionloss="0" armature="0" range="-0.1 0.1"/>
+        <motor ctrllimited="true" ctrlrange="-1 1" gear="200" />
+      </default>
+      <default class="no-rider-ball">
+        <joint type="ball" limited="false" damping="3"/>
+      </default>
+    </default>
+  </default>
+
+  <worldbody>
+    <camera name="side" mode="trackcom" pos="-3.794 -2.634 2.085" xyaxes="0.536 -0.844 0.000 0.294 0.187 0.937"/>
+    <camera name="close" mode="trackcom"  pos="-1.695 -1.870 1.312" xyaxes="0.702 -0.713 -0.000 0.261 0.257 0.930"/>
+    <camera name="top" mode="trackcom" pos="-0.405 -1.688 20.714" xyaxes="-0.008 -1.000 0.000 1.000 -0.008 0.017"/>
+
+    <body name="goal" mocap="true" pos=".3 0 0.26">
+      <geom size="0.15" contype="0" conaffinity="0" rgba="0 1 0 1" group="2"/>
+    </body>
+    <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
+
+    <body name="no-rider" pos="0 0 0" childclass="no-rider">
+      <geom name="no-rider" type="box" size="0.05 0.15 0.01"  mass="1"/>  
+      <freejoint/>
+      <!-- y-axis slider for weight transfer -->
+      <body name="weight-slider" pos="0 0 0.05">
+        <geom name="no-rider-weight" type="box" size="0.05 0.05 0.05"  mass="40.8" rgba="1 0 0 1"/>  <!-- `40.8` for the mass of humanoid -->
+        <joint name="no-rider-y" axis="0 1 0" class="no-rider-slider"/>
+      </body>
+    </body>
+  </worldbody>
+
+  <equality>
+    <!-- weld to board_center for balancing-->
+    <weld body1="no-rider" body2="board_center" relpose="0 1 0 0 0 0 0" anchor="0 0 0"/>
+  </equality>
+
+  <sensor>
+    <user name="Velocity" dim="1" user="0 10.0 0 100.0" />
+    <user name="Goal Position" dim="3" user="2 0.2 0 0.5 0.1" />
+    <user name="Goal Orientation" dim="1" user="0 10.0 0 100.0" />
+
+    <user name="Upright" dim="1" user="0 10.0 0 100.0" />
+
+    <user name="Joint Vel." dim="3" user="0 0 0.0 0.1" />
+    <user name="Control" dim="2" user="3 0.03 0.0 0.1 0.3" />
+
+    <framepos name="trace0" objtype="body" objname="board"/>
+    <framelinvel name="board_linvel" objtype="body" objname="board" />
+    <frameangvel name="board_angvel" objtype="body" objname="board"/>
+  </sensor>
+
+  <actuator>
+    <!-- Control the y-translation of the cube for weight shift -->
+    <motor name="no-rider-y" joint="no-rider-y" class="no-rider-slider" />
+    <motor name="wheel-front-left" joint="wheel-front-left" class="wheel-spin" />
+  </actuator>
+
+   <keyframe>
+    <key name="home" qpos='5.43295e-05 0.0118274 0.138635 1 -0.000151644 -3.16902e-10 -4.3344e-06 0.00375642 0.00278779 0.686686 0.838409 0.00278779 -0.683914 -0.835796 5.42464e-05 0.0151123 0.15811 0.999997 0.00234836 -1.62942e-08 -2.05345e-06 -0.0167769'/>
+  </keyframe>
+
+</mujoco>

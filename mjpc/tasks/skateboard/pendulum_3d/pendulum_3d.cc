@@ -15,7 +15,6 @@ std::string Skateboard::XmlPath() const {
 std::string Skateboard::Name() const { return "Pendulum 3d"; }
 
 int jiiri = 0;
-Skateboard::ResidualFn::ResidualFn(const Skateboard* task) : mjpc::BaseResidualFn(task) {}
 
 // ------------------ Residuals for pendulum skateboard task ------------
 //   Number of residuals: 5

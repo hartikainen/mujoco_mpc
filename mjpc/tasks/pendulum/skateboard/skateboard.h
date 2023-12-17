@@ -9,11 +9,15 @@
 namespace mjpc {
 namespace pendulum {
 
-class Skateboard : public ThreadSafeTask {
+class Skateboard : public Task {
  public:
   class ResidualFn : public mjpc::BaseResidualFn {
    public:
-    explicit ResidualFn(const Skateboard* task);
+    explicit ResidualFn(const Skateboard* task, int current_mode = 0,
+                        double reference_time = 0)
+        : mjpc::BaseResidualFn(task),
+          current_mode_(current_mode),
+          reference_time_(reference_time) {}
 
     // ------------------ Residuals for pendulum skateboard task ------------
     //   Number of residuals: 6
@@ -28,6 +32,10 @@ class Skateboard : public ThreadSafeTask {
     // ----------------------------------------------------------------
     void Residual(const mjModel* model, const mjData* data,
                   double* residual) const override;
+   private:
+    friend class Skateboard;
+    int current_mode_;
+    double reference_time_;
   };
 
   Skateboard() : residual_(this) {}
@@ -37,7 +45,8 @@ class Skateboard : public ThreadSafeTask {
 
  protected:
   std::unique_ptr<mjpc::ResidualFn> ResidualLocked() const override {
-    return std::make_unique<ResidualFn>(this);
+    return std::make_unique<ResidualFn>(this, residual_.current_mode_,
+                                        residual_.reference_time_);
   }
   ResidualFn* InternalResidual() override { return &residual_; }
 

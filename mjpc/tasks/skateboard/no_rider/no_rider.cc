@@ -16,8 +16,6 @@ std::string NoRider::Name() const { return "Skateboard NoRider"; }
 
 int jiiri = 0;
 
-NoRider::ResidualFn::ResidualFn(const NoRider* task) : mjpc::BaseResidualFn(task) {}
-
 // ------------------ Residuals for skateboard no-rider task ------------
 //   Number of residuals: 5
 //     Residual (0): TODO(hartikainen)

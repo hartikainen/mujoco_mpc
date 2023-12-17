@@ -15,7 +15,6 @@ namespace mjpc::weldedhumanoid
   }
   std::string Skateboard::Name() const { return "Welded Skateboard"; }
   int jiiri = 0;
-  Skateboard::ResidualFn::ResidualFn(const Skateboard *task) : mjpc::BaseResidualFn(task) {}
 
   // ------------------ Residuals for weldedhumanoid skateboard task ------------
   //   Number of residuals: 6

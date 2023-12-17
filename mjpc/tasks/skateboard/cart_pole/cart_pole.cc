@@ -16,8 +16,6 @@ std::string CartPole::Name() const { return "Skateboard CartPole"; }
 
 int iteration = 0;
 
-CartPole::ResidualFn::ResidualFn(const CartPole* task) : mjpc::BaseResidualFn(task) {}
-
 // ------------------ Residuals for skateboard cartpole task ------------
 //   Number of residuals: 5
 //     Residual (0): Velocity

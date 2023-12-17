@@ -15,7 +15,6 @@ std::string Skateboard::XmlPath() const {
 std::string Skateboard::Name() const { return "Pendulum 2d"; }
 
 int jiiri = 0;
-Skateboard::ResidualFn::ResidualFn(const Skateboard* task) : mjpc::BaseResidualFn(task) {}
 
 // ------------------ Residuals for pendulum skateboard task ------------
 //   Number of residuals: 5
@@ -29,7 +28,7 @@ Skateboard::ResidualFn::ResidualFn(const Skateboard* task) : mjpc::BaseResidualF
 //     Parameter (1): speed_goal
 // ----------------------------------------------------------------
 void Skateboard::ResidualFn::Residual(const mjModel* model, const mjData* data,
-                                 double* residual) const {
+                                      double* residual) const {
   int counter = 0;
   // --------- user residual dimensions ---------
   // name="Height" dim="1"

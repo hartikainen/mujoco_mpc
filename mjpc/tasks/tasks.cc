@@ -31,6 +31,7 @@
 #include "mjpc/tasks/quadrotor/quadrotor.h"
 #include "mjpc/tasks/quadruped/quadruped.h"
 #include "mjpc/tasks/swimmer/swimmer.h"
+#include "mjpc/tasks/tracking/smpl_humanoid/tracking.h"
 #include "mjpc/tasks/walker/walker.h"
 
 namespace mjpc {
@@ -52,6 +53,7 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
     std::make_shared<QuadrupedFlat>(),
     std::make_shared<QuadrupedHill>(),
     std::make_shared<Swimmer>(),
+    std::make_shared<smpl_humanoid::Tracking>(),
     std::make_shared<Walker>(),
   };
 }

@@ -95,6 +95,8 @@ add_library(
   tasks/quadruped/quadruped.h
   tasks/swimmer/swimmer.cc
   tasks/swimmer/swimmer.h
+  tasks/tracking/smpl_humanoid/tracking.cc
+  tasks/tracking/smpl_humanoid/tracking.h
   tasks/walker/walker.cc
   tasks/walker/walker.h
   planners/planner.cc

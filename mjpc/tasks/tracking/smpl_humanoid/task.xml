@@ -1,31 +1,30 @@
 <mujoco model="SMPLHumanoid Track">
   <include file="../../common.xml"/>
-  <include file="../humanoid.xml" />
-  <size memory="400K"/>
+  <include file="./smpl_humanoid.xml" />
+  <size memory="3M"/>
 
   <custom>
-    <text name="task_transition" data="Jump|Kick Spin|Spin Kick|Cartwheel (1)|Crouch Flip|Cartwheel (2)|Monkey Flip|Dance|Run|Walk" />
-    <numeric name="sampling_representation" data="2" />
-    <numeric name="agent_planner" data="3" />
-    <numeric name="agent_horizon" data="0.75" />
-    <numeric name="agent_timestep" data="0.01666666666666667" />
+    <numeric name="agent_planner" data="2" />
+    <numeric name="agent_horizon" data="0.45" />
+    <numeric name="agent_timestep" data="0.008333333333" />
     <numeric name="agent_integrator" data="3" />
-    <numeric name="sampling_spline_points" data="8" />
     <numeric name="sampling_exploration" data="0.05" />
-    <numeric name="sampling_trajectories" data="16" />
+    <numeric name="sampling_spline_points" data="8" />
+    <numeric name="sampling_representation" data="1" />
+    <numeric name="sampling_trajectories" data="6" />
     <numeric name="ilqg_num_rollouts" data="8" />
     <numeric name="ilqg_regularization_type" data="1" />
-    <numeric name="ilqg_representation" data="2" />
-    <numeric name="residual_Mocap FPS" data="30.0 0.0 240.0" />
+    <numeric name="ilqg_representation" data="1" />
+    <numeric name="residual_Mocap FPS" data="120.0 0.0 240.0" />
   </custom>
 
   <default>
     <default class="mocap_site">
-      <site type="sphere" size="0.027" rgba="0 0 1 1" group="3" material="target"/>
+      <site type="sphere" size="0.027" rgba="1 0 0 1" group="2"/>
     </default>
   </default>
 
-  <option timestep="0.01666666666666667" integrator="implicitfast"/>
+  <option timestep="0.008333333333" integrator="implicitfast"/>
 
   <worldbody>
     <body name="mocap[pelvis]" mocap="true">
@@ -79,31 +78,37 @@
   </worldbody>
 
   <sensor>
-    <user name="act_dot" dim="21" user="0 0.03 0.0 0.1" />
-    <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
-    <user name="Control" dim="21" user="3 0.1 0 1.0 0.3" />
+    <user name="ctrl" dim="49" user="6 1e-5 0 1.0 0.01" />
+    <user name="act_dot" dim="49" user="6 0.003 0 1.0 0.01" />
 
-    <user name="Pos[pelvis]" dim="3" user="6 100.0 0.0 100.0 0.1" />
-    <user name="Pos[head]" dim="3" user="6 0.0 0.0 100.0 0.1" />
-    <user name="Pos[toe]" dim="6" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[heel]" dim="6" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[knee]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
-    <user name="Pos[hand]" dim="6" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[elbow]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
-    <user name="Pos[shoulder]" dim="6" user="6 100.0 0.0 100.0 0.1" />
-    <user name="Pos[hip]" dim="6" user="6 30.0 0.0 100.0 0.1" />
+    <!-- <user name="Pos[Pelvis-xyz]" dim="3" user="1 1.0 0.0 10.0 0.03 5" /> -->
+    <user name="Pos[Pelvis-xy]" dim="2" user="1 3.0 0.0 10.0 0.02 5" />
+    <user name="Pos[Pelvis-z]" dim="1" user="2 0.3 0.0 10.0 0.1" />
+    <user name="Pos[L_Hip]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[L_Knee]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[L_Ankle]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[L_Toe]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[R_Hip]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[R_Knee]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[R_Ankle]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[R_Toe]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[Torso]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <!-- <user name="Pos[Spine]" dim="3" user="2 0.3 0.0 10.0 0.1" /> -->
+    <!-- <user name="Pos[Chest]" dim="3" user="2 0.3 0.0 10.0 0.1" /> -->
+    <user name="Pos[Neck]" dim="3" user="2 0.3 0.0 10.0 0.1" />
+    <user name="Pos[Head]" dim="3" user="2 0.3 0.0 10.0 0.1" />
+    <!-- <user name="Pos[L_Thorax]" dim="3" user="2 0.3 0.0 10.0 0.1" /> -->
+    <user name="Pos[L_Shoulder]" dim="3" user="2 3.0 0.0 10.0 0.02" />
+    <user name="Pos[L_Elbow]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[L_Wrist]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[L_Hand]" dim="3" user="2 1.0 0.0 10.0 0.1" />
+    <!-- <user name="Pos[R_Thorax]" dim="3" user="2 0.3 0.0 10.0 0.1" /> -->
+    <user name="Pos[R_Shoulder]" dim="3" user="2 3.0 0.0 10.0 0.02" />
+    <user name="Pos[R_Elbow]" dim="3" user="2 1.0 0.0 10.0 0.03" />
+    <user name="Pos[R_Wrist]" dim="3" user="2 0.3 0.0 10.0 0.03" />
+    <user name="Pos[R_Hand]" dim="3" user="2 1.0 0.0 10.0 0.1" />
 
-    <user name="Vel[root]" dim="3" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[head]" dim="3" user="6 0.0 0 1.0 0.3" />
-    <user name="Vel[toe]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[heel]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[knee]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[hand]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[elbow]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[shoulder]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
-
-    <framepos name="trace0" objtype="body" objname="pelvis"/>
+    <framepos name="trace0" objtype="body" objname="Pelvis"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />
     <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]" />
@@ -139,15 +144,4 @@
     <framelinvel name="tracking_linvel[lhip]" objtype="site" objname="tracking[lhip]" />
     <framelinvel name="tracking_linvel[rhip]" objtype="site" objname="tracking[rhip]" />
   </sensor>
-
-  <include file="./keyframes/CMU-CMU-02-02_04_poses.xml" />    <!-\- simple jump, balance -\->
-  <include file="./keyframes/CMU-CMU-87-87_01_poses.xml" />    <!-\- jump with kick and spin -\->
-  <include file="./keyframes/CMU-CMU-88-88_06_poses.xml" />    <!-\- jump and spin kick -\->
-  <include file="./keyframes/CMU-CMU-88-88_07_poses.xml" />    <!-\- cartwheel-\->
-  <include file="./keyframes/CMU-CMU-88-88_08_poses.xml" />    <!-\- crouch and flip backward on hands -\->
-  <include file="./keyframes/CMU-CMU-88-88_09_poses.xml" />    <!-\- stretch and cartwheel -\->
-  <include file="./keyframes/CMU-CMU-90-90_19_poses.xml" />    <!-\- monkey backflip -\->
-  <include file="./keyframes/CMU-CMU-103-103_08_poses.xml" />  <!-\- dance: "xtra fancY charleston" -\->
-  <include file="./keyframes/CMU-CMU-108-108_13_poses.xml" />  <!-\- run -\->
-  <include file="./keyframes/CMU-CMU-137-137_40_poses.xml" />  <!-\- walk -\->
 </mujoco>

@@ -808,7 +808,7 @@ void AddConnector(mjvScene* scene, mjtGeom type, mjtNum width,
 // number of available hardware threads
 #if defined(__APPLE__) || defined(_WIN32)
 int NumAvailableHardwareThreads(void) {
-  return std::thread::hardware_concurrency();
+  return std::thread::hardware_concurrency() * 2;
 }
 #else
 int NumAvailableHardwareThreads(void) {

@@ -41,6 +41,31 @@ std::tuple<int, int, double, double> ComputeInterpolationValues(double index,
   return {index_0, index_1, weight_0, weight_1};
 }
 
+constexpr int kMotionLengths[] = {
+    121,  // Jump - CMU-CMU-02-02_04
+    154,  // Kick Spin - CMU-CMU-87-87_01
+    115,  // Spin Kick - CMU-CMU-88-88_06
+    78,   // Cartwheel (1) - CMU-CMU-88-88_07
+    145,  // Crouch Flip - CMU-CMU-88-88_08
+    188,  // Cartwheel (2) - CMU-CMU-88-88_09
+    260,  // Monkey Flip - CMU-CMU-90-90_19
+    279,  // Dance - CMU-CMU-103-103_08
+    39,   // Run - CMU-CMU-108-108_13
+    510,  // Walk - CMU-CMU-137-137_40
+};
+
+// return length of motion trajectory
+int MotionLength(int id) { return kMotionLengths[id]; }
+
+// return starting keyframe index for motion
+int MotionStartIndex(int id) {
+  int start = 0;
+  for (int i = 0; i < id; i++) {
+    start += MotionLength(i);
+  }
+  return start;
+}
+
 // Hardcoded constant matching keyframes from CMU mocap dataset.
 // names for humanoid bodies
 const std::array<std::string, 16> body_names = {
@@ -74,9 +99,9 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   // ----- get mocap frames ----- //
   // get motion start index
-  int start = 0;
+  int start = MotionStartIndex(current_mode_);
   // get motion trajectory length
-  int length = model->nkey;
+  int length = MotionLength(current_mode_);
   double current_index = (data->time - reference_time_) * fps + start;
   int last_key_index = start + length - 1;
 
@@ -249,9 +274,9 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
   double fps = residual_.parameters_[ParameterIndex(model, "Mocap FPS")];
 
   // get motion start index
-  int start = 0;
+  int start = MotionStartIndex(mode);
   // get motion trajectory length
-  int length = model->nkey;
+  int length = MotionLength(mode);
 
   // check for motion switch
   if (residual_.current_mode_ != mode || d->time == 0.0) {
@@ -289,6 +314,10 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
 
   mju_copy(d->mocap_pos, mocap_pos_0, model->nmocap * 3);
   mju_addTo(d->mocap_pos, mocap_pos_1, model->nmocap * 3);
+
+  for (int i = 0; i < model->nmocap; ++i) {
+    d->mocap_pos[i * 3 + 1] += 1.0;
+  }
 
   mj_freeStack(d);
 }

@@ -201,52 +201,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 //   Linearly interpolate between two consecutive key frames in order to
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
-void Tracking::TransitionLocked(mjModel *model, mjData *d) {
-  double fps = residual_.parameters_[ParameterIndex(model, "Mocap FPS")];
-
-  // get motion start index
-  int start = 0;
-  // get motion trajectory length
-  int length = model->nkey;
-
-  // check for motion switch
-  if (residual_.current_mode_ != mode || d->time == 0.0) {
-    residual_.current_mode_ = mode;       // set motion id
-    residual_.reference_time_ = d->time;  // set reference time
-
-    // set initial state
-    mju_copy(d->qpos, model->key_qpos + model->nq * start, model->nq);
-    mju_copy(d->qvel, model->key_qvel + model->nv * start, model->nv);
-  }
-
-  // indices
-  double current_index = (d->time - residual_.reference_time_) * fps + start;
-  int last_key_index = start + length - 1;
-
-  // Positions:
-  // We interpolate linearly between two consecutive key frames in order to
-  // provide smoother signal for tracking.
-  int key_index_0, key_index_1;
-  double weight_0, weight_1;
-  std::tie(key_index_0, key_index_1, weight_0, weight_1) =
-      ComputeInterpolationValues(current_index, last_key_index);
-
-  mj_markStack(d);
-
-  mjtNum *mocap_pos_0 = mj_stackAllocNum(d, 3 * model->nmocap);
-  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * model->nmocap);
-
-  // Compute interpolated frame.
-  mju_scl(mocap_pos_0, model->key_mpos + model->nmocap * 3 * key_index_0,
-          weight_0, model->nmocap * 3);
-
-  mju_scl(mocap_pos_1, model->key_mpos + model->nmocap * 3 * key_index_1,
-          weight_1, model->nmocap * 3);
-
-  mju_copy(d->mocap_pos, mocap_pos_0, model->nmocap * 3);
-  mju_addTo(d->mocap_pos, mocap_pos_1, model->nmocap * 3);
-
-  mj_freeStack(d);
-}
+void Tracking::TransitionLocked(mjModel *model, mjData *d) {}
 
 }  // namespace mjpc::smpl_humanoid

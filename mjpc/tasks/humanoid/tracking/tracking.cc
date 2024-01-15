@@ -82,20 +82,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   int counter = 0;
 
-  if (last_key_index < current_index) {
-    counter =
-      model->na
-      + model->nv - 6
-      + model->nu
-      + 2 * 3
-      + 7 * 6
-      + 2 * 3
-      + 7 * 6;
-    mju_zero(residual, counter);
-    CheckSensorDim(model, counter);
-    return;
-  }
-
   // Positions:
   // We interpolate linearly between two consecutive key frames in order to
   // provide smoother signal for tracking.
@@ -106,22 +92,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   // ----- residual ----- //
 
-  // ----- act_dot ----- //
-  if (data->time == 0) {
-    mju_zero(residual + counter, model->na);
-  } else {
-    mju_copy(residual + counter, data->act_dot, model->na);
-  }
-  counter += model->na;
-
-  // ----- joint velocity ----- //
-  if (data->time == 0) {
-    mju_zero(residual + counter, model->nv - 6);
-  } else {
-    mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
-  }
-  counter += model->nv - 6;
-
   // ----- action ----- //
   if (data->time == 0) {
     mju_zero(residual + counter, model->nu);
@@ -129,6 +99,14 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_copy(residual + counter, data->ctrl, model->nu);
   }
   counter += model->nu;
+
+  // ----- act_dot ----- //
+  if (data->time == 0) {
+    mju_zero(residual + counter, model->na);
+  } else {
+    mju_copy(residual + counter, data->act_dot, model->na);
+  }
+  counter += model->na;
 
   // ----- position ----- //
   // Compute interpolated frame.
@@ -168,32 +146,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   auto &body_name = std::span(body_names).front();
   assert(body_name == "pelvis");
 
-  double pelvis_distance_xyz[3];
-  mju_sub3(pelvis_distance_xyz, pelvis_mpos, pelvis_sensor_pos);
-
-  double ltoe_mpos[3];
-  get_body_mpos("ltoe", ltoe_mpos);
-  double rtoe_mpos[3];
-  get_body_mpos("rtoe", rtoe_mpos);
-
-  double min_toe_z = std::min({ltoe_mpos[2], rtoe_mpos[2]});
-
-  auto sigmoid = [] (double x) { return 1.0 / (1.0 + std::exp(-x)); };
-
-  double pelvis_xy_multiplier = 20.0;
-  // We ease the root's z-position tolerance when the toes are slightly off the
-  // ground, because some of the motion sequences have small vertical errors
-  // perhaps due to hidden platforms in the scene. The fix is roughly a soft
-  // version of following:
-  // `(0.04 < min_toe_z && min_toe_z < 0.09) ? 6.0 : 20.0;`
-  // TODO(hartikainen): Fix/filter the mocap sequences and remove the custom
-  // `pelvis_z_multiplier` from here.
-  double pelvis_z_multiplier =
-    pelvis_xy_multiplier - 18.0 * (sigmoid(200.0 * (min_toe_z - 0.00))
-                                   - sigmoid(200.0 * (min_toe_z - 0.20)));
-  residual[counter + 0] = pelvis_distance_xyz[0] * pelvis_xy_multiplier;
-  residual[counter + 1] = pelvis_distance_xyz[1] * pelvis_xy_multiplier;
-  residual[counter + 2] = pelvis_distance_xyz[2] * pelvis_z_multiplier;
+  mju_sub3(&residual[counter], pelvis_mpos, pelvis_sensor_pos);
   counter += 3;
 
   for (const auto &body_name : std::span(body_names).subspan(1)) {
@@ -204,37 +157,26 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    mju_subFrom3(body_mpos, pelvis_mpos);
-    mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
+    // // Pelvis and shoulders are global, rest are relative to pelvis.
+    // bool is_pelvis_relative = (
+    //   !(body_name == "pelvis" || body_name == "lshoulder" || body_name == "rshoulder")
+    // );
+    // if (is_pelvis_relative) {
+    //   mju_subFrom3(body_mpos, pelvis_mpos);
+    //   mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
+    // }
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
     counter += 3;
   }
 
-  // ----- velocity ----- //
-  for (const auto &body_name : body_names) {
-    std::string mocap_body_name = "mocap[" + body_name + "]";
-    std::string linvel_sensor_name = "tracking_linvel[" + body_name + "]";
-    int mocap_body_id = mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str());
-    assert(0 <= mocap_body_id);
-    int body_mocapid = model->body_mocapid[mocap_body_id];
-    assert(0 <= body_mocapid);
 
-    // compute finite-difference velocity
-    mju_copy3(
-        &residual[counter],
-        model->key_mpos + model->nmocap * 3 * key_index_1 + 3 * body_mocapid);
-    mju_subFrom3(
-        &residual[counter],
-        model->key_mpos + model->nmocap * 3 * key_index_0 + 3 * body_mocapid);
-    mju_scl3(&residual[counter], &residual[counter], fps);
-
-    // subtract current velocity
-    double *sensor_linvel =
-        SensorByName(model, data, linvel_sensor_name.c_str());
-    mju_subFrom3(&residual[counter], sensor_linvel);
-
-    counter += 3;
+  if (last_key_index < current_index) {
+    mju_scl(
+      residual + model->nu + model->na,
+      residual + model->nu + model->na,
+      mju_pow(0.95, current_index - last_key_index),
+      counter - model->nu - model->na);
   }
 
   CheckSensorDim(model, counter);
@@ -245,52 +187,6 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 //   Linearly interpolate between two consecutive key frames in order to
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
-void Tracking::TransitionLocked(mjModel *model, mjData *d) {
-  double fps = residual_.parameters_[ParameterIndex(model, "Mocap FPS")];
-
-  // get motion start index
-  int start = 0;
-  // get motion trajectory length
-  int length = model->nkey;
-
-  // check for motion switch
-  if (residual_.current_mode_ != mode || d->time == 0.0) {
-    residual_.current_mode_ = mode;       // set motion id
-    residual_.reference_time_ = d->time;  // set reference time
-
-    // set initial state
-    mju_copy(d->qpos, model->key_qpos + model->nq * start, model->nq);
-    mju_copy(d->qvel, model->key_qvel + model->nv * start, model->nv);
-  }
-
-  // indices
-  double current_index = (d->time - residual_.reference_time_) * fps + start;
-  int last_key_index = start + length - 1;
-
-  // Positions:
-  // We interpolate linearly between two consecutive key frames in order to
-  // provide smoother signal for tracking.
-  int key_index_0, key_index_1;
-  double weight_0, weight_1;
-  std::tie(key_index_0, key_index_1, weight_0, weight_1) =
-      ComputeInterpolationValues(current_index, last_key_index);
-
-  mj_markStack(d);
-
-  mjtNum *mocap_pos_0 = mj_stackAllocNum(d, 3 * model->nmocap);
-  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * model->nmocap);
-
-  // Compute interpolated frame.
-  mju_scl(mocap_pos_0, model->key_mpos + model->nmocap * 3 * key_index_0,
-          weight_0, model->nmocap * 3);
-
-  mju_scl(mocap_pos_1, model->key_mpos + model->nmocap * 3 * key_index_1,
-          weight_1, model->nmocap * 3);
-
-  mju_copy(d->mocap_pos, mocap_pos_0, model->nmocap * 3);
-  mju_addTo(d->mocap_pos, mocap_pos_1, model->nmocap * 3);
-
-  mj_freeStack(d);
-}
+void Tracking::TransitionLocked(mjModel *model, mjData *d) {}
 
 }  // namespace mjpc::humanoid

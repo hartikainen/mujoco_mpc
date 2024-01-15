@@ -278,7 +278,7 @@ class FiniteDifferenceGradient {
 
   // members
   std::vector<double> gradient;
-  double epsilon = 1.0e-5;
+  double epsilon = 1.0e-7;
  private:
   std::vector<double> workspace_;
 };
@@ -301,7 +301,7 @@ class FiniteDifferenceJacobian {
   std::vector<double> jacobian_transpose;
   std::vector<double> output;
   std::vector<double> output_nominal;
-  double epsilon = 1.0e-5;
+  double epsilon = 1.0e-7;
  private:
   std::vector<double> workspace_;
 };
@@ -321,7 +321,7 @@ class FiniteDifferenceHessian {
 
   // members
   std::vector<double> hessian;
-  double epsilon = 1.0e-5;
+  double epsilon = 1.0e-7;
  private:
   std::vector<double> workspace1_;
   std::vector<double> workspace2_;

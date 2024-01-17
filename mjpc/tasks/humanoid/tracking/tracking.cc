@@ -175,7 +175,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_scl(
       residual + model->nu + model->na,
       residual + model->nu + model->na,
-      mju_pow(0.95, current_index - last_key_index),
+      mju_pow(0.8, current_index - last_key_index),
       counter - model->nu - model->na);
   }
 

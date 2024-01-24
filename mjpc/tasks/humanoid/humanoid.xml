@@ -35,7 +35,7 @@
       </default>
 
       <!-- joints -->
-      <joint type="hinge" damping=".2" stiffness="1" armature=".01" limited="true" solimplimit="0 .99 .01"/>
+      <joint type="hinge" damping="0.2" stiffness="1" armature=".01" limited="true" solimplimit="0 .99 .01"/>
       <default class="joint_big">
         <joint damping="5" stiffness="10"/>
         <default class="hip_x">
@@ -64,7 +64,7 @@
         </default>
       </default>
       <default class="shoulder">
-        <joint range="-85 60"/>
+        <joint range="-145 80"/>
       </default>
       <default class="elbow">
         <joint range="-100 50" stiffness="0"/>
@@ -72,7 +72,7 @@
 
       <!-- tracking site -->
       <default class="tracking_site">
-        <site type="sphere" size="0.027" rgba="1 0 0 1" group="3"/>
+        <site type="sphere" size="0.027" rgba="0 0 1 1" group="3"/>
       </default>
     </default>
   </default>
@@ -81,8 +81,8 @@
     <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
     <body name="torso" pos="0 0 1.282" childclass="body">
       <light name="top" pos="0 0 2" mode="trackcom"/>
-      <camera name="back" pos="-3 0 1" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
-      <camera name="side" pos="0 -3 1" xyaxes="1 0 0 0 1 2" mode="trackcom"/>
+      <camera name="back" pos="-3 -0.2 1" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
+      <camera name="side" pos="-0.75 -3 1" xyaxes="1 0 0 0 1 2" mode="trackcom"/>
       <freejoint name="root"/>
       <geom name="torso" fromto="0 -.07 0 0 .07 0" size=".07"/>
       <geom name="waist_upper" fromto="-.01 -.06 -.12 -.01 .06 -.12" size=".06"/>
@@ -205,27 +205,27 @@
   </tendon>
 
   <actuator>
-    <motor name="abdomen_y"       gear="40"  joint="abdomen_y"/>
-    <motor name="abdomen_z"       gear="40"  joint="abdomen_z"/>
-    <motor name="abdomen_x"       gear="40"  joint="abdomen_x"/>
-    <motor name="hip_x_right"     gear="40"  joint="hip_x_right"/>
-    <motor name="hip_z_right"     gear="40"  joint="hip_z_right"/>
-    <motor name="hip_y_right"     gear="120" joint="hip_y_right"/>
-    <motor name="knee_right"      gear="100" joint="knee_right"/>
-    <motor name="ankle_x_right"   gear="20"  joint="ankle_x_right"/>
-    <motor name="ankle_y_right"   gear="20"  joint="ankle_y_right"/>
-    <motor name="hip_x_left"      gear="40"  joint="hip_x_left"/>
-    <motor name="hip_z_left"      gear="40"  joint="hip_z_left"/>
-    <motor name="hip_y_left"      gear="120" joint="hip_y_left"/>
-    <motor name="knee_left"       gear="100" joint="knee_left"/>
-    <motor name="ankle_x_left"    gear="20"  joint="ankle_x_left"/>
-    <motor name="ankle_y_left"    gear="20"  joint="ankle_y_left"/>
-    <motor name="shoulder1_right" gear="20"  joint="shoulder1_right"/>
-    <motor name="shoulder2_right" gear="20"  joint="shoulder2_right"/>
-    <motor name="elbow_right"     gear="40"  joint="elbow_right"/>
-    <motor name="shoulder1_left"  gear="20"  joint="shoulder1_left"/>
-    <motor name="shoulder2_left"  gear="20"  joint="shoulder2_left"/>
-    <motor name="elbow_left"      gear="40"  joint="elbow_left"/>
+    <general name="abdomen_y" ctrllimited="true" ctrlrange="-1 1" forcerange="-300 300" joint="abdomen_y" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="274.8894" biasprm="-117.8097 -300 0"/>
+    <general name="abdomen_z" ctrllimited="true" ctrlrange="-1 1" forcerange="-180 180" joint="abdomen_z" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="141.37164" biasprm="0 -180 0"/>
+    <general name="abdomen_x" ctrllimited="true" ctrlrange="-1 1" forcerange="-200 200" joint="abdomen_x" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="122.173" biasprm="0 -200 0"/>
+    <general name="hip_x_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-200 200" joint="hip_x_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="69.8132" biasprm="-34.9066 -200 0"/>
+    <general name="hip_z_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-200 200" joint="hip_z_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="165.8063" biasprm="-43.6333 -200 0"/>
+    <general name="hip_y_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-300 300" joint="hip_y_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="445.059" biasprm="-340.3392 -300 0"/>
+    <general name="knee_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-160 160" joint="knee_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="226.19472" biasprm="-220.6096 -160 0"/>
+    <general name="ankle_x_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-50 50" joint="ankle_x_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="43.63325" biasprm="0 -50 0"/>
+    <general name="ankle_y_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="ankle_y_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="104.7198" biasprm="0 -120 0"/>
+    <general name="hip_x_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-200 200" joint="hip_x_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="69.8132" biasprm="-34.9066 -200 0"/>
+    <general name="hip_z_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-200 200" joint="hip_z_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="165.8063" biasprm="-43.6333 -200 0"/>
+    <general name="hip_y_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-300 300" joint="hip_y_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="445.059" biasprm="-340.3392 -300 0"/>
+    <general name="knee_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-160 160" joint="knee_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="226.19472" biasprm="-220.6096 -160 0"/>
+    <general name="ankle_x_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-50 50" joint="ankle_x_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="43.63325" biasprm="0 -50 0"/>
+    <general name="ankle_y_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="ankle_y_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="104.7198" biasprm="0 -120 0"/>
+    <general name="shoulder1_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="shoulder1_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="235.61945" biasprm="-68.067841 -120 0"/>
+    <general name="shoulder2_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="shoulder2_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="235.61945" biasprm="-68.067841 -120 0"/>
+    <general name="elbow_right" ctrllimited="true" ctrlrange="-1 1" forcerange="-90 90" joint="elbow_right" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="117.80973" biasprm="-39.26988 -90 0"/>
+    <general name="shoulder1_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="shoulder1_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="235.61945" biasprm="-68.067841 -120 0"/>
+    <general name="shoulder2_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-120 120" joint="shoulder2_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="235.61945" biasprm="-68.067841 -120 0"/>
+    <general name="elbow_left" ctrllimited="true" ctrlrange="-1 1" forcerange="-90 90" joint="elbow_left" dyntype="filter" biastype="affine" dynprm="0.03" gainprm="117.80973" biasprm="-39.26988 -90 0"/>
   </actuator>
 
 </mujoco>

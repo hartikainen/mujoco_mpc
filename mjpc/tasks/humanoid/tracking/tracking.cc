@@ -18,6 +18,10 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <span>
 #include <string>
 #include <tuple>
 
@@ -36,9 +40,6 @@ std::tuple<int, int, double, double> ComputeInterpolationValues(double index,
 
   return {index_0, index_1, weight_0, weight_1};
 }
-
-// Hardcoded constant matching keyframes from CMU mocap dataset.
-constexpr double kFps = 30.0;
 
 constexpr int kMotionLengths[] = {
     121,  // Jump - CMU-CMU-02-02_04
@@ -65,9 +66,10 @@ int MotionStartIndex(int id) {
   return start;
 }
 
+// Hardcoded constant matching keyframes from CMU mocap dataset.
 // names for humanoid bodies
-const std::array<std::string, 16> body_names = {
-    "pelvis",    "head",      "ltoe",  "rtoe",  "lheel",  "rheel",
+const std::array<std::string, 15> body_names = {
+    "pelvis",    "ltoe",  "rtoe",  "lheel",  "rheel",
     "lknee",     "rknee",     "lhand", "rhand", "lelbow", "relbow",
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
@@ -93,13 +95,17 @@ std::string Tracking::Name() const { return "Humanoid Track"; }
 // ----------------------------------------------------------------
 void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                   double *residual) const {
+  double fps = parameters_[ParameterIndex(model, "Mocap FPS")];
+
   // ----- get mocap frames ----- //
   // get motion start index
   int start = MotionStartIndex(current_mode_);
   // get motion trajectory length
   int length = MotionLength(current_mode_);
-  double current_index = (data->time - reference_time_) * kFps + start;
+  double current_index = (data->time - reference_time_) * fps + start;
   int last_key_index = start + length - 1;
+
+  int counter = 0;
 
   // Positions:
   // We interpolate linearly between two consecutive key frames in order to
@@ -110,15 +116,14 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
       ComputeInterpolationValues(current_index, last_key_index);
 
   // ----- residual ----- //
-  int counter = 0;
-
-  // ----- joint velocity ----- //
-  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
-  counter += model->nv - 6;
 
   // ----- action ----- //
-  mju_copy(&residual[counter], data->ctrl, model->nu);
+  mju_copy(residual + counter, data->ctrl, model->nu);
   counter += model->nu;
+
+  // ----- act_dot ----- //
+  mju_copy(residual + counter, data->act_dot, model->na);
+  counter += model->na;
 
   // ----- position ----- //
   // Compute interpolated frame.
@@ -149,27 +154,19 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_copy3(result, sensor_pos);
   };
 
-  // compute marker and sensor averages
-  double avg_mpos[3] = {0};
-  double avg_sensor_pos[3] = {0};
-  int num_body = 0;
-  for (const auto &body_name : body_names) {
-    double body_mpos[3];
-    double body_sensor_pos[3];
-    get_body_mpos(body_name, body_mpos);
-    mju_addTo3(avg_mpos, body_mpos);
-    get_body_sensor_pos(body_name, body_sensor_pos);
-    mju_addTo3(avg_sensor_pos, body_sensor_pos);
-    num_body++;
-  }
-  mju_scl3(avg_mpos, avg_mpos, 1.0/num_body);
-  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0/num_body);
+  double pelvis_mpos[3];
+  get_body_mpos("pelvis", pelvis_mpos);
 
-  // residual for averages
-  mju_sub3(&residual[counter], avg_mpos, avg_sensor_pos);
+  double pelvis_sensor_pos[3];
+  get_body_sensor_pos("pelvis", pelvis_sensor_pos);
+
+  auto &body_name = std::span(body_names).front();
+  assert(body_name == "pelvis");
+
+  mju_sub3(&residual[counter], pelvis_mpos, pelvis_sensor_pos);
   counter += 3;
 
-  for (const auto &body_name : body_names) {
+  for (const auto &body_name : std::span(body_names).subspan(1)) {
     double body_mpos[3];
     get_body_mpos(body_name, body_mpos);
 
@@ -177,11 +174,10 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    mju_subFrom3(body_mpos, avg_mpos);
-    mju_subFrom3(body_sensor_pos, avg_sensor_pos);
+    mju_subFrom3(body_mpos, pelvis_mpos);
+    mju_subFrom3(body_sensor_pos, pelvis_sensor_pos);
 
     mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
-
     counter += 3;
   }
 
@@ -201,7 +197,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_subFrom3(
         &residual[counter],
         model->key_mpos + model->nmocap * 3 * key_index_0 + 3 * body_mocapid);
-    mju_scl3(&residual[counter], &residual[counter], kFps);
+    mju_scl3(&residual[counter], &residual[counter], fps);
 
     // subtract current velocity
     double *sensor_linvel =
@@ -211,7 +207,11 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
     counter += 3;
   }
 
-
+  if (last_key_index < current_index) {
+    mju_scl(residual + model->nu + model->na, residual + model->nu + model->na,
+            mju_pow(0.5, current_index - last_key_index),
+            counter - model->nu - model->na);
+  }
   CheckSensorDim(model, counter);
 }
 
@@ -221,6 +221,8 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
 void Tracking::TransitionLocked(mjModel *model, mjData *d) {
+  double fps = residual_.parameters_[ParameterIndex(model, "Mocap FPS")];
+
   // get motion start index
   int start = MotionStartIndex(mode);
   // get motion trajectory length
@@ -237,7 +239,7 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
   }
 
   // indices
-  double current_index = (d->time - residual_.reference_time_) * kFps + start;
+  double current_index = (d->time - residual_.reference_time_) * fps + start;
   int last_key_index = start + length - 1;
 
   // Positions:
@@ -262,6 +264,10 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
 
   mju_copy(d->mocap_pos, mocap_pos_0, model->nmocap * 3);
   mju_addTo(d->mocap_pos, mocap_pos_1, model->nmocap * 3);
+
+  // for (int i = 0; i < model->nmocap; ++i) {
+  //   d->mocap_pos[i * 3 + 1] += 1.0;
+  // }
 
   mj_freeStack(d);
 }

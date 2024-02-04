@@ -144,7 +144,7 @@ void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   auto get_body_sensor_pos = [&](const std::string &body_name,
                                  double result[3]) {
-    std::string pos_sensor_name = "pushing_pos[" + body_name + "]";
+    std::string pos_sensor_name = "tracking_pos[" + body_name + "]";
     double *sensor_pos = SensorByName(model, data, pos_sensor_name.c_str());
     mju_copy3(result, sensor_pos);
   };
@@ -188,7 +188,7 @@ void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // ----- velocity ----- //
   for (const auto &body_name : body_names) {
     std::string mocap_body_name = "mocap[" + body_name + "]";
-    std::string linvel_sensor_name = "pushing_linvel[" + body_name + "]";
+    std::string linvel_sensor_name = "tracking_linvel[" + body_name + "]";
     int mocap_body_id = mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str());
     assert(0 <= mocap_body_id);
     int body_mocapid = model->body_mocapid[mocap_body_id];

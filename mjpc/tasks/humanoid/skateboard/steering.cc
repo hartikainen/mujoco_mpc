@@ -124,7 +124,6 @@ void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,
     // Calculate heading error using sine function
     double heading_error = sin(goal_heading - skateboard_heading)/3;
 
-
     // Rotate the pixels in 3D space around the Z-axis (board_center)
     double mocap_tilt =  0.2; // parameters[ParameterIndex(model, "Tilt ratio")];
     // # TODO(eliasmikkola): fix ParameterIndex not working (from utilities.h)
@@ -157,52 +156,6 @@ void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,
     }
     mju_copy(result, modified_mocap_pos.data(), (model->nmocap - 1) * 3);
 }
-// std::vector<double> ComputeFeetErrorResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_, const std::function<double*(const mjModel*, const mjData*, const char*)>& SensorByName){
-//     // ----- Skateboard: Feet should be on the skateboard ----- //
-
-//   double *back_plate_pos = SensorByName(model, data, "track-back-plate");
-//   double *tail_pos = SensorByName(model, data, "track-tail");
-//   double *front_plate_pos = SensorByName(model, data, "track-front-plate");
-
-//   double *left_foot_pos = SensorByName(model, data, "tracking_foot_left");
-//   double *right_foot_pos = SensorByName(model, data, "tracking_foot_right");
-
-//   double right_feet_slider = parameters[ParameterIndex(model, "rFeet pos")];
-//   double left_feet_slider = parameters[ParameterIndex(model, "LFeet pos")];
-  
-//   // calculate x-wise difference between the plates, based on right_feet_slider
-//   double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
-//   double plate_distance_y = mju_abs(back_plate_pos[1] - front_plate_pos[1]);
-//   // calculate the x position of the line set by the plates
-//   double right_feet_x = front_plate_pos[0] - right_feet_slider * plate_distance_x;
-//   double right_feet_y = front_plate_pos[1] - right_feet_slider * plate_distance_y;
-  
-
-  
-//   // print target and current z position
-//   // left feet error, distance to back plate position 
-//   double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
-//   double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
-//   double distance_z = mju_abs(left_foot_pos[2] - (back_plate_pos[2]));
-//   if (left_feet_slider > 0) {
-//     distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
-//     distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
-//     distance_z = mju_abs(left_foot_pos[2] - (tail_pos[2]));
-    
-//   }
-//   if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && back_plate_pos[2] <0.3) distance_z *= 10;
-//   double left_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
-
-//   // right feet error, distance to front plate position
-//   distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
-//   distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
-//   distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
-//   if (right_foot_pos[2] < front_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && front_plate_pos[2] <0.3) distance_z *= 10;
-//   double right_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
-
-//   residual[counter++] = right_feet_error * standing;
-//   residual[counter++] = left_feet_error * standing;
-// }  
 
 // current_mode_ and reference_time_ as Int, pass function SensorByName
 std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_) {
@@ -211,7 +164,7 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
   //   * Figure out `SensorByName`
 
   
-  std::vector<mjtNum> mocap_translated(3 * model->nmocap);
+  std::vector<mjtNum> mocap_translated(3 * model->nmocap -1);
 
   // if jiiri % 50, else copy data mocap_pos
   move_mocap_poses(mocap_translated.data(), model, data, {}, current_mode_);
@@ -352,10 +305,6 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
-  std::vector<mjtNum> mocap_translated(3 * model->nmocap);
-
-  // if jiiri % 50, else copy data mocap_pos
-  move_mocap_poses(mocap_translated.data(), model, data, {}, current_mode_);
 
   // ----- residual ----- //
   int counter = 0;

@@ -1,4 +1,4 @@
-<mujoco model="Humanoid Track">
+<mujoco model="Humanoid Skateboard Steer">
   <include file="../../common.xml"/>
   <include file="../humanoid.xml" />
   <size memory="400K"/>

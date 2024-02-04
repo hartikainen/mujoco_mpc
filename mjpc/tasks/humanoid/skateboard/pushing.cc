@@ -79,7 +79,7 @@ namespace mjpc::humanoid {
 std::string Pushing::XmlPath() const {
   return GetModelPath("humanoid/skateboard/pushing-task.xml");
 }
-std::string Pushing::Name() const { return "Humanoid Skateboard Steer"; }
+std::string Pushing::Name() const { return "Humanoid Skateboard Push"; }
 
 // ------------- Residuals for humanoid skateboard pushing task -------------
 //   Number of residuals:

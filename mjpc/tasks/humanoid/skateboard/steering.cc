@@ -72,27 +72,14 @@ const std::array<std::string, 16> body_names = {
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
 
-}  // namespace
+void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
+  // TODO(hartikainen): This should:
+  //   * return vector, not modify residual
+  //   * remove all references to residual from this function.
+  //   * remove all references to counter.
+  //   * Needs to take in `current_mode_`, `reference_time_` as arguments.
+  //   * Figure out `SensorByName`
 
-namespace mjpc::humanoid {
-
-std::string Steering::XmlPath() const {
-  return GetModelPath("humanoid/skateboard/steering-task.xml");
-}
-std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
-
-// ------------- Residuals for humanoid skateboard steering task -------------
-//   Number of residuals:
-//     Residual (0): Joint vel: minimise joint velocity
-//     Residual (1): Control: minimise control
-//     Residual (2-11): Steering position: minimise steering position error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//     Residual (11-20): Steering velocity: minimise steering velocity error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//   Number of parameters: 0
-// ----------------------------------------------------------------
-void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
-                                  double *residual) const {
   // ----- get mocap frames ----- //
   // get motion start index
   int start = MotionStartIndex(current_mode_);
@@ -210,7 +197,38 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
     counter += 3;
   }
+}
 
+}  // Namespace
+
+namespace mjpc::humanoid {
+
+std::string Steering::XmlPath() const {
+  return GetModelPath("humanoid/skateboard/steering-task.xml");
+}
+std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
+
+// ------------- Residuals for humanoid skateboard steering task -------------
+//   Number of residuals:
+//     Residual (0): Joint vel: minimise joint velocity
+//     Residual (1): Control: minimise control
+//     Residual (2-11): Steering position: minimise steering position error
+//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
+//     Residual (11-20): Steering velocity: minimise steering velocity error
+//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
+//   Number of parameters: 0
+// ----------------------------------------------------------------
+void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
+                                    double *residual) const {
+  // TODO(hartikainen): Compute each residual in their own functions, then fill
+  // in the `residual`, update `counter` and `CheckSensorDim` at the end.
+  tracking_residual =
+      compute_tracking_residual(const mjModel *model, const mjData *data);
+  mju_copy(residual[counter], tracking_residual, tracking_resdiual_size);
+
+  feet_on_board_residual =
+      compute_feet_on_board_residual(const mjModel *model, const mjData *data);
+  mju_copy(residual[counter], tracking_residual, tracking_resdiual_size);
 
   CheckSensorDim(model, counter);
 }

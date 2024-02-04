@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mjpc/tasks/humanoid/tracking/tracking.h"
+#include "mjpc/tasks/humanoid/skateboard/pushing.h"
 
 #include <algorithm>
 #include <array>
@@ -76,22 +76,22 @@ const std::array<std::string, 16> body_names = {
 
 namespace mjpc::humanoid {
 
-std::string Tracking::XmlPath() const {
-  return GetModelPath("humanoid/tracking/task.xml");
+std::string Pushing::XmlPath() const {
+  return GetModelPath("humanoid/skateboard/pushing-task.xml");
 }
-std::string Tracking::Name() const { return "Humanoid Track"; }
+std::string Pushing::Name() const { return "Humanoid Skateboard Steer"; }
 
-// ------------- Residuals for humanoid tracking task -------------
+// ------------- Residuals for humanoid skateboard pushing task -------------
 //   Number of residuals:
 //     Residual (0): Joint vel: minimise joint velocity
 //     Residual (1): Control: minimise control
-//     Residual (2-11): Tracking position: minimise tracking position error
+//     Residual (2-11): Pushing position: minimise pushing position error
 //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//     Residual (11-20): Tracking velocity: minimise tracking velocity error
+//     Residual (11-20): Pushing velocity: minimise pushing velocity error
 //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
 //   Number of parameters: 0
 // ----------------------------------------------------------------
-void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
+void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                   double *residual) const {
   // ----- get mocap frames ----- //
   // get motion start index
@@ -103,7 +103,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   // Positions:
   // We interpolate linearly between two consecutive key frames in order to
-  // provide smoother signal for tracking.
+  // provide smoother signal for pushing.
   int key_index_0, key_index_1;
   double weight_0, weight_1;
   std::tie(key_index_0, key_index_1, weight_0, weight_1) =
@@ -144,7 +144,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
   auto get_body_sensor_pos = [&](const std::string &body_name,
                                  double result[3]) {
-    std::string pos_sensor_name = "tracking_pos[" + body_name + "]";
+    std::string pos_sensor_name = "pushing_pos[" + body_name + "]";
     double *sensor_pos = SensorByName(model, data, pos_sensor_name.c_str());
     mju_copy3(result, sensor_pos);
   };
@@ -188,7 +188,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // ----- velocity ----- //
   for (const auto &body_name : body_names) {
     std::string mocap_body_name = "mocap[" + body_name + "]";
-    std::string linvel_sensor_name = "tracking_linvel[" + body_name + "]";
+    std::string linvel_sensor_name = "pushing_linvel[" + body_name + "]";
     int mocap_body_id = mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str());
     assert(0 <= mocap_body_id);
     int body_mocapid = model->body_mocapid[mocap_body_id];
@@ -220,7 +220,7 @@ void Tracking::ResidualFn::Residual(const mjModel *model, const mjData *data,
 //   Linearly interpolate between two consecutive key frames in order to
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
-void Tracking::TransitionLocked(mjModel *model, mjData *d) {
+void Pushing::TransitionLocked(mjModel *model, mjData *d) {
   // get motion start index
   int start = MotionStartIndex(mode);
   // get motion trajectory length
@@ -242,7 +242,7 @@ void Tracking::TransitionLocked(mjModel *model, mjData *d) {
 
   // Positions:
   // We interpolate linearly between two consecutive key frames in order to
-  // provide smoother signal for tracking.
+  // provide smoother signal for pushing.
   int key_index_0, key_index_1;
   double weight_0, weight_1;
   std::tie(key_index_0, key_index_1, weight_0, weight_1) =

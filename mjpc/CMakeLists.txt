@@ -54,6 +54,10 @@ add_library(
   tasks/humanoid/stand/stand.h
   tasks/humanoid/tracking/tracking.cc
   tasks/humanoid/tracking/tracking.h
+  tasks/humanoid/skateboard/pushing.cc
+  tasks/humanoid/skateboard/pushing.h
+  tasks/humanoid/skateboard/steering.cc
+  tasks/humanoid/skateboard/steering.h
   tasks/humanoid/walk/walk.cc
   tasks/humanoid/walk/walk.h
   tasks/manipulation/common.cc

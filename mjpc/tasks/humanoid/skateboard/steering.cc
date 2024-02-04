@@ -41,16 +41,7 @@ std::tuple<int, int, double, double> ComputeInterpolationValues(double index,
 constexpr double kFps = 30.0;
 
 constexpr int kMotionLengths[] = {
-    121,  // Jump - CMU-CMU-02-02_04
-    154,  // Kick Spin - CMU-CMU-87-87_01
-    115,  // Spin Kick - CMU-CMU-88-88_06
-    78,   // Cartwheel (1) - CMU-CMU-88-88_07
-    145,  // Crouch Flip - CMU-CMU-88-88_08
-    188,  // Cartwheel (2) - CMU-CMU-88-88_09
-    260,  // Monkey Flip - CMU-CMU-90-90_19
-    279,  // Dance - CMU-CMU-103-103_08
-    39,   // Run - CMU-CMU-108-108_13
-    510,  // Walk - CMU-CMU-137-137_40
+    1, // steering
 };
 
 // return length of motion trajectory
@@ -97,13 +88,6 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
   double weight_0, weight_1;
   std::tie(key_index_0, key_index_1, weight_0, weight_1) =
       ComputeInterpolationValues(current_index, last_key_index);
-
-  // ----- joint velocity ----- //
-  residual_to_return.insert(residual_to_return.end(), data->qvel + 6, data->qvel + model->nv);
-
-
-  // ----- action ----- //
-  residual_to_return.insert(residual_to_return.end(), data->ctrl, data->ctrl + model->nu);
 
   // ----- position ----- //
   // Compute interpolated frame.
@@ -233,6 +217,7 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // in the `residual`, update `counter` and `CheckSensorDim` at the end.
   auto tracking_residual = ComputeTrackingResidual(model, data, current_mode_, reference_time_, SensorByName);
   mju_copy(residual + counter, tracking_residual.data(), tracking_residual.size());
+  counter += tracking_residual.size();
 
   CheckSensorDim(model, counter);
 }

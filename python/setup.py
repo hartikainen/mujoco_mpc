@@ -284,7 +284,7 @@ setuptools.setup(
     ],
     install_requires=[
         "grpcio",
-        "mujoco >= 2.3.3",
+        "mujoco==3.1.2",
         "protobuf",
     ],
     extras_require={

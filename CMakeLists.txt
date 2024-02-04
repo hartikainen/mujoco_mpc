@@ -56,9 +56,11 @@ set(MUJOCO_BUILD_TESTS OFF)
 set(MUJOCO_TEST_PYTHON_UTIL OFF)
 
 set(MUJOCO_MPC_MUJOCO_GIT_TAG
-    893c4042302e5a5738dbc462466e746f2bbc1ea5
+    "3.1.2"
     CACHE STRING "Git revision for MuJoCo."
 )
+
+message(STATUS "Fetching MuJoCo from git tag: ${MUJOCO_MPC_MUJOCO_GIT_TAG}")
 
 findorfetch(
   USE_SYSTEM_PACKAGE

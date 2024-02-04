@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
-#define MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#ifndef MJPC_TASKS_HUMANOID_SKATEBOARD_PUSHING_TASK_H_
+#define MJPC_TASKS_HUMANOID_SKATEBOARD_PUSHING_TASK_H_
 
 #include <mujoco/mujoco.h>
 #include "mjpc/task.h"
@@ -21,35 +21,35 @@
 namespace mjpc {
 namespace humanoid {
 
-class Tracking : public Task {
+class Pushing : public Task {
  public:
   class ResidualFn : public mjpc::BaseResidualFn {
    public:
-    explicit ResidualFn(const Tracking* task, int current_mode = 0,
+    explicit ResidualFn(const Pushing* task, int current_mode = 0,
                         double reference_time = 0)
         : mjpc::BaseResidualFn(task),
           current_mode_(current_mode),
           reference_time_(reference_time) {}
 
-    // ------------- Residuals for humanoid tracking task -------------
+    // ------------- Residuals for humanoid skateboard pushing task -------------
     //   Number of residuals:
     //     Residual (0): Joint vel: minimise joint velocity
     //     Residual (1): Control: minimise control
-    //     Residual (2-11): Tracking position: minimise tracking position error
+    //     Residual (2-11): Pushing position: minimise pushing position error
     //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-    //     Residual (11-20): Tracking velocity: minimise tracking velocity error
+    //     Residual (11-20): Pushing velocity: minimise pushing velocity error
     //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
     //   Number of parameters: 0
     // ----------------------------------------------------------------
     void Residual(const mjModel* model, const mjData* data,
                   double* residual) const override;
    private:
-    friend class Tracking;
+    friend class Pushing;
     int current_mode_;
     double reference_time_;
   };
 
-  Tracking() : residual_(this) {}
+  Pushing() : residual_(this) {}
 
   // --------------------- Transition for humanoid task ------------------------
   //   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
@@ -77,4 +77,4 @@ class Tracking : public Task {
 }  // namespace humanoid
 }  // namespace mjpc
 
-#endif  // MJPC_TASKS_HUMANOID_TRACKING_TASK_H_
+#endif  // MJPC_TASKS_HUMANOID_SKATEBOARD_PUSHING_TASK_H_

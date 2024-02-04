@@ -71,8 +71,8 @@ const std::array<std::string, 16> body_names = {
     "lknee",     "rknee",     "lhand", "rhand", "lelbow", "relbow",
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
-
-void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
+// current_mode_ and reference_time_ as Int, pass function SensorByName
+std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_, const std::function<double*(const mjModel*, const mjData*, const char*)>& SensorByName) {
   // TODO(hartikainen): This should:
   //   * return vector, not modify residual
   //   * remove all references to residual from this function.
@@ -88,6 +88,8 @@ void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
   double current_index = (data->time - reference_time_) * kFps + start;
   int last_key_index = start + length - 1;
 
+  // create a vector to store the residuals
+  std::vector<double> residual_to_return;
   // Positions:
   // We interpolate linearly between two consecutive key frames in order to
   // provide smoother signal for steering.
@@ -96,16 +98,12 @@ void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
   std::tie(key_index_0, key_index_1, weight_0, weight_1) =
       ComputeInterpolationValues(current_index, last_key_index);
 
-  // ----- residual ----- //
-  int counter = 0;
-
   // ----- joint velocity ----- //
-  mju_copy(residual + counter, data->qvel + 6, model->nv - 6);
-  counter += model->nv - 6;
+  residual_to_return.insert(residual_to_return.end(), data->qvel + 6, data->qvel + model->nv);
+
 
   // ----- action ----- //
-  mju_copy(&residual[counter], data->ctrl, model->nu);
-  counter += model->nu;
+  residual_to_return.insert(residual_to_return.end(), data->ctrl, data->ctrl + model->nu);
 
   // ----- position ----- //
   // Compute interpolated frame.
@@ -152,9 +150,8 @@ void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
   mju_scl3(avg_mpos, avg_mpos, 1.0/num_body);
   mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0/num_body);
 
-  // residual for averages
-  mju_sub3(&residual[counter], avg_mpos, avg_sensor_pos);
-  counter += 3;
+  // residual_to_return for averages
+  residual_to_return.insert(residual_to_return.end(), avg_mpos, avg_mpos + 3);
 
   for (const auto &body_name : body_names) {
     double body_mpos[3];
@@ -167,9 +164,7 @@ void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
     mju_subFrom3(body_mpos, avg_mpos);
     mju_subFrom3(body_sensor_pos, avg_sensor_pos);
 
-    mju_sub3(&residual[counter], body_mpos, body_sensor_pos);
-
-    counter += 3;
+    residual_to_return.insert(residual_to_return.end(), body_mpos, body_mpos + 3);
   }
 
   // ----- velocity ----- //
@@ -181,22 +176,23 @@ void ComputeTrackingResidual(const mjModel *model, const mjData *data) {
     int body_mocapid = model->body_mocapid[mocap_body_id];
     assert(0 <= body_mocapid);
 
-    // compute finite-difference velocity
-    mju_copy3(
-        &residual[counter],
-        model->key_mpos + model->nmocap * 3 * key_index_1 + 3 * body_mocapid);
-    mju_subFrom3(
-        &residual[counter],
-        model->key_mpos + model->nmocap * 3 * key_index_0 + 3 * body_mocapid);
-    mju_scl3(&residual[counter], &residual[counter], kFps);
+    // Compute finite-difference velocity for x, y, z components
+    double fd_velocity[3]; // Finite-difference velocity
+    for (int i = 0; i < 3; ++i) {
+      fd_velocity[i] = (model->key_mpos[model->nmocap * 3 * key_index_1 + 3 * body_mocapid + i] -
+                        model->key_mpos[model->nmocap * 3 * key_index_0 + 3 * body_mocapid + i]) * kFps;
+    }
 
-    // subtract current velocity
-    double *sensor_linvel =
-        SensorByName(model, data, linvel_sensor_name.c_str());
-    mju_subFrom3(&residual[counter], sensor_linvel);
+    // Get current velocity from sensor
+    double *sensor_linvel = SensorByName(model, data, linvel_sensor_name.c_str());
 
-    counter += 3;
+    // Subtract current velocity from finite-difference velocity and add to residual
+    for (int i = 0; i < 3; ++i) {
+      double velocity_residual = fd_velocity[i] - sensor_linvel[i];
+      residual_to_return.push_back(velocity_residual);
+    }
   }
+  return residual_to_return;
 }
 
 }  // Namespace
@@ -218,17 +214,25 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
 //   Number of parameters: 0
 // ----------------------------------------------------------------
+
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
+  // ----- residual ----- //
+  int counter = 0;
+    // ----- joint velocity ----- //
+  int n_humanoid_joints = model->nv - 6 - 6 - 7;
+  mju_copy(residual + counter, data->qvel + 6, n_humanoid_joints);
+  
+  counter += n_humanoid_joints;
+
+  // ----- action ----- //
+  mju_copy(&residual[counter], data->ctrl, model->nu);
+  counter += model->nu;
+
   // TODO(hartikainen): Compute each residual in their own functions, then fill
   // in the `residual`, update `counter` and `CheckSensorDim` at the end.
-  tracking_residual =
-      compute_tracking_residual(const mjModel *model, const mjData *data);
-  mju_copy(residual[counter], tracking_residual, tracking_resdiual_size);
-
-  feet_on_board_residual =
-      compute_feet_on_board_residual(const mjModel *model, const mjData *data);
-  mju_copy(residual[counter], tracking_residual, tracking_resdiual_size);
+  auto tracking_residual = ComputeTrackingResidual(model, data, current_mode_, reference_time_, SensorByName);
+  mju_copy(residual + counter, tracking_residual.data(), tracking_residual.size());
 
   CheckSensorDim(model, counter);
 }

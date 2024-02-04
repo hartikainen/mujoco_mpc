@@ -2,10 +2,10 @@
   <include file="../../common.xml"/>
   <include file="../humanoid.xml" />
   <include file="./skateboard.xml" />
-  <size memory="5M"/>
+  <size memory="8M"/>
 
   <custom>
-    <text name="task_transition" data="Jump|Kick Spin|Spin Kick|Cartwheel (1)|Crouch Flip|Cartwheel (2)|Monkey Flip|Dance|Run|Walk" />
+    <text name="task_transition" data="Steer" />
     <numeric name="sampling_representation" data="2" />
     <numeric name="agent_planner" data="2" />
     <numeric name="agent_horizon" data="0.5" />
@@ -106,6 +106,10 @@
     <user name="Vel[shoulder]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
 
+    <!-- extra user sensors after tracking  -->
+    <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
+    <user name="Left Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
+    
     <framepos name="trace0" objtype="body" objname="torso"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />

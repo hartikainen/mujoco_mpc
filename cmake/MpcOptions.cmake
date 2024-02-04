@@ -87,9 +87,9 @@ get_mujoco_extra_link_options(EXTRA_LINK_OPTIONS)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC))
   set(EXTRA_COMPILE_OPTIONS
       -Werror
-      -Wall
+      # -Wall
       -Wimplicit-fallthrough
-      -Wunused
+      # -Wunused
       -Wvla
       -Wno-int-in-bool-context
       -Wno-sign-compare

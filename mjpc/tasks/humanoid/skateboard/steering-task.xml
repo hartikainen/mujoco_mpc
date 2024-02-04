@@ -107,9 +107,7 @@
     <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
 
     <!-- extra user sensors after tracking  -->
-    <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
-    <user name="Left Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
-    
+
     <framepos name="trace0" objtype="body" objname="torso"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />

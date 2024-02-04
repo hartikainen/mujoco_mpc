@@ -1,7 +1,8 @@
 <mujoco model="Humanoid Skateboard Steer">
   <include file="../../common.xml"/>
   <include file="../humanoid.xml" />
-  <size memory="400K"/>
+  <include file="./skateboard.xml" />
+  <size memory="5M"/>
 
   <custom>
     <text name="task_transition" data="Jump|Kick Spin|Spin Kick|Cartwheel (1)|Crouch Flip|Cartwheel (2)|Monkey Flip|Dance|Run|Walk" />
@@ -75,12 +76,15 @@
     <body name="mocap[rhip]" mocap="true">
       <site name="mocap[rhip]" class="mocap_site" />
     </body>
+    <body name="goal" mocap="true" pos="0 15 0.26">
+      <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
+    </body>
   </worldbody>
 
   <sensor>
     <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
     <user name="Control" dim="21" user="3 0.1 0 1.0 0.3" />
-
+<!-- 
     <user name="Pos[avg]" dim="3" user="6 100.0 0.0 100.0 0.1" />
     <user name="Pos[pelvis]" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[head]" dim="3" user="6 0.0 0.0 100.0 0.1" />
@@ -100,7 +104,7 @@
     <user name="Vel[hand]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[elbow]" dim="6" user="6 0.1 0 1.0 0.3" />
     <user name="Vel[shoulder]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
+    <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" /> -->
 
     <framepos name="trace0" objtype="body" objname="torso"/>
 
@@ -138,5 +142,5 @@
     <framelinvel name="tracking_linvel[lhip]" objtype="site" objname="tracking[lhip]" />
     <framelinvel name="tracking_linvel[rhip]" objtype="site" objname="tracking[rhip]" />
   </sensor>
-
+  <include file="./keyframes/steer_init.xml" />
 </mujoco>

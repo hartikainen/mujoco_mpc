@@ -20,12 +20,96 @@
 #include <cmath>
 #include <string>
 #include <tuple>
+#include <random>
 
 #include <mujoco/mujoco.h>
 #include "mjpc/utilities.h"
 
 namespace {
   int jiiri = 0;
+
+void move_goal(const mjModel *model, mjData *d, const std::vector<double, std::allocator<double>> parameters, int mode) {
+  // Set new goal position in `data->mocap_pos` if we've reached the goal.
+  const int goal_body_id = mj_name2id(model, mjOBJ_XBODY, "goal");
+  if (goal_body_id < 0) mju_error("body 'goal' not found");
+  const int goal_mocapid = model->body_mocapid[goal_body_id];
+  if (goal_mocapid < 0) mju_error("mocap 'goal' not found");
+  double goal_position[3];
+  mju_copy3(goal_position, d->mocap_pos + 3 * goal_mocapid);
+
+  double skateboard_position[3] = {0.0, 0.0, 0.0};
+  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+
+  // move mpos to x,y position of skateboard
+  mju_copy(skateboard_position, d->xpos + 3 * skateboard_body_id_, 3);
+
+  double skateboard_goal_error[3] = {0.0, 0.0, 0.0};
+  mju_sub3(skateboard_goal_error, goal_position, skateboard_position);
+  double skateboard_goal_distance = mju_norm(skateboard_goal_error, 2);
+
+  double goal_switch_threshold_m = 0.5;
+  if (skateboard_goal_distance < goal_switch_threshold_m) {
+    std::random_device rd;  // Obtain a random number from hardware
+    std::mt19937 eng(rd()); // Seed the generator
+    std::bernoulli_distribution distr; // Define the distribution
+
+    // Move goal to a new position. We choose a random position that is
+    // `goal_offset_x` ahead and `goal_offset_y` to either left or right,
+    // direction chosen uniformly. The "zero"-direction is the skateboard's
+    // heading direction at the time when we reach the goal.
+
+    // get skateboard heading.
+    double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+    mju_copy(skateboard_xmat, d->xmat + 9 * skateboard_body_id_, 9);
+    // double skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
+    double skateboard_heading[2] = {skateboard_xmat[0], skateboard_xmat[3]};
+
+    // // `skateboard_heading` is off by 90 degrees atm. Rotate it 90 degress counter clockwise
+    // // to get the "zero"-direction.
+    // skateboard_heading[0] = -skateboard_heading[1];
+    // skateboard_heading[1] = skateboard_heading[0];
+
+    double goal_offset_xy[2] = {0.0, 0.0};
+    mju_copy(goal_offset_xy, skateboard_heading, 2);
+    mju_normalize(goal_offset_xy, 2);
+
+    double goal_move_distance_forward = 8.0;
+    double goal_move_distance_side = 2.0;
+
+    bool left_or_right = distr(eng); // Generate a random boolean
+
+    // // compute offset vector in front of the board.
+    double goal_offset_forward[2] = {
+      goal_offset_xy[0] * goal_move_distance_forward,
+      goal_offset_xy[1] * goal_move_distance_forward,
+    };
+    // mju_scl(goal_offset_xy, goal_offset_xy, goal_move_distance_forward, 2);
+    // compute offset vector to the side of the board.
+    double goal_offset_perpendicular[2];
+
+    if (left_or_right) {
+      goal_offset_perpendicular[0] = -goal_offset_xy[1] * goal_move_distance_side;
+      goal_offset_perpendicular[1] = +goal_offset_xy[0] * goal_move_distance_side;
+    } else {
+      goal_offset_perpendicular[0] = +goal_offset_xy[1] * goal_move_distance_side;
+      goal_offset_perpendicular[1] = -goal_offset_xy[0] * goal_move_distance_side;
+    }
+
+    double goal_offset[3] = {
+        goal_offset_forward[0] + goal_offset_perpendicular[0],
+        goal_offset_forward[1] + goal_offset_perpendicular[1],
+        0.0,
+    };
+
+    double new_goal_position[3] = {
+        skateboard_position[0] + goal_offset[0],
+        skateboard_position[1] + goal_offset[1],
+        goal_position[2],
+    };
+    mju_copy3(d->mocap_pos + 3 * goal_mocapid, new_goal_position);
+  }
+}
+
 // compute interpolation between mocap frames
 std::tuple<int, int, double, double> ComputeInterpolationValues(double index,
                                                                 int max_index) {
@@ -68,11 +152,11 @@ void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,
   // todo move residual here
 
     // mjtNum *modified_mocap_pos = new mjtNum[3 * (model->nmocap - 1)];
-    std::vector<mjtNum> modified_mocap_pos(3 * model->nmocap);
+    std::vector<mjtNum> modified_mocap_pos(3 * model->nmocap -1);
 
     // Compute interpolated frame.
-    mju_scl(modified_mocap_pos.data(), model->key_mpos + (model->nmocap)* 3 * mode,
-            1, (model->nmocap)* 3);
+    mju_scl(modified_mocap_pos.data(), model->key_mpos + (model->nmocap - 1)* 3 * mode,
+            1, (model->nmocap - 1 )* 3);
     double skateboard_center[3] = {0.0, 0.0, 0.0};
     int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
@@ -200,13 +284,13 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
     // mju_copy( result, mocap_translated + 3 * body_mocapid, 3);
     mju_scl3(
         result,
-        mocap_translated.data() + model->nmocap * 3 * key_index_0 + 3 * body_mocapid,
+        mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_0 + 3 * body_mocapid,
         weight_0);
 
     // next frame
     mju_addToScl3(
         result,
-        mocap_translated.data() + model->nmocap * 3 * key_index_1 + 3 * body_mocapid,
+        mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_1 + 3 * body_mocapid,
         weight_1);
   };
 
@@ -268,8 +352,8 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
     // Compute finite-difference velocity for x, y, z components
     double fd_velocity[3]; // Finite-difference velocity
     for (int i = 0; i < 3; ++i) {
-      fd_velocity[i] = (model->key_mpos[model->nmocap * 3 * key_index_1 + 3 * body_mocapid + i] -
-                        model->key_mpos[model->nmocap * 3 * key_index_0 + 3 * body_mocapid + i]) * kFps;
+      fd_velocity[i] = (model->key_mpos[(model->nmocap - 1)  * 3 * key_index_1 + 3 * body_mocapid + i] -
+                        model->key_mpos[(model->nmocap - 1)  * 3 * key_index_0 + 3 * body_mocapid + i]) * kFps;
     }
 
     // Get current velocity from sensor
@@ -412,22 +496,23 @@ void Steering::TransitionLocked(mjModel *model, mjData *d) {
 
   mj_markStack(d);
 
-  mjtNum *modified_mocap_pos = mj_stackAllocNum(d, 3 * model->nmocap);
-  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * model->nmocap);
+  mjtNum *modified_mocap_pos = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
+  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
 
   // Compute interpolated frame.
-  mju_scl(modified_mocap_pos, model->key_mpos + model->nmocap * 3 * key_index_0,
-          weight_0, model->nmocap * 3);
+  mju_scl(modified_mocap_pos, model->key_mpos + (model->nmocap - 1 ) * 3 * key_index_0,
+          weight_0, (model->nmocap - 1 ) * 3);
 
-  mju_scl(mocap_pos_1, model->key_mpos + model->nmocap * 3 * key_index_1,
-          weight_1, model->nmocap * 3);
+  mju_scl(mocap_pos_1, model->key_mpos + (model->nmocap - 1 ) * 3 * key_index_1,
+          weight_1, (model->nmocap - 1 ) * 3);
 
-  mju_copy(d->mocap_pos, modified_mocap_pos, model->nmocap * 3);
-  mju_addTo(d->mocap_pos, mocap_pos_1, model->nmocap * 3);
+  mju_copy(d->mocap_pos, modified_mocap_pos, (model->nmocap - 1 ) * 3);
+  mju_addTo(d->mocap_pos, mocap_pos_1, (model->nmocap - 1 ) * 3);
   
-  mjtNum *mocap_pos_result = mj_stackAllocNum(d, 3 * model->nmocap);
+  mjtNum *mocap_pos_result = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
   move_mocap_poses(mocap_pos_result, model, d, parameters, mode);
   mju_copy(d->mocap_pos, mocap_pos_result, (model->nmocap - 1) * 3);
+  move_goal(model, d, parameters, mode);
   mj_freeStack(d);
 }
 

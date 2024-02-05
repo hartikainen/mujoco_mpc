@@ -17,8 +17,8 @@
     <numeric name="ilqg_num_rollouts" data="16" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="2" />
-    <numeric name="residual_Right Foot Pos" data="0 0 1.0" />
-    <numeric name="residual_Left Foot Pos" data="0 0 1.0" />
+    <numeric name="residual_Right Foot Pos" data="0.2 0 1.0" />
+    <numeric name="residual_Left Foot Pos" data="1.0 0 1.0" />
     <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
   </custom>
 
@@ -79,7 +79,7 @@
     <body name="mocap[rhip]" mocap="true">
       <site name="mocap[rhip]" class="mocap_site" />
     </body>
-    <body name="goal" mocap="true" pos="0 15 0.26">
+    <body name="goal" mocap="true" pos="0 5 0.26">
       <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
     </body>
   </worldbody>
@@ -91,23 +91,23 @@
     <user name="Pos[avg]" dim="3" user="6 100.0 0.0 100.0 0.1" />
     <user name="Pos[pelvis]" dim="3" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[head]" dim="3" user="6 0.0 0.0 100.0 0.1" />
-    <user name="Pos[toe]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
-    <user name="Pos[heel]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
-    <user name="Pos[knee]" dim="6" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[toe]" dim="6" user="7 0.0 0.0 100.0 0.2 4" />
+    <user name="Pos[heel]" dim="6" user="7 0.0 0.0 100.0 0.2 4" />
+    <user name="Pos[knee]" dim="6" user="6 0.0 0.0 100.0 0.1" />
     <user name="Pos[hand]" dim="6" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[elbow]" dim="6" user="7 30.0 0.0 100.0 0.2 4" />
     <user name="Pos[shoulder]" dim="6" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[hip]" dim="6" user="6 30.0 0.0 100.0 0.1" />
 
-    <user name="Vel[root]" dim="3" user="6 0.1 0 1.0 0.3" />
+    <user name="Vel[root]" dim="3" user="6 0.0 0 1.0 0.3" />
     <user name="Vel[head]" dim="3" user="6 0.0 0 1.0 0.3" />
-    <user name="Vel[toe]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[heel]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[knee]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[hand]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[elbow]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[shoulder]" dim="6" user="6 0.1 0 1.0 0.3" />
-    <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
+    <user name="Vel[toe]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[heel]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[knee]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[hand]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[elbow]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[shoulder]" dim="6" user="6 0.0 0 1.0 0.3" />
+    <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
 
     <!-- extra user sensors after tracking  -->
     <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />

@@ -4,19 +4,21 @@
   <include file="./skateboard.xml" />
   <size memory="8M"/>
 
+  <compiler autolimits="true" />
+
   <custom>
     <text name="task_transition" data="Steer" />
-    <numeric name="sampling_representation" data="2" />
     <numeric name="agent_planner" data="2" />
-    <numeric name="agent_horizon" data="0.5" />
-    <numeric name="agent_timestep" data="0.005" />
-    <numeric name="sampling_spline_points" data="16" />
-    <numeric name="sampling_exploration" data="0.15" />
-    <numeric name="sampling_trajectories" data="32" />
+    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_integrator" data="3" />
+    <numeric name="agent_timestep" data="0.01666666667" />
+    <numeric name="sampling_spline_points" data="8" />
+    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="sampling_representation" data="1" />
     <numeric name="gradient_spline_points" data="5" />
-    <numeric name="ilqg_num_rollouts" data="16" />
+    <numeric name="ilqg_num_rollouts" data="8" />
     <numeric name="ilqg_regularization_type" data="1" />
-    <numeric name="ilqg_representation" data="2" />
+    <numeric name="ilqg_representation" data="1" />
     <numeric name="residual_Right Foot Pos" data="0.2 0 1.0" />
     <numeric name="residual_Left Foot Pos" data="1.0 0 1.0" />
     <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
@@ -30,7 +32,17 @@
     </default>
   </default>
 
-  <option timestep="0.005"/>
+  <option timestep="0.01666666667"
+          integrator="implicitfast"
+          cone="pyramidal"
+          iterations="300"
+          tolerance="1e-9"
+          ls_iterations="100"
+          ls_tolerance="1e-3"
+          noslip_iterations="10"
+          noslip_tolerance="0"
+          mpr_iterations="500"
+          mpr_tolerance="1e-8" />
 
   <worldbody>
     <body name="mocap[pelvis]" mocap="true">
@@ -81,14 +93,14 @@
     <body name="mocap[rhip]" mocap="true">
       <site name="mocap[rhip]" class="mocap_site" />
     </body>
-    <body name="goal" mocap="true" pos="0 5 0.26">
+    <body name="goal" mocap="true" pos="0 5 0">
       <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
     </body>
   </worldbody>
 
   <sensor>
     <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
-    <user name="Control" dim="21" user="3 0.1 0 1.0 0.3" />
+    <user name="Control" dim="21" user="3 0.3 0 1.0 0.3" />
 
     <user name="Pos[avg]" dim="3" user="6 100.0 0.0 100.0 0.1" />
     <user name="Pos[pelvis]" dim="3" user="6 30.0 0.0 100.0 0.1" />

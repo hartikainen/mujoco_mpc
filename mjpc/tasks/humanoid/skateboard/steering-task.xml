@@ -17,6 +17,9 @@
     <numeric name="ilqg_num_rollouts" data="16" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="2" />
+    <numeric name="residual_Right Foot Pos" data="0 0 1.0" />
+    <numeric name="residual_Left Foot Pos" data="0 0 1.0" />
+    <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
   </custom>
 
   <default>
@@ -107,8 +110,16 @@
     <user name="Vel[hip]" dim="6" user="6 0.1 0 1.0 0.3" />
 
     <!-- extra user sensors after tracking  -->
-
+    <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
+    <user name="Left Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
+    
     <framepos name="trace0" objtype="body" objname="torso"/>
+
+    <framepos name="tracking_foot_left" objtype="site" objname="tracking[ltoe]"/>
+    <framepos name="tracking_foot_right" objtype="site" objname="tracking[rtoe]"/>
+    <framepos name="track-back-plate" objtype="site" objname="track-back-plate"/>
+    <framepos name="track-tail" objtype="site" objname="track-tail"/>
+    <framepos name="track-front-plate" objtype="site" objname="track-front-plate"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />
     <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]" />

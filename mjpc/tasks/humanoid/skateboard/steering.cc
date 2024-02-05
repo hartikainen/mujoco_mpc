@@ -64,7 +64,7 @@ const std::array<std::string, 16> body_names = {
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
 // compute mocap translations and rotations
-void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,  const std::vector<double, std::allocator<double>> parameters, int mode) {
+void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data, std::__1::vector<double> parameters, int mode) {
   // todo move residual here
 
     // mjtNum *modified_mocap_pos = new mjtNum[3 * (model->nmocap - 1)];
@@ -125,7 +125,7 @@ void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,
     double heading_error = sin(goal_heading - skateboard_heading)/3;
 
     // Rotate the pixels in 3D space around the Z-axis (board_center)
-    double mocap_tilt =  0.2; // parameters[ParameterIndex(model, "Tilt ratio")];
+    double mocap_tilt = parameters[mjpc::ParameterIndex(model, "Tilt ratio")];
     // # TODO(eliasmikkola): fix ParameterIndex not working (from utilities.h)
     // tilt angle max is PI/3
     double tilt_angle = ( mju_min(0.5, mju_max(-0.5, heading_error)) * M_PI / 2.0) * mocap_tilt;
@@ -158,7 +158,7 @@ void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data,
 }
 
 // current_mode_ and reference_time_ as Int, pass function SensorByName
-std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_) {
+std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_, std::__1::vector<double> parameters) {
   // TODO(eliasmikkola): doesn't match the original tracking behavior
   // could be either SensorByName or the vector addition 
   //   * Figure out `SensorByName`
@@ -167,7 +167,7 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
   std::vector<mjtNum> mocap_translated(3 * model->nmocap -1);
 
   // if jiiri % 50, else copy data mocap_pos
-  move_mocap_poses(mocap_translated.data(), model, data, {}, current_mode_);
+  move_mocap_poses(mocap_translated.data(), model, data, parameters, current_mode_);
 
   // ----- get mocap frames ----- //
   // get motion start index
@@ -283,6 +283,50 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
   return residual_to_return;
 }
 
+std::vector<double> ComputeFootPositionsResidual(const mjModel *model, const mjData *data, std::__1::vector<double> parameters) {
+  // ----- Skateboard: Feet should be on the skateboard ----- //
+    double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
+    double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
+    double *front_plate_pos = mjpc::SensorByName(model, data, "track-front-plate");
+
+    double *left_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_left");
+    double *right_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_right");
+ 
+    double right_feet_slider = parameters[mjpc::ParameterIndex(model, "Right Foot Pos")];
+    double left_feet_slider = parameters[mjpc::ParameterIndex(model, "Left Foot Pos")];
+    
+    // calculate x-wise difference between the plates, based on right_feet_slider
+    double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
+    double plate_distance_y = mju_abs(back_plate_pos[1] - front_plate_pos[1]);
+    // calculate the x position of the line set by the plates
+    double right_feet_x = front_plate_pos[0] - right_feet_slider * plate_distance_x;
+    double right_feet_y = front_plate_pos[1] - right_feet_slider * plate_distance_y;
+    
+
+   
+    // print target and current z position
+    // left feet error, distance to back plate position 
+    double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
+    double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
+    double distance_z = mju_abs(left_foot_pos[2] - (back_plate_pos[2]));
+    if (left_feet_slider > 0) {
+      distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
+      distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
+      distance_z = mju_abs(left_foot_pos[2] - (tail_pos[2]));
+      
+    }
+    if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && back_plate_pos[2] <0.3) distance_z *= 10;
+    double left_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
+
+    // right feet error, distance to front plate position
+    distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
+    distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
+    distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
+    if (right_foot_pos[2] < front_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && front_plate_pos[2] <0.3) distance_z *= 10;
+    double right_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
+
+    return {left_feet_error, right_feet_error};
+  }
 }  // Namespace
 
 namespace mjpc::humanoid {
@@ -317,15 +361,19 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   // ----- action ----- //
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
-
-
-  // // TODO(hartikainen): Compute each residual in their own functions, then fill
-  // // in the `residual`, update `counter` and `CheckSensorDim` at the end.
-  auto tracking_residual = ComputeTrackingResidual(model, data, current_mode_, reference_time_);
+  
+  // Tracking Residual
+  auto tracking_residual = ComputeTrackingResidual(model, data, current_mode_, reference_time_, mjpc::BaseResidualFn::parameters_);
   mju_copy(residual + counter, tracking_residual.data(), tracking_residual.size());
   counter += tracking_residual.size();
 
-  // print both tracking residual and tracking_residual
+  // Foot Positions Residual
+  auto foot_positions_residual = ComputeFootPositionsResidual(model, data, mjpc::BaseResidualFn::parameters_);
+  mju_copy(residual + counter, foot_positions_residual.data(), foot_positions_residual.size());
+  counter += foot_positions_residual.size();
+  
+  // TODO(eliasmikkola): fill missing skateboard residuals
+
   CheckSensorDim(model, counter);
 }
 

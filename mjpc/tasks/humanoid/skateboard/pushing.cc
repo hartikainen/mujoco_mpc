@@ -14,6 +14,8 @@
 
 #include "mjpc/tasks/humanoid/skateboard/pushing.h"
 
+#include <mujoco/mujoco.h>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -21,7 +23,6 @@
 #include <string>
 #include <tuple>
 
-#include <mujoco/mujoco.h>
 #include "mjpc/utilities.h"
 
 namespace {
@@ -92,7 +93,7 @@ std::string Pushing::Name() const { return "Humanoid Skateboard Push"; }
 //   Number of parameters: 0
 // ----------------------------------------------------------------
 void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
-                                  double *residual) const {
+                                   double *residual) const {
   // ----- get mocap frames ----- //
   // get motion start index
   int start = MotionStartIndex(current_mode_);
@@ -162,8 +163,8 @@ void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
     mju_addTo3(avg_sensor_pos, body_sensor_pos);
     num_body++;
   }
-  mju_scl3(avg_mpos, avg_mpos, 1.0/num_body);
-  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0/num_body);
+  mju_scl3(avg_mpos, avg_mpos, 1.0 / num_body);
+  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0 / num_body);
 
   // residual for averages
   mju_sub3(&residual[counter], avg_mpos, avg_sensor_pos);
@@ -210,7 +211,6 @@ void Pushing::ResidualFn::Residual(const mjModel *model, const mjData *data,
 
     counter += 3;
   }
-
 
   CheckSensorDim(model, counter);
 }

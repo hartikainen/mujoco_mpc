@@ -14,21 +14,24 @@
 
 #include "mjpc/tasks/humanoid/skateboard/steering.h"
 
+#include <mujoco/mujoco.h>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <random>
 #include <string>
 #include <tuple>
-#include <random>
 
-#include <mujoco/mujoco.h>
 #include "mjpc/utilities.h"
 
 namespace {
-  int jiiri = 0;
+int jiiri = 0;
 
-void move_goal(const mjModel *model, mjData *d, const std::vector<double, std::allocator<double>> parameters, int mode) {
+void move_goal(const mjModel *model, mjData *d,
+               const std::vector<double, std::allocator<double>> parameters,
+               int mode) {
   // Set new goal position in `data->mocap_pos` if we've reached the goal.
   const int goal_body_id = mj_name2id(model, mjOBJ_XBODY, "goal");
   if (goal_body_id < 0) mju_error("body 'goal' not found");
@@ -49,9 +52,9 @@ void move_goal(const mjModel *model, mjData *d, const std::vector<double, std::a
 
   double goal_switch_threshold_m = 0.5;
   if (skateboard_goal_distance < goal_switch_threshold_m) {
-    std::random_device rd;  // Obtain a random number from hardware
-    std::mt19937 eng(rd()); // Seed the generator
-    std::bernoulli_distribution distr; // Define the distribution
+    std::random_device rd;              // Obtain a random number from hardware
+    std::mt19937 eng(rd());             // Seed the generator
+    std::bernoulli_distribution distr;  // Define the distribution
 
     // Move goal to a new position. We choose a random position that is
     // `goal_offset_x` ahead and `goal_offset_y` to either left or right,
@@ -61,10 +64,12 @@ void move_goal(const mjModel *model, mjData *d, const std::vector<double, std::a
     // get skateboard heading.
     double skateboard_xmat[9] = {0.0, 0.0, 0.0};
     mju_copy(skateboard_xmat, d->xmat + 9 * skateboard_body_id_, 9);
-    // double skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
+    // double skateboard_heading = atan2(skateboard_xmat[3],
+    // skateboard_xmat[0]);
     double skateboard_heading[2] = {skateboard_xmat[0], skateboard_xmat[3]};
 
-    // // `skateboard_heading` is off by 90 degrees atm. Rotate it 90 degress counter clockwise
+    // // `skateboard_heading` is off by 90 degrees atm. Rotate it 90 degress
+    // counter clockwise
     // // to get the "zero"-direction.
     // skateboard_heading[0] = -skateboard_heading[1];
     // skateboard_heading[1] = skateboard_heading[0];
@@ -76,23 +81,27 @@ void move_goal(const mjModel *model, mjData *d, const std::vector<double, std::a
     double goal_move_distance_forward = 8.0;
     double goal_move_distance_side = 2.0;
 
-    bool left_or_right = distr(eng); // Generate a random boolean
+    bool left_or_right = distr(eng);  // Generate a random boolean
 
     // // compute offset vector in front of the board.
     double goal_offset_forward[2] = {
-      goal_offset_xy[0] * goal_move_distance_forward,
-      goal_offset_xy[1] * goal_move_distance_forward,
+        goal_offset_xy[0] * goal_move_distance_forward,
+        goal_offset_xy[1] * goal_move_distance_forward,
     };
     // mju_scl(goal_offset_xy, goal_offset_xy, goal_move_distance_forward, 2);
     // compute offset vector to the side of the board.
     double goal_offset_perpendicular[2];
 
     if (left_or_right) {
-      goal_offset_perpendicular[0] = -goal_offset_xy[1] * goal_move_distance_side;
-      goal_offset_perpendicular[1] = +goal_offset_xy[0] * goal_move_distance_side;
+      goal_offset_perpendicular[0] =
+          -goal_offset_xy[1] * goal_move_distance_side;
+      goal_offset_perpendicular[1] =
+          +goal_offset_xy[0] * goal_move_distance_side;
     } else {
-      goal_offset_perpendicular[0] = +goal_offset_xy[1] * goal_move_distance_side;
-      goal_offset_perpendicular[1] = -goal_offset_xy[0] * goal_move_distance_side;
+      goal_offset_perpendicular[0] =
+          +goal_offset_xy[1] * goal_move_distance_side;
+      goal_offset_perpendicular[1] =
+          -goal_offset_xy[0] * goal_move_distance_side;
     }
 
     double goal_offset[3] = {
@@ -126,7 +135,7 @@ std::tuple<int, int, double, double> ComputeInterpolationValues(double index,
 constexpr double kFps = 30.0;
 
 constexpr int kMotionLengths[] = {
-    1, // steering
+    1,  // steering
 };
 
 // return length of motion trajectory
@@ -148,110 +157,120 @@ const std::array<std::string, 16> body_names = {
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
 // compute mocap translations and rotations
-void move_mocap_poses( mjtNum *result, const mjModel *model, const mjData *data, std::__1::vector<double> parameters, int mode) {
+void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
+                      std::__1::vector<double> parameters, int mode) {
   // todo move residual here
 
-    // mjtNum *modified_mocap_pos = new mjtNum[3 * (model->nmocap - 1)];
-    std::vector<mjtNum> modified_mocap_pos(3 * model->nmocap -1);
+  // mjtNum *modified_mocap_pos = new mjtNum[3 * (model->nmocap - 1)];
+  std::vector<mjtNum> modified_mocap_pos(3 * model->nmocap - 1);
 
-    // Compute interpolated frame.
-    mju_scl(modified_mocap_pos.data(), model->key_mpos + (model->nmocap - 1)* 3 * mode,
-            1, (model->nmocap - 1 )* 3);
-    double skateboard_center[3] = {0.0, 0.0, 0.0};
-    int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  // Compute interpolated frame.
+  mju_scl(modified_mocap_pos.data(),
+          model->key_mpos + (model->nmocap - 1) * 3 * mode, 1,
+          (model->nmocap - 1) * 3);
+  double skateboard_center[3] = {0.0, 0.0, 0.0};
+  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
-    // move mpos to x,y position of skateboard
-    mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 3);
-    
-    // print average center of mpos
-    double average_mpos[2] = {0.0, 0.0};
-    // if (mode == kModeSteer){
-      // get average center of mpos
-    for (int i = 0; i < model->nmocap -1; i++) {
-      average_mpos[0] += modified_mocap_pos[3 * i + 0];
-      average_mpos[1] += modified_mocap_pos[3 * i + 1];
+  // move mpos to x,y position of skateboard
+  mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 3);
 
-      modified_mocap_pos[3 * i + 0] += skateboard_center[0];
-      modified_mocap_pos[3 * i + 1] += skateboard_center[1];
-      modified_mocap_pos[3 * i + 2] += skateboard_center[2]-0.1;
-    
-    }
-    average_mpos[0] /= model->nmocap -1;
-    average_mpos[1] /= model->nmocap -1;
+  // print average center of mpos
+  double average_mpos[2] = {0.0, 0.0};
+  // if (mode == kModeSteer){
+  // get average center of mpos
+  for (int i = 0; i < model->nmocap - 1; i++) {
+    average_mpos[0] += modified_mocap_pos[3 * i + 0];
+    average_mpos[1] += modified_mocap_pos[3 * i + 1];
 
-    // subtract the difference between average_mpos and skateboard_center
-    for (int i = 0; i < model->nmocap -1; i++) {
-      modified_mocap_pos[3 * i + 0] -= average_mpos[0];
-      modified_mocap_pos[3 * i + 1] -= average_mpos[1];
-      // modified_mocap_pos[3 * i + 2] += skateboard_center[2];
-    }
-    // }    
+    modified_mocap_pos[3 * i + 0] += skateboard_center[0];
+    modified_mocap_pos[3 * i + 1] += skateboard_center[1];
+    modified_mocap_pos[3 * i + 2] += skateboard_center[2] - 0.1;
+  }
+  average_mpos[0] /= model->nmocap - 1;
+  average_mpos[1] /= model->nmocap - 1;
 
-    double skateboard_heading = 0.0;
-    double skateboard_xmat[9] = {0.0, 0.0, 0.0};
-    mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
-    skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
-    skateboard_heading -= M_PI / 2.0; 
-    
-    int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
-    if (goal_id < 0) mju_error("body 'goal' not found");
+  // subtract the difference between average_mpos and skateboard_center
+  for (int i = 0; i < model->nmocap - 1; i++) {
+    modified_mocap_pos[3 * i + 0] -= average_mpos[0];
+    modified_mocap_pos[3 * i + 1] -= average_mpos[1];
+    // modified_mocap_pos[3 * i + 2] += skateboard_center[2];
+  }
+  // }
 
-    int goal_mocap_id_ = model->body_mocapid[goal_id];
-    if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+  double skateboard_heading = 0.0;
+  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
+  skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
+  skateboard_heading -= M_PI / 2.0;
 
-    // get goal position
-    double* goal_pos = data->mocap_pos + 3*goal_mocap_id_;
+  int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
+  if (goal_id < 0) mju_error("body 'goal' not found");
 
-    // Get goal heading from board position
-    double goal_heading = atan2(goal_pos[1] - skateboard_center[1], goal_pos[0] - skateboard_center[0]) - M_PI / 2.0;;
+  int goal_mocap_id_ = model->body_mocapid[goal_id];
+  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
 
-    // Calculate heading error using sine function
-    double heading_error = sin(goal_heading - skateboard_heading)/3;
+  // get goal position
+  double *goal_pos = data->mocap_pos + 3 * goal_mocap_id_;
 
-    // Rotate the pixels in 3D space around the Z-axis (board_center)
-    double mocap_tilt = parameters[mjpc::ParameterIndex(model, "Tilt ratio")];
-    // # TODO(eliasmikkola): fix ParameterIndex not working (from utilities.h)
-    // tilt angle max is PI/3
-    double tilt_angle = ( mju_min(0.5, mju_max(-0.5, heading_error)) * M_PI / 2.0) * mocap_tilt;
-    // tilt_angle = 0.0;
-    for (int i = 0; i < model->nmocap -1; i++) {
-        // Get the pixel position relative to the board_center
-        double rel_x = modified_mocap_pos[3 * i + 0] - skateboard_center[0];
-        double rel_y = modified_mocap_pos[3 * i + 1] - skateboard_center[1];
+  // Get goal heading from board position
+  double goal_heading = atan2(goal_pos[1] - skateboard_center[1],
+                              goal_pos[0] - skateboard_center[0]) -
+                        M_PI / 2.0;
+  ;
 
-        // perform rotation of tilt_angle around the Y-axis
-        double rotated_z = rel_x * sin(tilt_angle) + modified_mocap_pos[3 * i + 2] * cos(tilt_angle);
-        rel_x = rel_x * cos(tilt_angle) - modified_mocap_pos[3 * i + 2] * sin(tilt_angle);
+  // Calculate heading error using sine function
+  double heading_error = sin(goal_heading - skateboard_heading) / 3;
 
-        // Perform rotation around the Z-axis
-        double rotated_x = cos(skateboard_heading) * rel_x - sin(skateboard_heading) * rel_y;
-        double rotated_y = sin(skateboard_heading) * rel_x + cos(skateboard_heading) * rel_y;
+  // Rotate the pixels in 3D space around the Z-axis (board_center)
+  double mocap_tilt = parameters[mjpc::ParameterIndex(model, "Tilt ratio")];
+  // # TODO(eliasmikkola): fix ParameterIndex not working (from utilities.h)
+  // tilt angle max is PI/3
+  double tilt_angle =
+      (mju_min(0.5, mju_max(-0.5, heading_error)) * M_PI / 2.0) * mocap_tilt;
+  // tilt_angle = 0.0;
+  for (int i = 0; i < model->nmocap - 1; i++) {
+    // Get the pixel position relative to the board_center
+    double rel_x = modified_mocap_pos[3 * i + 0] - skateboard_center[0];
+    double rel_y = modified_mocap_pos[3 * i + 1] - skateboard_center[1];
 
+    // perform rotation of tilt_angle around the Y-axis
+    double rotated_z = rel_x * sin(tilt_angle) +
+                       modified_mocap_pos[3 * i + 2] * cos(tilt_angle);
+    rel_x = rel_x * cos(tilt_angle) -
+            modified_mocap_pos[3 * i + 2] * sin(tilt_angle);
 
-        // Update the rotated pixel positions in modified_mocap_pos
-        modified_mocap_pos[3 * i + 0] = skateboard_center[0] + rotated_x;
-        modified_mocap_pos[3 * i + 1] = skateboard_center[1] + rotated_y;
-        modified_mocap_pos[3 * i + 2] = rotated_z;
+    // Perform rotation around the Z-axis
+    double rotated_x =
+        cos(skateboard_heading) * rel_x - sin(skateboard_heading) * rel_y;
+    double rotated_y =
+        sin(skateboard_heading) * rel_x + cos(skateboard_heading) * rel_y;
 
+    // Update the rotated pixel positions in modified_mocap_pos
+    modified_mocap_pos[3 * i + 0] = skateboard_center[0] + rotated_x;
+    modified_mocap_pos[3 * i + 1] = skateboard_center[1] + rotated_y;
+    modified_mocap_pos[3 * i + 2] = rotated_z;
 
-        rotated_x = cos(skateboard_heading) * rel_x - sin(skateboard_heading) * rel_y;
-        rotated_y = sin(skateboard_heading) * rel_x + cos(skateboard_heading) * rel_y;
-
-    }
-    mju_copy(result, modified_mocap_pos.data(), (model->nmocap - 1) * 3);
+    rotated_x =
+        cos(skateboard_heading) * rel_x - sin(skateboard_heading) * rel_y;
+    rotated_y =
+        sin(skateboard_heading) * rel_x + cos(skateboard_heading) * rel_y;
+  }
+  mju_copy(result, modified_mocap_pos.data(), (model->nmocap - 1) * 3);
 }
 
 // current_mode_ and reference_time_ as Int, pass function SensorByName
-std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *data, const int current_mode_, const double reference_time_, std::__1::vector<double> parameters) {
+std::vector<double> ComputeTrackingResidual(
+    const mjModel *model, const mjData *data, const int current_mode_,
+    const double reference_time_, std::__1::vector<double> parameters) {
   // TODO(eliasmikkola): doesn't match the original tracking behavior
-  // could be either SensorByName or the vector addition 
+  // could be either SensorByName or the vector addition
   //   * Figure out `SensorByName`
 
-  
-  std::vector<mjtNum> mocap_translated(3 * model->nmocap -1);
+  std::vector<mjtNum> mocap_translated(3 * model->nmocap - 1);
 
   // if jiiri % 50, else copy data mocap_pos
-  move_mocap_poses(mocap_translated.data(), model, data, parameters, current_mode_);
+  move_mocap_poses(mocap_translated.data(), model, data, parameters,
+                   current_mode_);
 
   // ----- get mocap frames ----- //
   // get motion start index
@@ -282,24 +301,26 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
 
     // current frame
     // mju_copy( result, mocap_translated + 3 * body_mocapid, 3);
-    mju_scl3(
-        result,
-        mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_0 + 3 * body_mocapid,
-        weight_0);
+    mju_scl3(result,
+             mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_0 +
+                 3 * body_mocapid,
+             weight_0);
 
     // next frame
-    mju_addToScl3(
-        result,
-        mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_1 + 3 * body_mocapid,
-        weight_1);
+    mju_addToScl3(result,
+                  mocap_translated.data() +
+                      (model->nmocap - 1) * 3 * key_index_1 + 3 * body_mocapid,
+                  weight_1);
   };
 
   auto get_body_sensor_pos = [&](const std::string &body_name,
                                  double result[3]) {
     std::string pos_sensor_name = "tracking_pos[" + body_name + "]";
-    double *sensor_pos = mjpc::SensorByName(model, data, pos_sensor_name.c_str());
+    double *sensor_pos =
+        mjpc::SensorByName(model, data, pos_sensor_name.c_str());
     // printf("pos_sensor_name: %s\n", pos_sensor_name.c_str());
-    // printf("sensor_pos: %f, %f, %f\n", sensor_pos[0], sensor_pos[1], sensor_pos[2]);
+    // printf("sensor_pos: %f, %f, %f\n", sensor_pos[0], sensor_pos[1],
+    // sensor_pos[2]);
     mju_copy3(result, sensor_pos);
   };
 
@@ -316,8 +337,8 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
     mju_addTo3(avg_sensor_pos, body_sensor_pos);
     num_body++;
   }
-  mju_scl3(avg_mpos, avg_mpos, 1.0/num_body);
-  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0/num_body);
+  mju_scl3(avg_mpos, avg_mpos, 1.0 / num_body);
+  mju_scl3(avg_sensor_pos, avg_sensor_pos, 1.0 / num_body);
 
   // residual_to_return for averages
   residual_to_return.push_back(avg_mpos[0] - avg_sensor_pos[0]);
@@ -334,7 +355,7 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
 
     mju_subFrom3(body_mpos, avg_mpos);
     mju_subFrom3(body_sensor_pos, avg_sensor_pos);
-    
+
     residual_to_return.push_back(body_mpos[0] - body_sensor_pos[0]);
     residual_to_return.push_back(body_mpos[1] - body_sensor_pos[1]);
     residual_to_return.push_back(body_mpos[2] - body_sensor_pos[2]);
@@ -350,14 +371,18 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
     assert(0 <= body_mocapid);
 
     // Compute finite-difference velocity for x, y, z components
-    double fd_velocity[3]; // Finite-difference velocity
+    double fd_velocity[3];  // Finite-difference velocity
     for (int i = 0; i < 3; ++i) {
-      fd_velocity[i] = (model->key_mpos[(model->nmocap - 1)  * 3 * key_index_1 + 3 * body_mocapid + i] -
-                        model->key_mpos[(model->nmocap - 1)  * 3 * key_index_0 + 3 * body_mocapid + i]) * kFps;
+      fd_velocity[i] = (model->key_mpos[(model->nmocap - 1) * 3 * key_index_1 +
+                                        3 * body_mocapid + i] -
+                        model->key_mpos[(model->nmocap - 1) * 3 * key_index_0 +
+                                        3 * body_mocapid + i]) *
+                       kFps;
     }
 
     // Get current velocity from sensor
-    double *sensor_linvel = mjpc::SensorByName(model, data, linvel_sensor_name.c_str());
+    double *sensor_linvel =
+        mjpc::SensorByName(model, data, linvel_sensor_name.c_str());
 
     for (int i = 0; i < 3; ++i) {
       double velocity_residual = fd_velocity[i] - sensor_linvel[i];
@@ -367,50 +392,63 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model, const mjData *
   return residual_to_return;
 }
 
-std::vector<double> ComputeFootPositionsResidual(const mjModel *model, const mjData *data, std::__1::vector<double> parameters) {
+std::vector<double> ComputeFootPositionsResidual(
+    const mjModel *model, const mjData *data,
+    std::__1::vector<double> parameters) {
   // ----- Skateboard: Feet should be on the skateboard ----- //
-    double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
-    double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
-    double *front_plate_pos = mjpc::SensorByName(model, data, "track-front-plate");
+  double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
+  double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
+  double *front_plate_pos =
+      mjpc::SensorByName(model, data, "track-front-plate");
 
-    double *left_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_left");
-    double *right_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_right");
- 
-    double right_feet_slider = parameters[mjpc::ParameterIndex(model, "Right Foot Pos")];
-    double left_feet_slider = parameters[mjpc::ParameterIndex(model, "Left Foot Pos")];
-    
-    // calculate x-wise difference between the plates, based on right_feet_slider
-    double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
-    double plate_distance_y = mju_abs(back_plate_pos[1] - front_plate_pos[1]);
-    // calculate the x position of the line set by the plates
-    double right_feet_x = front_plate_pos[0] - right_feet_slider * plate_distance_x;
-    double right_feet_y = front_plate_pos[1] - right_feet_slider * plate_distance_y;
-    
+  double *left_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_left");
+  double *right_foot_pos =
+      mjpc::SensorByName(model, data, "tracking_foot_right");
 
-   
-    // print target and current z position
-    // left feet error, distance to back plate position 
-    double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
-    double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
-    double distance_z = mju_abs(left_foot_pos[2] - (back_plate_pos[2]));
-    if (left_feet_slider > 0) {
-      distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
-      distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
-      distance_z = mju_abs(left_foot_pos[2] - (tail_pos[2]));
-      
-    }
-    if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && back_plate_pos[2] <0.3) distance_z *= 10;
-    double left_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
+  double right_feet_slider =
+      parameters[mjpc::ParameterIndex(model, "Right Foot Pos")];
+  double left_feet_slider =
+      parameters[mjpc::ParameterIndex(model, "Left Foot Pos")];
 
-    // right feet error, distance to front plate position
-    distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
-    distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
-    distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
-    if (right_foot_pos[2] < front_plate_pos[2] && distance_x < 0.2 && distance_y < 0.2 && front_plate_pos[2] <0.3) distance_z *= 10;
-    double right_feet_error = mju_sqrt(distance_x*distance_x + distance_y*distance_y + (distance_z*distance_z));
+  // calculate x-wise difference between the plates, based on right_feet_slider
+  double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
+  double plate_distance_y = mju_abs(back_plate_pos[1] - front_plate_pos[1]);
+  // calculate the x position of the line set by the plates
+  double right_feet_x =
+      front_plate_pos[0] - right_feet_slider * plate_distance_x;
+  double right_feet_y =
+      front_plate_pos[1] - right_feet_slider * plate_distance_y;
 
-    return {left_feet_error, right_feet_error};
+  // print target and current z position
+  // left feet error, distance to back plate position
+  double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
+  double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
+  double distance_z = mju_abs(left_foot_pos[2] - (back_plate_pos[2]));
+  if (left_feet_slider > 0) {
+    distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
+    distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
+    distance_z = mju_abs(left_foot_pos[2] - (tail_pos[2]));
   }
+  if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 &&
+      distance_y < 0.2 && back_plate_pos[2] < 0.3)
+    distance_z *= 10;
+  double left_feet_error =
+      mju_sqrt(distance_x * distance_x + distance_y * distance_y +
+               (distance_z * distance_z));
+
+  // right feet error, distance to front plate position
+  distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
+  distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
+  distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
+  if (right_foot_pos[2] < front_plate_pos[2] && distance_x < 0.2 &&
+      distance_y < 0.2 && front_plate_pos[2] < 0.3)
+    distance_z *= 10;
+  double right_feet_error =
+      mju_sqrt(distance_x * distance_x + distance_y * distance_y +
+               (distance_z * distance_z));
+
+  return {left_feet_error, right_feet_error};
+}
 }  // Namespace
 
 namespace mjpc::humanoid {
@@ -433,29 +471,33 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
-
   // ----- residual ----- //
   int counter = 0;
-    // ----- joint velocity ----- //
+  // ----- joint velocity ----- //
   int n_humanoid_joints = model->nv - 6 - 6 - 7;
   mju_copy(residual + counter, data->qvel + 6, n_humanoid_joints);
-  
+
   counter += n_humanoid_joints;
 
   // ----- action ----- //
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
-  
+
   // Tracking Residual
-  auto tracking_residual = ComputeTrackingResidual(model, data, current_mode_, reference_time_, mjpc::BaseResidualFn::parameters_);
-  mju_copy(residual + counter, tracking_residual.data(), tracking_residual.size());
+  auto tracking_residual =
+      ComputeTrackingResidual(model, data, current_mode_, reference_time_,
+                              mjpc::BaseResidualFn::parameters_);
+  mju_copy(residual + counter, tracking_residual.data(),
+           tracking_residual.size());
   counter += tracking_residual.size();
 
   // Foot Positions Residual
-  auto foot_positions_residual = ComputeFootPositionsResidual(model, data, mjpc::BaseResidualFn::parameters_);
-  mju_copy(residual + counter, foot_positions_residual.data(), foot_positions_residual.size());
+  auto foot_positions_residual = ComputeFootPositionsResidual(
+      model, data, mjpc::BaseResidualFn::parameters_);
+  mju_copy(residual + counter, foot_positions_residual.data(),
+           foot_positions_residual.size());
   counter += foot_positions_residual.size();
-  
+
   // TODO(eliasmikkola): fill missing skateboard residuals
 
   CheckSensorDim(model, counter);
@@ -496,20 +538,21 @@ void Steering::TransitionLocked(mjModel *model, mjData *d) {
 
   mj_markStack(d);
 
-  mjtNum *modified_mocap_pos = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
-  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
+  mjtNum *modified_mocap_pos = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
+  mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
 
   // Compute interpolated frame.
-  mju_scl(modified_mocap_pos, model->key_mpos + (model->nmocap - 1 ) * 3 * key_index_0,
-          weight_0, (model->nmocap - 1 ) * 3);
+  mju_scl(modified_mocap_pos,
+          model->key_mpos + (model->nmocap - 1) * 3 * key_index_0, weight_0,
+          (model->nmocap - 1) * 3);
 
-  mju_scl(mocap_pos_1, model->key_mpos + (model->nmocap - 1 ) * 3 * key_index_1,
-          weight_1, (model->nmocap - 1 ) * 3);
+  mju_scl(mocap_pos_1, model->key_mpos + (model->nmocap - 1) * 3 * key_index_1,
+          weight_1, (model->nmocap - 1) * 3);
 
-  mju_copy(d->mocap_pos, modified_mocap_pos, (model->nmocap - 1 ) * 3);
-  mju_addTo(d->mocap_pos, mocap_pos_1, (model->nmocap - 1 ) * 3);
-  
-  mjtNum *mocap_pos_result = mj_stackAllocNum(d, 3 * (model->nmocap - 1 ));
+  mju_copy(d->mocap_pos, modified_mocap_pos, (model->nmocap - 1) * 3);
+  mju_addTo(d->mocap_pos, mocap_pos_1, (model->nmocap - 1) * 3);
+
+  mjtNum *mocap_pos_result = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
   move_mocap_poses(mocap_pos_result, model, d, parameters, mode);
   mju_copy(d->mocap_pos, mocap_pos_result, (model->nmocap - 1) * 3);
   move_goal(model, d, parameters, mode);

@@ -161,13 +161,11 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
                       std::__1::vector<double> parameters, int mode) {
   // todo move residual here
 
-  // mjtNum *modified_mocap_pos = new mjtNum[3 * (model->nmocap - 1)];
-  std::vector<mjtNum> modified_mocap_pos(3 * model->nmocap - 1);
+  std::vector<mjtNum> modified_mocap_pos(3 * (model->nmocap - 1));
 
   // Compute interpolated frame.
-  mju_scl(modified_mocap_pos.data(),
-          model->key_mpos + (model->nmocap - 1) * 3 * mode, 1,
-          (model->nmocap - 1) * 3);
+  mju_scl(modified_mocap_pos.data(), model->key_mpos + 3 * model->nmocap * mode,
+          1, 3 * (model->nmocap - 1));
   double skateboard_center[3] = {0.0, 0.0, 0.0};
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
@@ -255,7 +253,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
     rotated_y =
         sin(skateboard_heading) * rel_x + cos(skateboard_heading) * rel_y;
   }
-  mju_copy(result, modified_mocap_pos.data(), (model->nmocap - 1) * 3);
+  mju_copy(result, modified_mocap_pos.data(), 3 * (model->nmocap - 1));
 }
 
 // current_mode_ and reference_time_ as Int, pass function SensorByName
@@ -266,7 +264,7 @@ std::vector<double> ComputeTrackingResidual(
   // could be either SensorByName or the vector addition
   //   * Figure out `SensorByName`
 
-  std::vector<mjtNum> mocap_translated(3 * model->nmocap - 1);
+  std::vector<mjtNum> mocap_translated(3 * (model->nmocap - 1));
 
   // if jiiri % 50, else copy data mocap_pos
   move_mocap_poses(mocap_translated.data(), model, data, parameters,
@@ -302,14 +300,14 @@ std::vector<double> ComputeTrackingResidual(
     // current frame
     // mju_copy( result, mocap_translated + 3 * body_mocapid, 3);
     mju_scl3(result,
-             mocap_translated.data() + (model->nmocap - 1) * 3 * key_index_0 +
+             mocap_translated.data() + 3 * (model->nmocap - 1) * key_index_0 +
                  3 * body_mocapid,
              weight_0);
 
     // next frame
     mju_addToScl3(result,
                   mocap_translated.data() +
-                      (model->nmocap - 1) * 3 * key_index_1 + 3 * body_mocapid,
+                      3 * (model->nmocap - 1) * key_index_1 + 3 * body_mocapid,
                   weight_1);
   };
 
@@ -373,9 +371,9 @@ std::vector<double> ComputeTrackingResidual(
     // Compute finite-difference velocity for x, y, z components
     double fd_velocity[3];  // Finite-difference velocity
     for (int i = 0; i < 3; ++i) {
-      fd_velocity[i] = (model->key_mpos[(model->nmocap - 1) * 3 * key_index_1 +
+      fd_velocity[i] = (model->key_mpos[3 * model->nmocap * key_index_1 +
                                         3 * body_mocapid + i] -
-                        model->key_mpos[(model->nmocap - 1) * 3 * key_index_0 +
+                        model->key_mpos[3 * model->nmocap * key_index_0 +
                                         3 * body_mocapid + i]) *
                        kFps;
     }
@@ -643,23 +641,22 @@ void Steering::TransitionLocked(mjModel *model, mjData *d) {
 
   mj_markStack(d);
 
-  mjtNum *modified_mocap_pos = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
+  mjtNum *mocap_pos_0 = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
   mjtNum *mocap_pos_1 = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
 
   // Compute interpolated frame.
-  mju_scl(modified_mocap_pos,
-          model->key_mpos + (model->nmocap - 1) * 3 * key_index_0, weight_0,
-          (model->nmocap - 1) * 3);
+  mju_scl(mocap_pos_0, model->key_mpos + 3 * model->nmocap * key_index_0, weight_0,
+          3 * (model->nmocap - 1));
 
-  mju_scl(mocap_pos_1, model->key_mpos + (model->nmocap - 1) * 3 * key_index_1,
-          weight_1, (model->nmocap - 1) * 3);
+  mju_scl(mocap_pos_1, model->key_mpos + 3 * model->nmocap * key_index_1, weight_1,
+          3 * (model->nmocap - 1));
 
-  mju_copy(d->mocap_pos, modified_mocap_pos, (model->nmocap - 1) * 3);
-  mju_addTo(d->mocap_pos, mocap_pos_1, (model->nmocap - 1) * 3);
+  mju_copy(d->mocap_pos, mocap_pos_0, 3 * (model->nmocap - 1));
+  mju_addTo(d->mocap_pos, mocap_pos_1, 3 * (model->nmocap - 1));
 
   mjtNum *mocap_pos_result = mj_stackAllocNum(d, 3 * (model->nmocap - 1));
   move_mocap_poses(mocap_pos_result, model, d, parameters, mode);
-  mju_copy(d->mocap_pos, mocap_pos_result, (model->nmocap - 1) * 3);
+  mju_copy(d->mocap_pos, mocap_pos_result, 3 * (model->nmocap - 1));
   move_goal(model, d, parameters, mode);
   mj_freeStack(d);
 }

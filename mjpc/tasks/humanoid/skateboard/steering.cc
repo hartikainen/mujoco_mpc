@@ -559,6 +559,11 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 //   Number of parameters: 0
 // ----------------------------------------------------------------
 
+void Steering::ModifyScene(const mjModel *model, const mjData *data,
+                           mjvScene *scene) const {}
+
+void Steering::ResetLocked(const mjModel *model) {}
+
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
   // ----- residual ----- //

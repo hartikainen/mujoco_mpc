@@ -60,6 +60,13 @@ class Steering : public Task {
   // ---------------------------------------------------------------------------
   void TransitionLocked(mjModel* model, mjData* data) override;
 
+  // call base-class Reset, save task-related ids
+  void ResetLocked(const mjModel* model) override;
+
+  // draw task-related geometry in the scene
+  void ModifyScene(const mjModel* model, const mjData* data,
+                   mjvScene* scene) const override;
+
   std::string Name() const override;
   std::string XmlPath() const override;
 

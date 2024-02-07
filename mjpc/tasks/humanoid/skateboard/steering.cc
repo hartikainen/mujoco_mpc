@@ -156,6 +156,9 @@ const std::array<std::string, 16> body_names = {
     "lknee",     "rknee",     "lhand", "rhand", "lelbow", "relbow",
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
+const std::array<std::string, 7> track_body_names = {
+    "pelvis",     "lhand", "rhand", "lshoulder", "rshoulder", "lhip",  "rhip",
+};
 // compute mocap translations and rotations
 void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
                       std::__1::vector<double> parameters, int mode) {
@@ -343,7 +346,7 @@ std::vector<double> ComputeTrackingResidual(
   residual_to_return.push_back(avg_mpos[1] - avg_sensor_pos[1]);
   residual_to_return.push_back(avg_mpos[2] - avg_sensor_pos[2]);
 
-  for (const auto &body_name : body_names) {
+  for (const auto &body_name : track_body_names) {
     double body_mpos[3];
     get_body_mpos(body_name, body_mpos);
 
@@ -360,7 +363,7 @@ std::vector<double> ComputeTrackingResidual(
   }
 
   // ----- velocity ----- //
-  for (const auto &body_name : body_names) {
+  for (const auto &body_name : track_body_names) {
     std::string mocap_body_name = "mocap[" + body_name + "]";
     std::string linvel_sensor_name = "tracking_linvel[" + body_name + "]";
     int mocap_body_id = mj_name2id(model, mjOBJ_BODY, mocap_body_name.c_str());

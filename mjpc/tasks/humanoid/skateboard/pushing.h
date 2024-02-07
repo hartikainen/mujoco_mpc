@@ -16,6 +16,7 @@
 #define MJPC_TASKS_HUMANOID_SKATEBOARD_PUSHING_TASK_H_
 
 #include <mujoco/mujoco.h>
+
 #include "mjpc/task.h"
 
 namespace mjpc {
@@ -31,7 +32,7 @@ class Pushing : public Task {
           current_mode_(current_mode),
           reference_time_(reference_time) {}
 
-    // ------------- Residuals for humanoid skateboard pushing task -------------
+    // -------- Residuals for humanoid skateboard pushing task --------
     //   Number of residuals:
     //     Residual (0): Joint vel: minimise joint velocity
     //     Residual (1): Control: minimise control
@@ -43,6 +44,7 @@ class Pushing : public Task {
     // ----------------------------------------------------------------
     void Residual(const mjModel* model, const mjData* data,
                   double* residual) const override;
+
    private:
     friend class Pushing;
     int current_mode_;

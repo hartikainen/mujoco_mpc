@@ -72,7 +72,7 @@
 
       <!-- tracking site -->
       <default class="tracking_site">
-        <site type="sphere" size="0.027" rgba="1 0 0 1" group="3"/>
+        <site type="sphere" size="0.027" rgba="1 1 1 1" group="3"/>
       </default>
     </default>
   </default>

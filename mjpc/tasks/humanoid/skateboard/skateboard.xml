@@ -1,33 +1,18 @@
 <mujoco model="skateboard">
   <default>
     <default class="skateboard">
-      <default class="truck">
-        <geom type="capsule" size="0.03" rgba="0.4414 0.4727 0.4922 1"/>
-      </default>
-      <default class="hanger">
-        <geom type="capsule" fromto="0.0 0.1 -0.05 0.0 -0.1 -0.05" size="0.015" rgba="0.4414 0.4727 0.4922 1"/>
-      </default>
-      <default class="wheel">
-        <geom type="sphere" size="0.03" rgba="0.8867 0.2383 0.5781 1"/>
-      </default>
-      <default class="board-base-ball">
-        <default class="board-slider">
-          <joint type="slide" limited="false" stiffness="0" damping="1" frictionloss="0" armature="0"/>
-          <motor ctrllimited="true" ctrlrange="-1 1" gear="50" />
-        </default>
-        <default class="board-ball">
-          <joint type="ball" limited="false" damping="3"/>
-        </default>
+      <default class="board">
+        <geom solimp="0.5 0.99 1e-4" solref=".001 1" />
       </default>
 
       <default class="hanger-rotate">
-        <joint type="hinge" axis="0 0 1" range="-18 18" damping="10" stiffness="50"/>
+        <joint type="hinge" range="-18 18" damping="10" stiffness="50"/>
       </default>
-      <default class="hanger-rotate-back">
-        <joint type="hinge" axis="0 0 -1" range="-18 18" damping="10" stiffness="50"/>
+      <default class="truck">
+        <geom type="capsule" size="0.03" rgba="0.4414 0.4727 0.4922 1"/>
       </default>
-      <default class="board-tilt">
-        <joint type="hinge" axis="-1 0 0" range="-10 10" damping="50" stiffness="100"/>
+      <default class="wheel-marker">
+        <site type="capsule" group="0" size="0.001 0.019"/>
       </default>
     </default>
 
@@ -45,13 +30,12 @@
       <freejoint/>
       <!-- board -->
       <body name="board">
-        <joint name="board-tilt" class="board-tilt"/>
-        <!-- joint board-tilt -->
+        <joint name="board-tilt" axis="-1 0 0" range="-10 10" damping="50" stiffness="100"/>
         <body name="board_center">
           <geom name="board-base" type="box" friction="1.5 0.005 0.0001" size="0.3 0.13 0.01" rgba="0.5859 0.4336 0.1992 1" />
         </body>
-        <geom name="board-nose" type="box" friction="1.5 0.005 0.0001" size="0.075 0.13 0.01" pos="0.35 0.0 0.01" quat="-0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
-        <geom name="board-tail" type="box" friction="1.5 0.005 0.0001" size="0.075 0.13 0.01" pos="-0.35 0.0 0.01" quat="0.9659 0 0.1588 0" rgba="0.5859 0.4336 0.1992 1"/>
+        <geom name="board-nose" type="box" friction="1.5 0.005 0.0001" size="0.075 0.13 0.01" pos="+0.3685 0.0 0.0225" quat="-0.9659 0 0.15 0" rgba="0.5859 0.4336 0.1992 1"/>
+        <geom name="board-tail" type="box" friction="1.5 0.005 0.0001" size="0.075 0.13 0.01" pos="-0.3685 0.0 0.0225" quat="+0.9659 0 0.15 0" rgba="0.5859 0.4336 0.1992 1"/>
       </body>
       <!-- trucks -->
       <geom  name="truck-nose" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020" />
@@ -63,7 +47,7 @@
         <body name="kingpin-front" pos="0 0 -0.01">
           <site name="track-front-plate" class="tracking_site_board"  pos="-0.05 0.00 0.05" />
           <geom type="capsule" fromto="0 0 0 0 0 -0.02" size="0.01" rgba="0.5 0.5 0.5 1"/>
-          <joint name="hanger-rotate" class="hanger-rotate"/>
+          <joint name="hanger-rotate-front" class="hanger-rotate" axis="0 0 1" />
           <!-- Bushings and hanger -->
           <body name="bushings-and-hanger-front" pos="0 0 -0.02">
             <geom name="bottom-bushing-front" type="ellipsoid" size="0.03 0.03 0.01" rgba="1 0 0 1"/>
@@ -72,10 +56,12 @@
             <body name="wheel-front-left" pos="0.0 0.15 -0.02" >
               <joint name="wheel-front-left" type="hinge" axis="0 1 0" frictionloss="0.005"/>
               <geom name="wheel-front-left" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <site name="wheel-marker-front-left" class="wheel-marker" pos="0 0.02 0.02"/>
             </body>
             <body name="wheel-front-right" pos="0.0 -0.15 -0.02">
               <joint name="wheel-front-right" type="hinge" axis="0 1 0" frictionloss="0.005"/>
               <geom name="wheel-front-right" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <site name="wheel-marker-front-right" class="wheel-marker" pos="0 -0.02 0.02"/>
             </body>
           </body>
         </body>
@@ -86,7 +72,7 @@
           <site name="track-back-plate" class="tracking_site_board"  pos="0.05 0.00 0.05" />
           <site name="track-tail" class="tracking_site_board"  pos="-0.1 0.00 0.05" />
           <geom type="capsule" fromto="0 0 0 0 0 -0.02" size="0.01" rgba="0.5 0.5 0.5 1"/>
-          <joint name="hanger-rotate-back" class="hanger-rotate-back"/>
+          <joint name="hanger-rotate-back" class="hanger-rotate" axis="0 0 -1"/>
           <!-- Bushings and hanger -->
           <body name="bushings-and-hanger-back" pos="0 0 -0.02">
             <geom name="bottom-bushing-back" type="ellipsoid" size="0.03 0.03 0.01" rgba="1 0 0 1"/>
@@ -96,10 +82,12 @@
             <body name="wheel-back-left" pos="0.0 0.15 -0.02">
               <joint name="wheel-back-left" type="hinge" axis="0 1 0" frictionloss="0.005"/>
               <geom name="wheel-back-left" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <site name="wheel-marker-back-left" class="wheel-marker" pos="0 0.02 0.02"/>
             </body>
             <body name="wheel-back-right" pos="0.0 -0.15 -0.02">
               <joint name="wheel-back-right" type="hinge" axis="0 1 0" frictionloss="0.005"/>
               <geom name="wheel-back-right" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <site name="wheel-marker-back-right" class="wheel-marker" pos="0 -0.02 0.02"/>
             </body>
           </body>
         </body>
@@ -109,7 +97,7 @@
   <!-- equality/joint between hanger-rotate and hanger-rotate-back -->
   <equality>
     <joint joint1="board-tilt" joint2="hanger-rotate-back" polycoef="0 1 0 0 0"/>
-    <joint joint1="board-tilt" joint2="hanger-rotate" polycoef="0 1 0 0 0"/>
+    <joint joint1="board-tilt" joint2="hanger-rotate-front" polycoef="0 1 0 0 0"/>
   </equality>
   <!-- exlude contact between all board parts,   trucks and kingpins and hangars -->
   <contact>

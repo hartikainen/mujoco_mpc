@@ -411,6 +411,98 @@ std::vector<double> ComputeFootPositionsResidual(const mjModel *model, const mjD
 
     return {left_feet_error, right_feet_error};
   }
+
+std::vector<double> ComputeGoalPositionResidual(
+    const mjModel *model, const mjData *data,
+    std::__1::vector<double> parameters) {
+  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
+
+  // ----- skateboard Position ----- //
+  int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
+  if (goal_id < 0) mju_error("body 'goal' not found");
+
+  int goal_mocap_id_ = model->body_mocapid[goal_id];
+  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+  // get mocap goal position
+  if (goal_id < 0) mju_error("body 'goal' not found");
+
+  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+
+  // get goal position
+  double *goal_pos = data->mocap_pos + 3 * goal_mocap_id_;
+  // get skateboard position
+  double *skateboard_pos = data->xpos + 3 * skateboard_body_id_;
+
+  double skateboard_position_x = skateboard_pos[0];
+  double skateboard_position_y = skateboard_pos[1];
+  double skateboard_position_z = skateboard_pos[2];
+
+  double position_error_x = goal_pos[0] - skateboard_position_x;
+  position_error_x = abs(position_error_x);
+  double position_error_y = goal_pos[1] - skateboard_position_y;
+  position_error_y = abs(position_error_y);
+  double position_error_z = goal_pos[2] - skateboard_position_z;
+  position_error_z = abs(position_error_z);
+
+  return {position_error_x, position_error_y, position_error_z};
+}
+
+// Goal orientation
+std::vector<double> ComputeGoalOrientationResidual(
+    const mjModel *model, const mjData *data,
+    std::__1::vector<double> parameters) {
+  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
+
+  double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
+  double skateboard_roll = atan2(skateboard_xmat[7], skateboard_xmat[8]);
+
+  int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
+  if (goal_id < 0) mju_error("body 'goal' not found");
+
+  int goal_mocap_id_ = model->body_mocapid[goal_id];
+  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+
+  double skateboard_roll_target = 0.0;
+  double skateboard_yaw_target = 0;
+
+  double skateboard_yaw_offset = skateboard_yaw - skateboard_yaw_target;
+  double skateboard_heading = skateboard_yaw_offset;
+
+  double skateboard_center[2] = {0.0, 0.0};
+
+  // move mpos to x,y position of skateboard
+  mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 2);
+
+  // get goal position
+  double *goal_pos = data->mocap_pos + 3 * goal_mocap_id_;
+
+  double goal_heading = atan2(goal_pos[1] - skateboard_center[1],
+                              goal_pos[0] - skateboard_center[0]);
+  // Calculate heading error using sine function, should be 0 when heading is
+  // correct, and maximum when heading is 180 degrees off
+
+  auto normalize_angle = [](double angle) {
+    while (angle > M_PI) angle -= 2 * M_PI;
+    while (angle < -M_PI) angle += 2 * M_PI;
+    return angle;
+  };
+
+  double heading_error = normalize_angle(goal_heading - skateboard_heading);
+  // parameter "Heading clamp"
+  double clamp_l = parameters[mjpc::ParameterIndex(model, "Heading clamp l")];
+  double clamp_k = parameters[mjpc::ParameterIndex(model, "Heading clamp k")];
+
+  auto soft_clamp = [](double x, double limit, double k) {
+    return limit * std::tanh(x / limit * k);
+  };
+  heading_error = soft_clamp(heading_error, clamp_l, clamp_k);
+  return {heading_error};
+}
+
 }  // Namespace
 
 namespace mjpc::humanoid {
@@ -456,6 +548,19 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   mju_copy(residual + counter, foot_positions_residual.data(), foot_positions_residual.size());
   counter += foot_positions_residual.size();
   
+  // Goal Position Residual
+  auto goal_position_residual = ComputeGoalPositionResidual(
+      model, data, mjpc::BaseResidualFn::parameters_);
+  mju_copy(residual + counter, goal_position_residual.data(),
+           goal_position_residual.size());
+  counter += goal_position_residual.size();
+
+  // Goal Orientation Residual
+  auto goal_orientation_residual = ComputeGoalOrientationResidual(
+      model, data, mjpc::BaseResidualFn::parameters_);
+  mju_copy(residual + counter, goal_orientation_residual.data(),
+           goal_orientation_residual.size());
+  counter += goal_orientation_residual.size();
   // TODO(eliasmikkola): fill missing skateboard residuals
 
   CheckSensorDim(model, counter);

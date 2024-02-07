@@ -16,6 +16,7 @@
 #define MJPC_TASKS_HUMANOID_SKATEBOARD_STEERING_TASK_H_
 
 #include <mujoco/mujoco.h>
+
 #include "mjpc/task.h"
 
 namespace mjpc {
@@ -31,18 +32,21 @@ class Steering : public Task {
           current_mode_(current_mode),
           reference_time_(reference_time) {}
 
-    // ------------- Residuals for humanoid skateboard steering task -------------
+    // ------- Residuals for humanoid skateboard steering task --------
     //   Number of residuals:
     //     Residual (0): Joint vel: minimise joint velocity
     //     Residual (1): Control: minimise control
-    //     Residual (2-11): Steering position: minimise steering position error
+    //     Residual (2-11): Steering position: minimise steering position
+    //     error
     //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-    //     Residual (11-20): Steering velocity: minimise steering velocity error
+    //     Residual (11-20): Steering velocity: minimise steering velocity
+    //     error
     //         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
     //   Number of parameters: 0
     // ----------------------------------------------------------------
     void Residual(const mjModel* model, const mjData* data,
                   double* residual) const override;
+
    private:
     friend class Steering;
     int current_mode_;
@@ -51,12 +55,20 @@ class Steering : public Task {
 
   Steering() : residual_(this) {}
 
-  // --------------------- Transition for humanoid task ------------------------
+  // --------------------- Transition for humanoid task
+  // ------------------------
   //   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
   //   Linearly interpolate between two consecutive key frames in order to
   //   smooth the transitions between keyframes.
   // ---------------------------------------------------------------------------
   void TransitionLocked(mjModel* model, mjData* data) override;
+
+  // call base-class Reset, save task-related ids
+  void ResetLocked(const mjModel* model) override;
+
+  // draw task-related geometry in the scene
+  void ModifyScene(const mjModel* model, const mjData* data,
+                   mjvScene* scene) const override;
 
   std::string Name() const override;
   std::string XmlPath() const override;

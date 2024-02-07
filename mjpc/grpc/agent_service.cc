@@ -35,6 +35,8 @@ using ::agent::GetAllModesRequest;
 using ::agent::GetAllModesResponse;
 using ::agent::GetBestTrajectoryRequest;
 using ::agent::GetBestTrajectoryResponse;
+using ::agent::GetResidualsRequest;
+using ::agent::GetResidualsResponse;
 using ::agent::GetCostValuesAndWeightsRequest;
 using ::agent::GetCostValuesAndWeightsResponse;
 using ::agent::GetModeRequest;
@@ -181,6 +183,16 @@ grpc::Status AgentService::GetAction(grpc::ServerContext* context,
       request, &agent_, model, rollout_data_.get(), &rollout_state_, response);
 }
 
+grpc::Status AgentService::GetResiduals(
+    grpc::ServerContext* context, const GetResidualsRequest* request,
+    GetResidualsResponse* response) {
+  if (!Initialized()) {
+    return {grpc::StatusCode::FAILED_PRECONDITION, "Init not called."};
+  }
+  return grpc_agent_util::GetResiduals(request, &agent_, model,
+                                       data_, response);
+}
+
 grpc::Status AgentService::GetCostValuesAndWeights(
     grpc::ServerContext* context, const GetCostValuesAndWeightsRequest* request,
     GetCostValuesAndWeightsResponse* response) {
@@ -234,6 +246,16 @@ grpc::Status AgentService::Reset(grpc::ServerContext* context,
 
   grpc::Status status =
       grpc_agent_util::Reset(&agent_, agent_.GetModel(), data_);
+  mjpc::State& state = agent_.state;
+  // mj_forward is needed because Transition might access properties from
+  // mjData.
+  // For performance, we could consider adding an option to the request for
+  // callers to assume that data_ is up to date before the call.
+  mj_forward(model, data_);
+  agent_.ActiveTask()->Reset(model);
+  mj_forward(model, data_);
+  agent_.ActiveTask()->Transition(model, data_);
+  state.Set(model, data_);
   rollout_data_.reset(mj_makeData(model));
   return status;
 }

@@ -17,7 +17,7 @@
     </default>
 
     <default class="tracking_site_board">
-      <site type="sphere" size="0.027" rgba="1 0 0 1" group="3"/>
+      <site type="sphere" size="0.027" rgba="0 1 0 1" group="3"/>
     </default>
   </default>
 

@@ -32,17 +32,7 @@
     </default>
   </default>
 
-  <option timestep="0.01666666667"
-          integrator="implicitfast"
-          cone="pyramidal"
-          iterations="300"
-          tolerance="1e-9"
-          ls_iterations="100"
-          ls_tolerance="1e-3"
-          noslip_iterations="10"
-          noslip_tolerance="0"
-          mpr_iterations="500"
-          mpr_tolerance="1e-8" />
+  <option timestep="0.01666666667" integrator="implicitfast" cone="elliptic" />
 
   <worldbody>
     <body name="mocap[pelvis]" mocap="true">

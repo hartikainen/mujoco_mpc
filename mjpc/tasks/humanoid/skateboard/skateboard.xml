@@ -6,7 +6,7 @@
       </default>
 
       <default class="hanger-rotate">
-        <joint type="hinge" range="-18 18" damping="10" stiffness="50"/>
+        <joint type="hinge" range="-18 +18" damping="5" stiffness="5"/>
       </default>
       <default class="truck">
         <geom type="capsule" size="0.03" rgba="0.4414 0.4727 0.4922 1"/>
@@ -30,7 +30,7 @@
       <freejoint/>
       <!-- board -->
       <body name="board">
-        <joint name="board-tilt" axis="-1 0 0" range="-10 10" damping="50" stiffness="100"/>
+        <joint name="board-tilt" axis="-1 0 0" range="-10 10" damping="5" stiffness="5"/>
         <body name="board_center">
           <geom name="board-base" type="box" friction="1.5 0.005 0.0001" size="0.3 0.13 0.01" rgba="0.5859 0.4336 0.1992 1" />
         </body>
@@ -96,8 +96,8 @@
   </worldbody>
   <!-- equality/joint between hanger-rotate and hanger-rotate-back -->
   <equality>
-    <joint joint1="board-tilt" joint2="hanger-rotate-back" polycoef="0 1 0 0 0"/>
-    <joint joint1="board-tilt" joint2="hanger-rotate-front" polycoef="0 1 0 0 0"/>
+    <joint joint1="hanger-rotate-back" joint2="board-tilt" polycoef="0 0.5 0 0 0"/>
+    <joint joint1="hanger-rotate-front" joint2="board-tilt" polycoef="0 0.5 0 0 0"/>
   </equality>
   <!-- exlude contact between all board parts,   trucks and kingpins and hangars -->
   <contact>

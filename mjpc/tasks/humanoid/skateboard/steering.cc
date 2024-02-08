@@ -68,12 +68,6 @@ void move_goal(const mjModel *model, mjData *d,
     // skateboard_xmat[0]);
     double skateboard_heading[2] = {skateboard_xmat[0], skateboard_xmat[3]};
 
-    // // `skateboard_heading` is off by 90 degrees atm. Rotate it 90 degress
-    // counter clockwise
-    // // to get the "zero"-direction.
-    // skateboard_heading[0] = -skateboard_heading[1];
-    // skateboard_heading[1] = skateboard_heading[0];
-
     double goal_offset_xy[2];
     mju_copy(goal_offset_xy, skateboard_heading, 2);
     mju_normalize(goal_offset_xy, 2);
@@ -88,7 +82,7 @@ void move_goal(const mjModel *model, mjData *d,
         goal_offset_xy[0] * goal_move_distance_forward,
         goal_offset_xy[1] * goal_move_distance_forward,
     };
-    // mju_scl(goal_offset_xy, goal_offset_xy, goal_move_distance_forward, 2);
+
     // compute offset vector to the side of the board.
     double goal_offset_perpendicular[2];
 
@@ -177,7 +171,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
 
   // print average center of mpos
   double average_mpos[2] = {0};
-  // if (mode == kModeSteer){
+
   // get average center of mpos
   for (int i = 0; i < model->nmocap - 1; i++) {
     average_mpos[0] += modified_mocap_pos[3 * i + 0];
@@ -194,9 +188,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   for (int i = 0; i < model->nmocap - 1; i++) {
     modified_mocap_pos[3 * i + 0] -= average_mpos[0];
     modified_mocap_pos[3 * i + 1] -= average_mpos[1];
-    // modified_mocap_pos[3 * i + 2] += skateboard_center[2];
   }
-  // }
 
   double skateboard_heading = 0.0;
   double skateboard_xmat[9];
@@ -259,7 +251,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   mju_copy(result, modified_mocap_pos.data(), 3 * (model->nmocap - 1));
 }
 
-}  // Namespace
+}  // namespace
 
 namespace mjpc::humanoid {
 
@@ -279,17 +271,11 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 //   Number of parameters: 0
 // ----------------------------------------------------------------
 
-// current_mode_ and reference_time_ as Int, pass function SensorByName
 std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     const mjModel *model, const mjData *data, const int current_mode_,
     const double reference_time_, std::vector<double> parameters) const {
-  // TODO(eliasmikkola): doesn't match the original tracking behavior
-  // could be either SensorByName or the vector addition
-  //   * Figure out `SensorByName`
-
   std::vector<mjtNum> mocap_translated(3 * (model->nmocap - 1));
 
-  // if jiiri % 50, else copy data mocap_pos
   move_mocap_poses(mocap_translated.data(), model, data, parameters,
                    current_mode_);
 
@@ -321,7 +307,6 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     assert(0 <= body_mocapid);
 
     // current frame
-    // mju_copy( result, mocap_translated + 3 * body_mocapid, 3);
     mju_scl3(result,
              mocap_translated.data() + 3 * (model->nmocap - 1) * key_index_0 +
                  3 * body_mocapid,
@@ -339,9 +324,6 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     std::string pos_sensor_name = "tracking_pos[" + body_name + "]";
     double *sensor_pos =
         mjpc::SensorByName(model, data, pos_sensor_name.c_str());
-    // printf("pos_sensor_name: %s\n", pos_sensor_name.c_str());
-    // printf("sensor_pos: %f, %f, %f\n", sensor_pos[0], sensor_pos[1],
-    // sensor_pos[2]);
     mju_copy3(result, sensor_pos);
   };
 
@@ -440,7 +422,6 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
   double right_feet_y =
       front_plate_pos[1] - right_feet_slider * plate_distance_y;
 
-  // print target and current z position
   // left feet error, distance to back plate position
   double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
   double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
@@ -520,9 +501,9 @@ std::array<double, 1> Steering::ResidualFn::ComputeGoalOrientationResidual(
 
   double goal_heading = atan2(goal_pos[1] - skateboard_center[1],
                               goal_pos[0] - skateboard_center[0]);
+
   // Calculate heading error using sine function, should be 0 when heading is
   // correct, and maximum when heading is 180 degrees off
-
   auto normalize_angle = [](double angle) {
     while (angle > M_PI) angle -= 2 * M_PI;
     while (angle < -M_PI) angle += 2 * M_PI;

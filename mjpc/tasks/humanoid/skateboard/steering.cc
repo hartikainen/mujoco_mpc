@@ -431,9 +431,6 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
     distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
     distance_z = mju_abs(left_foot_pos[2] - tail_pos[2]);
   }
-  if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 &&
-      distance_y < 0.2 && back_plate_pos[2] < 0.3)
-    distance_z *= 10;
   double left_feet_error =
       mju_sqrt(distance_x * distance_x + distance_y * distance_y +
                (distance_z * distance_z));
@@ -442,9 +439,6 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
   distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
   distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
   distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
-  if (right_foot_pos[2] < front_plate_pos[2] && distance_x < 0.2 &&
-      distance_y < 0.2 && front_plate_pos[2] < 0.3)
-    distance_z *= 10;
   double right_feet_error =
       mju_sqrt(distance_x * distance_x + distance_y * distance_y +
                (distance_z * distance_z));

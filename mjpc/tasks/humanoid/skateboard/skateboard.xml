@@ -28,14 +28,18 @@
   </default>
 
   <worldbody>
-    <camera name="back-x" pos="-3 0 2" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
-    <camera name="side-y" pos="0 -3 2" xyaxes="1 0 0 0 1 2" mode="trackcom"/>
-    <camera name="far_chase" pos="-6.134 -6.556 5.138" xyaxes="0.746 -0.666 0.000 0.283 0.317 0.905" mode="trackcom"/>
-
     <body name="skateboard" pos="0 0 0">
       <freejoint/>
+
+      <camera name="skateboard:back-targetbodycom" pos="-3 0 2" xyaxes="0 -1 0 1 0 2" mode="targetbodycom"/>
+      <camera name="skateboard:back-trackcom" pos="-3 0 2" xyaxes="0 -1 0 1 0 2" mode="trackcom"/>
+      <camera name="skateboard:side-targetbodycom" pos="0 -3 2" xyaxes="1 0 0 0 1 2" mode="targetbodycom"/>
+      <camera name="skateboard:side-trackcom" pos="0 -3 2" xyaxes="1 0 0 0 1 2" mode="trackcom"/>
+      <camera name="skateboard:far-chase-trackcom" pos="-6 -6 5" xyaxes="0.746 -0.666 0.000 0.283 0.317 0.905" mode="trackcom"/>
+
       <!-- board -->
-      <body name="board">
+      <body name="board" pos="0 0 0">
+
         <joint name="board-tilt" axis="-1 0 0" range="-10 10" damping="5" stiffness="5"/>
         <body name="board-center">
           <geom name="board-base" class="wood" type="box" size="0.3 0.13 0.01" />

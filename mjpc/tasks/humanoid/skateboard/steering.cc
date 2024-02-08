@@ -260,9 +260,11 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
 }
 
 // current_mode_ and reference_time_ as Int, pass function SensorByName
-std::vector<double> ComputeTrackingResidual(
-    const mjModel *model, const mjData *data, const int current_mode_,
-    const double reference_time_, std::__1::vector<double> parameters) {
+std::vector<double> ComputeTrackingResidual(const mjModel *model,
+                                            const mjData *data,
+                                            const int current_mode_,
+                                            const double reference_time_,
+                                            std::vector<double> parameters) {
   // TODO(eliasmikkola): doesn't match the original tracking behavior
   // could be either SensorByName or the vector addition
   //   * Figure out `SensorByName`
@@ -393,9 +395,8 @@ std::vector<double> ComputeTrackingResidual(
   return residual_to_return;
 }
 
-std::vector<double> ComputeFootPositionsResidual(
-    const mjModel *model, const mjData *data,
-    std::__1::vector<double> parameters) {
+std::array<double, 2> ComputeFootPositionsResidual(
+    const mjModel *model, const mjData *data, std::vector<double> parameters) {
   // ----- Skateboard: Feet should be on the skateboard ----- //
   double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
   double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
@@ -424,11 +425,11 @@ std::vector<double> ComputeFootPositionsResidual(
   // left feet error, distance to back plate position
   double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
   double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
-  double distance_z = mju_abs(left_foot_pos[2] - (back_plate_pos[2]));
+  double distance_z = mju_abs(left_foot_pos[2] - back_plate_pos[2]);
   if (left_feet_slider > 0) {
     distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
     distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
-    distance_z = mju_abs(left_foot_pos[2] - (tail_pos[2]));
+    distance_z = mju_abs(left_foot_pos[2] - tail_pos[2]);
   }
   if (left_foot_pos[2] < back_plate_pos[2] && distance_x < 0.2 &&
       distance_y < 0.2 && back_plate_pos[2] < 0.3)
@@ -451,9 +452,8 @@ std::vector<double> ComputeFootPositionsResidual(
   return {left_feet_error, right_feet_error};
 }
 
-std::vector<double> ComputeGoalPositionResidual(
-    const mjModel *model, const mjData *data,
-    std::__1::vector<double> parameters) {
+std::array<double, 3> ComputeGoalPositionResidual(
+    const mjModel *model, const mjData *data, std::vector<double> parameters) {
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
   double skateboard_xmat[9] = {0.0, 0.0, 0.0};
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
@@ -489,9 +489,8 @@ std::vector<double> ComputeGoalPositionResidual(
 }
 
 // Goal orientation
-std::vector<double> ComputeGoalOrientationResidual(
-    const mjModel *model, const mjData *data,
-    std::__1::vector<double> parameters) {
+std::array<double, 1> ComputeGoalOrientationResidual(
+    const mjModel *model, const mjData *data, std::vector<double> parameters) {
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
   double skateboard_xmat[9] = {0.0, 0.0, 0.0};
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
@@ -582,30 +581,29 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   counter += model->nu;
 
   // Tracking Residual
-  auto tracking_residual =
-      ComputeTrackingResidual(model, data, current_mode_, reference_time_,
-                              mjpc::BaseResidualFn::parameters_);
+  auto tracking_residual = ComputeTrackingResidual(
+      model, data, current_mode_, reference_time_, parameters_);
   mju_copy(residual + counter, tracking_residual.data(),
            tracking_residual.size());
   counter += tracking_residual.size();
 
   // Foot Positions Residual
-  auto foot_positions_residual = ComputeFootPositionsResidual(
-      model, data, mjpc::BaseResidualFn::parameters_);
+  auto foot_positions_residual =
+      ComputeFootPositionsResidual(model, data, parameters_);
   mju_copy(residual + counter, foot_positions_residual.data(),
            foot_positions_residual.size());
   counter += foot_positions_residual.size();
 
   // Goal Position Residual
-  auto goal_position_residual = ComputeGoalPositionResidual(
-      model, data, mjpc::BaseResidualFn::parameters_);
+  auto goal_position_residual =
+      ComputeGoalPositionResidual(model, data, parameters_);
   mju_copy(residual + counter, goal_position_residual.data(),
            goal_position_residual.size());
   counter += goal_position_residual.size();
 
   // Goal Orientation Residual
-  auto goal_orientation_residual = ComputeGoalOrientationResidual(
-      model, data, mjpc::BaseResidualFn::parameters_);
+  auto goal_orientation_residual =
+      ComputeGoalOrientationResidual(model, data, parameters_);
   mju_copy(residual + counter, goal_orientation_residual.data(),
            goal_orientation_residual.size());
   counter += goal_orientation_residual.size();

@@ -24,13 +24,12 @@ namespace humanoid {
 
 class Steering : public Task {
  public:
+  std::string Name() const override;
+  std::string XmlPath() const override;
   class ResidualFn : public mjpc::BaseResidualFn {
    public:
-    explicit ResidualFn(const Steering* task, int current_mode = 0,
-                        double reference_time = 0)
-        : mjpc::BaseResidualFn(task),
-          current_mode_(current_mode),
-          reference_time_(reference_time) {}
+    explicit ResidualFn(const Steering* task) : mjpc::BaseResidualFn(task) {}
+    ResidualFn(const ResidualFn&) = default;
 
     // ------- Residuals for humanoid skateboard steering task --------
     //   Number of residuals:
@@ -47,8 +46,8 @@ class Steering : public Task {
 
    private:
     friend class Steering;
-    int current_mode_;
-    double reference_time_;
+    int current_mode_ = 0;
+    double reference_time_ = 0;
 
     //  ============  states updated in Transition()  ============
     // std::array<mjtNum, 3> skateboard_position_ = {0, 0, 0};
@@ -60,11 +59,12 @@ class Steering : public Task {
     int goal_body_mocap_id_ = -1;
     int goal_geom_id_ = -1;
     int skateboard_body_id_ = -1;
+    int skateboard_xbody_id_ = -1;
 
     //  ===================  helper functions  ===================
     std::vector<double> ComputeTrackingResidual(
-        const mjModel* model, const mjData* data, const int current_mode_,
-        const double reference_time_, std::vector<double> parameters) const;
+        const mjModel* model, const mjData* data,
+        std::vector<double> parameters) const;
     std::array<double, 2> ComputeFootPositionsResidual(
         const mjModel* model, const mjData* data,
         std::vector<double> parameters) const;
@@ -92,19 +92,14 @@ class Steering : public Task {
   void ModifyScene(const mjModel* model, const mjData* data,
                    mjvScene* scene) const override;
 
-  std::string Name() const override;
-  std::string XmlPath() const override;
-
  protected:
   std::unique_ptr<mjpc::ResidualFn> ResidualLocked() const override {
-    return std::make_unique<ResidualFn>(this, residual_.current_mode_,
-                                        residual_.reference_time_);
+    return std::make_unique<ResidualFn>(residual_);
   }
   ResidualFn* InternalResidual() override { return &residual_; }
 
  private:
-  // int current_mode_;
-  // double reference_time_;
+  friend class ResidualFn;
   ResidualFn residual_;
 };
 

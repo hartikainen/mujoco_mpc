@@ -164,10 +164,10 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   mju_scl(modified_mocap_pos.data(), model->key_mpos + 3 * model->nmocap * mode,
           1, 3 * (model->nmocap - 1));
   double skateboard_center[3];
-  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  int skateboard_body_id = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
   // move mpos to x,y position of skateboard
-  mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 3);
+  mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id, 3);
 
   // print average center of mpos
   double average_mpos[2] = {0};
@@ -192,7 +192,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
 
   double skateboard_heading = 0.0;
   double skateboard_xmat[9];
-  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
+  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id, 9);
   skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
   skateboard_heading -= M_PI / 2.0;
 
@@ -272,8 +272,8 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 // ----------------------------------------------------------------
 
 std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
-    const mjModel *model, const mjData *data, const int current_mode_,
-    const double reference_time_, std::vector<double> parameters) const {
+    const mjModel *model, const mjData *data,
+    std::vector<double> parameters) const {
   std::vector<mjtNum> mocap_translated(3 * (model->nmocap - 1));
 
   move_mocap_poses(mocap_translated.data(), model, data, parameters,
@@ -481,8 +481,8 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
   // Normalize yaw error to [0, pi]. Should be at minimum, `0`, when heading
   // faces the goal and maximum, `pi`, when tail is facing the goal.
   auto normalize_angle = [](double angle) {
-    while (angle > M_PI) angle -= 2 * M_PI;
     while (angle < -M_PI) angle += 2 * M_PI;
+    while (+M_PI < angle) angle -= 2 * M_PI;
     return angle;
   };
 
@@ -545,7 +545,11 @@ void Steering::ModifyScene(const mjModel *model, const mjData *data,
                            mjvScene *scene) const {}
 
 void Steering::ResetLocked(const mjModel *model) {
-  residual_.skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  residual_.skateboard_xbody_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  if (residual_.skateboard_xbody_id_ < 0)
+    mju_error("xbody 'skateboard' not found");
+
+  residual_.skateboard_body_id_ = mj_name2id(model, mjOBJ_BODY, "skateboard");
   if (residual_.skateboard_body_id_ < 0)
     mju_error("body 'skateboard' not found");
 
@@ -571,8 +575,7 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   counter += model->nu;
 
   // Tracking Residual
-  auto tracking_residual = ComputeTrackingResidual(
-      model, data, current_mode_, reference_time_, parameters_);
+  auto tracking_residual = ComputeTrackingResidual(model, data, parameters_);
   mju_copy(residual + counter, tracking_residual.data(),
            tracking_residual.size());
   counter += tracking_residual.size();
@@ -610,6 +613,7 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
 //   smooth the transitions between keyframes.
 // ----------------------------------------------------------------------------
 void Steering::TransitionLocked(mjModel *model, mjData *d) {
+  assert(residual_.skateboard_body_id_ >= 0);
   // get motion start index
   int start = MotionStartIndex(mode);
   // get motion trajectory length

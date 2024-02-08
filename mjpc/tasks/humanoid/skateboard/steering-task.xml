@@ -24,6 +24,7 @@
     <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
     <numeric name="residual_Heading clamp l" data="0.01 -3.14 3.14" />
     <numeric name="residual_Heading clamp k" data="1 -3.14 3.14" />
+    <numeric name="residual_Velocity" data="2.5 -10 10" />
   </custom>
 
   <default>
@@ -152,6 +153,8 @@
     <framelinvel name="tracking_linvel[rshoulder]" objtype="site" objname="tracking[rshoulder]" />
     <framelinvel name="tracking_linvel[lhip]" objtype="site" objname="tracking[lhip]" />
     <framelinvel name="tracking_linvel[rhip]" objtype="site" objname="tracking[rhip]" />
+
+    <framelinvel name="skateboard_framelinvel" objtype="body" objname="skateboard"/>
   </sensor>
   <include file="./keyframes/steer_init.xml" />
 </mujoco>

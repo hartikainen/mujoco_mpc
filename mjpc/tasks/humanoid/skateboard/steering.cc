@@ -452,65 +452,48 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
   return {left_feet_error, right_feet_error};
 }
 
-std::array<double, 3> Steering::ResidualFn::ComputeGoalPositionResidual(
-    const mjModel *model, const mjData *data,
-    std::vector<double> parameters) const {
-  // ----- skateboard Position ----- //
-  // get goal position
-  double *goal_pos = data->mocap_pos + 3 * goal_body_mocap_id_;
-  // get skateboard position
-  double *skateboard_pos = data->xpos + 3 * skateboard_body_id_;
-
-  double skateboard_position_x = skateboard_pos[0];
-  double skateboard_position_y = skateboard_pos[1];
-  double skateboard_position_z = skateboard_pos[2];
-
-  double position_error_x = goal_pos[0] - skateboard_position_x;
-  position_error_x = abs(position_error_x);
-  double position_error_y = goal_pos[1] - skateboard_position_y;
-  position_error_y = abs(position_error_y);
-  double position_error_z = goal_pos[2] - skateboard_position_z;
-  position_error_z = abs(position_error_z);
-
-  return {position_error_x, position_error_y, position_error_z};
-}
-
-// Goal orientation
-std::array<double, 1> Steering::ResidualFn::ComputeGoalOrientationResidual(
+std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
     const mjModel *model, const mjData *data,
     std::vector<double> parameters) const {
   double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
   double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
-  double skateboard_roll = atan2(skateboard_xmat[7], skateboard_xmat[8]);
 
-  double skateboard_roll_target = 0.0;
-  double skateboard_yaw_target = 0;
+  std::array<mjtNum, 2> skateboard_center = {
+    data->xpos[3 * skateboard_body_id_ + 0],
+    data->xpos[3 * skateboard_body_id_ + 1],
+  };
 
-  double skateboard_yaw_offset = skateboard_yaw - skateboard_yaw_target;
-  double skateboard_heading = skateboard_yaw_offset;
+  std::array<mjtNum, 2> goal_position = {
+      data->mocap_pos[3 * goal_body_mocap_id_ + 0],
+      data->mocap_pos[3 * goal_body_mocap_id_ + 1],
+  };
 
-  double skateboard_center[2];
+  std::array<mjtNum, 2> skateboard_position = {
+      data->xpos[3 * skateboard_body_id_ + 0],
+      data->xpos[3 * skateboard_body_id_ + 1],
+  };
 
-  // move mpos to x,y position of skateboard
-  mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 2);
+  std::array<mjtNum, 2> board_to_goal = {
+      goal_position[0] - skateboard_position[0],
+      goal_position[1] - skateboard_position[1],
+  };
 
-  // get goal position
-  double *goal_pos = data->mocap_pos + 3 * goal_body_mocap_id_;
+  mju_normalize3(board_to_goal.data());
 
-  double goal_heading = atan2(goal_pos[1] - skateboard_center[1],
-                              goal_pos[0] - skateboard_center[0]);
+  mjtNum target_yaw = atan2(board_to_goal[1], board_to_goal[0]);
 
-  // Calculate heading error using sine function, should be 0 when heading is
-  // correct, and maximum when heading is 180 degrees off
+  // Normalize yaw error to [0, pi]. Should be at minimum, `0`, when heading
+  // faces the goal and maximum, `pi`, when tail is facing the goal.
   auto normalize_angle = [](double angle) {
     while (angle > M_PI) angle -= 2 * M_PI;
     while (angle < -M_PI) angle += 2 * M_PI;
     return angle;
   };
 
-  double heading_error = normalize_angle(goal_heading - skateboard_heading);
+  double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
+
   // parameter "Heading clamp"
   double clamp_l = parameters[mjpc::ParameterIndex(model, "Heading clamp l")];
   double clamp_k = parameters[mjpc::ParameterIndex(model, "Heading clamp k")];
@@ -518,8 +501,50 @@ std::array<double, 1> Steering::ResidualFn::ComputeGoalOrientationResidual(
   auto soft_clamp = [](double x, double limit, double k) {
     return limit * std::tanh(x / limit * k);
   };
-  heading_error = soft_clamp(heading_error, clamp_l, clamp_k);
-  return {heading_error};
+  double yaw_error_raw = yaw_error;
+  yaw_error = soft_clamp(yaw_error, clamp_l, clamp_k);
+
+  std::array<double, 1> result = {yaw_error};
+
+  return result;
+}
+
+std::array<mjtNum, 3> Steering::ResidualFn::ComputeBoardVelocityResidual(
+    const mjModel *model, const mjData *data,
+    std::vector<double> parameters) const {
+  std::array<mjtNum, 3> skateboard_linear_velocity_target = {
+      parameters[ParameterIndex(model, "Velocity")],
+      0.0,
+      0.0,
+  };
+  double *skateboard_framelinvel =
+      SensorByName(model, data, "skateboard_framelinvel");
+  std::array<mjtNum, 3> skateboard_linear_velocity_global = {
+      skateboard_framelinvel[0],
+      skateboard_framelinvel[1],
+      skateboard_framelinvel[2],
+  };
+
+  std::array<mjtNum, 9> skateboard_xmat;
+  mju_copy(skateboard_xmat.data(), data->xmat + 9 * skateboard_body_id_, 9);
+
+  // Transform the global velocity to local velocity
+  std::array<mjtNum, 3> skateboard_linear_velocity_local;
+  mju_rotVecMatT(skateboard_linear_velocity_local.data(),
+                 skateboard_linear_velocity_global.data(),
+                 skateboard_xmat.data());
+
+  // NOTE: we add small tolerance to x here.
+  std::array<mjtNum, 3> result = {
+      skateboard_linear_velocity_target[0] -
+          skateboard_linear_velocity_local[0] - 0.03,
+      skateboard_linear_velocity_target[1] -
+          skateboard_linear_velocity_local[1],
+      skateboard_linear_velocity_target[2] -
+          skateboard_linear_velocity_global[2],
+  };
+
+  return result;
 }
 
 void Steering::ModifyScene(const mjModel *model, const mjData *data,
@@ -565,19 +590,21 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
            foot_positions_residual.size());
   counter += foot_positions_residual.size();
 
-  // Goal Position Residual
-  auto goal_position_residual =
-      ComputeGoalPositionResidual(model, data, parameters_);
-  mju_copy(residual + counter, goal_position_residual.data(),
-           goal_position_residual.size());
-  counter += goal_position_residual.size();
-
   // Goal Orientation Residual
-  auto goal_orientation_residual =
-      ComputeGoalOrientationResidual(model, data, parameters_);
-  mju_copy(residual + counter, goal_orientation_residual.data(),
-           goal_orientation_residual.size());
-  counter += goal_orientation_residual.size();
+  auto board_heading_residual =
+      ComputeBoardHeadingResidual(model, data, parameters_);
+  mju_copy(residual + counter, board_heading_residual.data(),
+           board_heading_residual.size());
+  counter += board_heading_residual.size();
+
+  // Goal Position Residual
+  auto board_velocity_residual =
+      ComputeBoardVelocityResidual(model, data, parameters_);
+
+  mju_copy(residual + counter, board_velocity_residual.data(),
+           board_velocity_residual.size());
+  counter += board_velocity_residual.size();
+
   // TODO(eliasmikkola): fill missing skateboard residuals
 
   CheckSensorDim(model, counter);

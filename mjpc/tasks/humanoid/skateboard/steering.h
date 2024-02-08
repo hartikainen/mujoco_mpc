@@ -51,6 +51,31 @@ class Steering : public Task {
     friend class Steering;
     int current_mode_;
     double reference_time_;
+
+    //  ============  states updated in Transition()  ============
+    // std::array<mjtNum, 3> skateboard_position_ = {0, 0, 0};
+    // std::array<mjtNum, 2> skateboard_heading_ = {0, 0};
+    // std::array<mjtNum, 2> goal_position_ = {0, 0};
+
+    //  ============  constants, computed in Reset()  ============
+    int goal_body_id_ = -1;
+    int goal_body_mocap_id_ = -1;
+    int goal_geom_id_ = -1;
+    int skateboard_body_id_ = -1;
+
+    //  ===================  helper functions  ===================
+    std::vector<double> ComputeTrackingResidual(
+        const mjModel* model, const mjData* data, const int current_mode_,
+        const double reference_time_, std::vector<double> parameters) const;
+    std::array<double, 2> ComputeFootPositionsResidual(
+        const mjModel* model, const mjData* data,
+        std::vector<double> parameters) const;
+    std::array<double, 3> ComputeGoalPositionResidual(
+        const mjModel* model, const mjData* data,
+        std::vector<double> parameters) const;
+    std::array<double, 1> ComputeGoalOrientationResidual(
+        const mjModel* model, const mjData* data,
+        std::vector<double> parameters) const;
   };
 
   Steering() : residual_(this) {}

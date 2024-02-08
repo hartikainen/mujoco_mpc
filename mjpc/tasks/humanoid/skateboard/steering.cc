@@ -259,12 +259,30 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   mju_copy(result, modified_mocap_pos.data(), 3 * (model->nmocap - 1));
 }
 
+}  // Namespace
+
+namespace mjpc::humanoid {
+
+std::string Steering::XmlPath() const {
+  return GetModelPath("humanoid/skateboard/steering-task.xml");
+}
+std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
+
+// ------------- Residuals for humanoid skateboard steering task -------------
+//   Number of residuals:
+//     Residual (0): Joint vel: minimise joint velocity
+//     Residual (1): Control: minimise control
+//     Residual (2-11): Steering position: minimise steering position error
+//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
+//     Residual (11-20): Steering velocity: minimise steering velocity error
+//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
+//   Number of parameters: 0
+// ----------------------------------------------------------------
+
 // current_mode_ and reference_time_ as Int, pass function SensorByName
-std::vector<double> ComputeTrackingResidual(const mjModel *model,
-                                            const mjData *data,
-                                            const int current_mode_,
-                                            const double reference_time_,
-                                            std::vector<double> parameters) {
+std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
+    const mjModel *model, const mjData *data, const int current_mode_,
+    const double reference_time_, std::vector<double> parameters) const {
   // TODO(eliasmikkola): doesn't match the original tracking behavior
   // could be either SensorByName or the vector addition
   //   * Figure out `SensorByName`
@@ -395,8 +413,9 @@ std::vector<double> ComputeTrackingResidual(const mjModel *model,
   return residual_to_return;
 }
 
-std::array<double, 2> ComputeFootPositionsResidual(
-    const mjModel *model, const mjData *data, std::vector<double> parameters) {
+std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
+    const mjModel *model, const mjData *data,
+    std::vector<double> parameters) const {
   // ----- Skateboard: Feet should be on the skateboard ----- //
   double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
   double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
@@ -452,25 +471,12 @@ std::array<double, 2> ComputeFootPositionsResidual(
   return {left_feet_error, right_feet_error};
 }
 
-std::array<double, 3> ComputeGoalPositionResidual(
-    const mjModel *model, const mjData *data, std::vector<double> parameters) {
-  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
-  double skateboard_xmat[9];
-  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
-
+std::array<double, 3> Steering::ResidualFn::ComputeGoalPositionResidual(
+    const mjModel *model, const mjData *data,
+    std::vector<double> parameters) const {
   // ----- skateboard Position ----- //
-  int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
-  if (goal_id < 0) mju_error("body 'goal' not found");
-
-  int goal_mocap_id_ = model->body_mocapid[goal_id];
-  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
-  // get mocap goal position
-  if (goal_id < 0) mju_error("body 'goal' not found");
-
-  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
-
   // get goal position
-  double *goal_pos = data->mocap_pos + 3 * goal_mocap_id_;
+  double *goal_pos = data->mocap_pos + 3 * goal_body_mocap_id_;
   // get skateboard position
   double *skateboard_pos = data->xpos + 3 * skateboard_body_id_;
 
@@ -489,20 +495,14 @@ std::array<double, 3> ComputeGoalPositionResidual(
 }
 
 // Goal orientation
-std::array<double, 1> ComputeGoalOrientationResidual(
-    const mjModel *model, const mjData *data, std::vector<double> parameters) {
-  int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+std::array<double, 1> Steering::ResidualFn::ComputeGoalOrientationResidual(
+    const mjModel *model, const mjData *data,
+    std::vector<double> parameters) const {
   double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
   double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
   double skateboard_roll = atan2(skateboard_xmat[7], skateboard_xmat[8]);
-
-  int goal_id = mj_name2id(model, mjOBJ_XBODY, "goal");
-  if (goal_id < 0) mju_error("body 'goal' not found");
-
-  int goal_mocap_id_ = model->body_mocapid[goal_id];
-  if (goal_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
 
   double skateboard_roll_target = 0.0;
   double skateboard_yaw_target = 0;
@@ -516,7 +516,7 @@ std::array<double, 1> ComputeGoalOrientationResidual(
   mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 2);
 
   // get goal position
-  double *goal_pos = data->mocap_pos + 3 * goal_mocap_id_;
+  double *goal_pos = data->mocap_pos + 3 * goal_body_mocap_id_;
 
   double goal_heading = atan2(goal_pos[1] - skateboard_center[1],
                               goal_pos[0] - skateboard_center[0]);
@@ -541,30 +541,20 @@ std::array<double, 1> ComputeGoalOrientationResidual(
   return {heading_error};
 }
 
-}  // Namespace
-
-namespace mjpc::humanoid {
-
-std::string Steering::XmlPath() const {
-  return GetModelPath("humanoid/skateboard/steering-task.xml");
-}
-std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
-
-// ------------- Residuals for humanoid skateboard steering task -------------
-//   Number of residuals:
-//     Residual (0): Joint vel: minimise joint velocity
-//     Residual (1): Control: minimise control
-//     Residual (2-11): Steering position: minimise steering position error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//     Residual (11-20): Steering velocity: minimise steering velocity error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//   Number of parameters: 0
-// ----------------------------------------------------------------
-
 void Steering::ModifyScene(const mjModel *model, const mjData *data,
                            mjvScene *scene) const {}
 
-void Steering::ResetLocked(const mjModel *model) {}
+void Steering::ResetLocked(const mjModel *model) {
+  residual_.skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
+  if (residual_.skateboard_body_id_ < 0)
+    mju_error("body 'skateboard' not found");
+
+  // TODO(hartikainen): `mjOBJ_XBODY` or `mjOBJ_BODY`? Does it matter?
+  residual_.goal_body_id_ = mj_name2id(model, mjOBJ_XBODY, "goal");
+  if (residual_.goal_body_id_ < 0) mju_error("body 'goal' not found");
+  residual_.goal_body_mocap_id_ = model->body_mocapid[residual_.goal_body_id_];
+  if (residual_.goal_body_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+}
 
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {

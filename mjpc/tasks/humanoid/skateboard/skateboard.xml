@@ -14,9 +14,15 @@
       <default class="hanger-rotate">
         <joint type="hinge" range="-18 +18" damping="5" stiffness="5"/>
       </default>
+
       <default class="truck">
         <geom type="capsule" size="0.03" rgba="0.4414 0.4727 0.4922 1"/>
       </default>
+
+      <default class="wheel">
+        <geom type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="1 1 0 0" />
+      </default>
+
       <default class="wheel-marker">
         <site type="capsule" group="0" size="0.001 0.019"/>
       </default>
@@ -38,7 +44,7 @@
       <camera name="skateboard:far-chase-trackcom" pos="-6 -6 5" xyaxes="0.746 -0.666 0.000 0.283 0.317 0.905" mode="trackcom"/>
 
       <!-- board -->
-      <body name="board" pos="0 0 0">
+      <body name="board" pos="0 0 0.005">
 
         <joint name="board-tilt" axis="-1 0 0" range="-10 10" damping="5" stiffness="5"/>
         <body name="board-center">
@@ -70,14 +76,14 @@
             <geom name="bottom-bushing-front" type="ellipsoid" size="0.03 0.03 0.01" rgba="1 0 0 1"/>
             <geom name="hanger-front" type="box" size="0.02 0.12 0.02" pos="0 0 -0.03" rgba="0.5 0.5 0.5 1"/>
             <!-- Wheels -->
-            <body name="wheel-front-left" pos="0.0 0.15 -0.02" >
+            <body name="wheel-front-left" pos="0.0 0.15 -0.03" >
               <joint name="wheel-front-left" type="hinge" axis="0 1 0" frictionloss="0.005"/>
-              <geom name="wheel-front-left" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <geom name="wheel-front-left" class="wheel"/>
               <site name="wheel-marker-front-left" class="wheel-marker" pos="0 0.02 0.02"/>
             </body>
-            <body name="wheel-front-right" pos="0.0 -0.15 -0.02">
+            <body name="wheel-front-right" pos="0.0 -0.15 -0.03">
               <joint name="wheel-front-right" type="hinge" axis="0 1 0" frictionloss="0.005"/>
-              <geom name="wheel-front-right" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <geom name="wheel-front-right" class="wheel"/>
               <site name="wheel-marker-front-right" class="wheel-marker" pos="0 -0.02 0.02"/>
             </body>
           </body>
@@ -96,14 +102,14 @@
             <geom name="hanger-back" type="box" size="0.015 0.12 0.015" pos="0 0 -0.03" rgba="0.5 0.5 0.5 1"/>
 
             <!-- Wheels -->
-            <body name="wheel-back-left" pos="0.0 0.15 -0.02">
+            <body name="wheel-back-left" pos="0.0 0.15 -0.03">
               <joint name="wheel-back-left" type="hinge" axis="0 1 0" frictionloss="0.005"/>
-              <geom name="wheel-back-left" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <geom name="wheel-back-left" class="wheel"/>
               <site name="wheel-marker-back-left" class="wheel-marker" pos="0 0.02 0.02"/>
             </body>
-            <body name="wheel-back-right" pos="0.0 -0.15 -0.02">
+            <body name="wheel-back-right" pos="0.0 -0.15 -0.03">
               <joint name="wheel-back-right" type="hinge" axis="0 1 0" frictionloss="0.005"/>
-              <geom name="wheel-back-right" type="cylinder" friction="1 0.005 0.2" size="0.04 0.02" rgba="0.1 0.1 0.1 1" quat="0.707 0.707 0 0"/>
+              <geom name="wheel-back-right" class="wheel"/>
               <site name="wheel-marker-back-right" class="wheel-marker" pos="0 -0.02 0.02"/>
             </body>
           </body>

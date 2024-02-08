@@ -40,13 +40,13 @@ void move_goal(const mjModel *model, mjData *d,
   double goal_position[3];
   mju_copy3(goal_position, d->mocap_pos + 3 * goal_mocapid);
 
-  double skateboard_position[3] = {0.0, 0.0, 0.0};
+  double skateboard_position[3];
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
   // move mpos to x,y position of skateboard
   mju_copy(skateboard_position, d->xpos + 3 * skateboard_body_id_, 3);
 
-  double skateboard_goal_error[3] = {0.0, 0.0, 0.0};
+  double skateboard_goal_error[3];
   mju_sub3(skateboard_goal_error, goal_position, skateboard_position);
   double skateboard_goal_distance = mju_norm(skateboard_goal_error, 2);
 
@@ -62,7 +62,7 @@ void move_goal(const mjModel *model, mjData *d,
     // heading direction at the time when we reach the goal.
 
     // get skateboard heading.
-    double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+    double skateboard_xmat[9];
     mju_copy(skateboard_xmat, d->xmat + 9 * skateboard_body_id_, 9);
     // double skateboard_heading = atan2(skateboard_xmat[3],
     // skateboard_xmat[0]);
@@ -74,7 +74,7 @@ void move_goal(const mjModel *model, mjData *d,
     // skateboard_heading[0] = -skateboard_heading[1];
     // skateboard_heading[1] = skateboard_heading[0];
 
-    double goal_offset_xy[2] = {0.0, 0.0};
+    double goal_offset_xy[2];
     mju_copy(goal_offset_xy, skateboard_heading, 2);
     mju_normalize(goal_offset_xy, 2);
 
@@ -157,7 +157,7 @@ const std::array<std::string, 16> body_names = {
     "lshoulder", "rshoulder", "lhip",  "rhip",
 };
 const std::array<std::string, 7> track_body_names = {
-    "pelvis",     "lhand", "rhand", "lshoulder", "rshoulder", "lhip",  "rhip",
+    "pelvis", "lhand", "rhand", "lshoulder", "rshoulder", "lhip", "rhip",
 };
 // compute mocap translations and rotations
 void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
@@ -169,14 +169,14 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   // Compute interpolated frame.
   mju_scl(modified_mocap_pos.data(), model->key_mpos + 3 * model->nmocap * mode,
           1, 3 * (model->nmocap - 1));
-  double skateboard_center[3] = {0.0, 0.0, 0.0};
+  double skateboard_center[3];
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
 
   // move mpos to x,y position of skateboard
   mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 3);
 
   // print average center of mpos
-  double average_mpos[2] = {0.0, 0.0};
+  double average_mpos[2] = {0};
   // if (mode == kModeSteer){
   // get average center of mpos
   for (int i = 0; i < model->nmocap - 1; i++) {
@@ -199,7 +199,7 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   // }
 
   double skateboard_heading = 0.0;
-  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
   skateboard_heading = atan2(skateboard_xmat[3], skateboard_xmat[0]);
   skateboard_heading -= M_PI / 2.0;
@@ -455,7 +455,7 @@ std::array<double, 2> ComputeFootPositionsResidual(
 std::array<double, 3> ComputeGoalPositionResidual(
     const mjModel *model, const mjData *data, std::vector<double> parameters) {
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
-  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
   // ----- skateboard Position ----- //
@@ -492,7 +492,7 @@ std::array<double, 3> ComputeGoalPositionResidual(
 std::array<double, 1> ComputeGoalOrientationResidual(
     const mjModel *model, const mjData *data, std::vector<double> parameters) {
   int skateboard_body_id_ = mj_name2id(model, mjOBJ_XBODY, "skateboard");
-  double skateboard_xmat[9] = {0.0, 0.0, 0.0};
+  double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
   double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
@@ -510,7 +510,7 @@ std::array<double, 1> ComputeGoalOrientationResidual(
   double skateboard_yaw_offset = skateboard_yaw - skateboard_yaw_target;
   double skateboard_heading = skateboard_yaw_offset;
 
-  double skateboard_center[2] = {0.0, 0.0};
+  double skateboard_center[2];
 
   // move mpos to x,y position of skateboard
   mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id_, 2);

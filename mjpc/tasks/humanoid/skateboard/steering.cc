@@ -73,7 +73,7 @@ void move_goal(const mjModel *model, mjData *d,
     mju_normalize(goal_offset_xy, 2);
 
     double goal_move_distance_forward = 8.0;
-    double goal_move_distance_side = 2.0;
+    double goal_move_distance_side = 4.0;
 
     bool left_or_right = distr(eng);  // Generate a random boolean
 
@@ -444,59 +444,102 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
   return {left_feet_error, right_feet_error};
 }
 
-std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
+std::array<double, 2> Steering::ResidualFn::ComputeBoardHeadingResidual(
     const mjModel *model, const mjData *data) const {
   double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
-  double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
+  std::array<double, 2> skateboard_heading = {
+      skateboard_xmat[0],
+      skateboard_xmat[3],
+  };
+  double skateboard_yaw = atan2(skateboard_heading[1], skateboard_heading[0]);
+  int heading_parameter_index = ParameterIndex(model, "Heading");
+  assert(0 <= heading_parameter_index);
+  double skateboard_heading_target_offset =
+      parameters_[heading_parameter_index];
+  double cos_offset = std::cos(skateboard_heading_target_offset);
+  double sin_offset = std::sin(skateboard_heading_target_offset);
 
-  std::array<mjtNum, 2> skateboard_center = {
-      data->xpos[3 * skateboard_body_id_ + 0],
-      data->xpos[3 * skateboard_body_id_ + 1],
+  std::array<double, 2> skateboard_heading_target = {
+      (skateboard_heading[0] * cos_offset - skateboard_heading[1] * sin_offset),
+      (skateboard_heading[0] * sin_offset +
+       skateboard_heading[1] * cos_offset)};
+  std::array<double, 2> result = {
+      skateboard_heading[0] - skateboard_heading_target[0],
+      skateboard_heading[1] - skateboard_heading_target[1],
   };
 
-  std::array<mjtNum, 2> goal_position = {
-      data->mocap_pos[3 * goal_body_mocap_id_ + 0],
-      data->mocap_pos[3 * goal_body_mocap_id_ + 1],
-  };
+  // double skateboard_yaw = atan2(skateboard_heading[1],
+  // skateboard_heading[0]);
+  // // double skateboard_roll = atan2(skateboard_xmat[7], skateboard_xmat[8]);
+  // // double skateboard_pitch = atan2(skateboard_xmat[1], skateboard_xmat[0]);
 
-  std::array<mjtNum, 2> skateboard_position = {
-      data->xpos[3 * skateboard_body_id_ + 0],
-      data->xpos[3 * skateboard_body_id_ + 1],
-  };
+  // std::array<mjtNum, 2> skateboard_center = {
+  //   data->xpos[3 * skateboard_body_id_ + 0],
+  //   data->xpos[3 * skateboard_body_id_ + 1],
+  // };
 
-  std::array<mjtNum, 2> board_to_goal = {
-      goal_position[0] - skateboard_position[0],
-      goal_position[1] - skateboard_position[1],
-  };
+  // std::array<mjtNum, 2> goal_position = {
+  //     data->mocap_pos[3 * goal_body_mocap_id_ + 0],
+  //     data->mocap_pos[3 * goal_body_mocap_id_ + 1],
+  // };
 
-  mju_normalize3(board_to_goal.data());
+  // std::array<mjtNum, 2> skateboard_position = {
+  //     data->xpos[3 * skateboard_body_id_ + 0],
+  //     data->xpos[3 * skateboard_body_id_ + 1],
+  // };
 
-  mjtNum target_yaw = atan2(board_to_goal[1], board_to_goal[0]);
+  // std::array<mjtNum, 2> board_to_goal = {
+  //     goal_position[0] - skateboard_position[0],
+  //     goal_position[1] - skateboard_position[1],
+  // };
 
-  // Normalize yaw error to [0, pi]. Should be at minimum, `0`, when heading
-  // faces the goal and maximum, `pi`, when tail is facing the goal.
-  auto normalize_angle = [](double angle) {
-    while (angle < -M_PI) angle += 2 * M_PI;
-    while (+M_PI < angle) angle -= 2 * M_PI;
-    return angle;
-  };
+  // mju_normalize3(board_to_goal.data());
 
-  double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
+  // mjtNum target_yaw = atan2(board_to_goal[1], board_to_goal[0]);
 
-  // parameter "Heading clamp"
-  double clamp_l = parameters_[mjpc::ParameterIndex(model, "Heading clamp l")];
-  double clamp_k = parameters_[mjpc::ParameterIndex(model, "Heading clamp k")];
+  // // Normalize yaw error to [0, pi]. Should be at minimum, `0`, when heading
+  // // faces the goal and maximum, `pi`, when tail is facing the goal.
+  // auto normalize_angle = [](double angle) {
+  //   while (angle < -M_PI) angle += 2 * M_PI;
+  //   while (+M_PI < angle) angle -= 2 * M_PI;
+  //   return angle;
+  // };
 
-  auto soft_clamp = [](double x, double limit, double k) {
-    return limit * std::tanh(x / limit * k);
-  };
-  double yaw_error_raw = yaw_error;
-  yaw_error = soft_clamp(yaw_error, clamp_l, clamp_k);
+  // double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
+  // double yaw_error_raw = yaw_error;
 
-  std::array<double, 1> result = {yaw_error};
+  // // // parameter "Heading clamp"
+  // // double clamp_l = parameters_[mjpc::ParameterIndex(model, "Heading clamp
+  // l")];
+  // // double clamp_k = parameters_[mjpc::ParameterIndex(model, "Heading clamp
+  // k")];
 
+  // // auto soft_clamp = [](double x, double limit, double k) {
+  // //   return limit * std::tanh(x / limit * k);
+  // // };
+  // // yaw_error = soft_clamp(yaw_error, clamp_l, clamp_k);
+
+  // std::array<double, 1> result = {yaw_error};
+
+  // if (jiiri++ % 5000 == 0) {
+  //   printf("\n======= HEADING RESIDUAL =======\n");
+  //   printf("skateboard_body_id: %d\n", skateboard_body_id_);
+  //   printf("xmat: [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n",
+  //   skateboard_xmat[0],
+  //          skateboard_xmat[1], skateboard_xmat[2], skateboard_xmat[3],
+  //          skateboard_xmat[4], skateboard_xmat[5], skateboard_xmat[6],
+  //          skateboard_xmat[7], skateboard_xmat[8]);
+  //   printf("board_heading_residual: %f\n", result[0]);
+  //   printf("skateboard_yaw: %f\n", skateboard_yaw);
+  //   printf("target_yaw: %f\n", target_yaw);
+  //   printf("yaw_error: %f\n", yaw_error);
+  //   printf("yaw_error_raw: %f\n", yaw_error_raw);
+  //   printf("goal_position: [%f, %f]\n", goal_position[0], goal_position[1]);
+  //   printf("skateboard_position: [%f, %f]\n\n", skateboard_position[0],
+  //          skateboard_position[1]);
+  // }
   return result;
 }
 
@@ -555,7 +598,6 @@ void Steering::ResetLocked(const mjModel *model) {
   residual_.goal_body_mocap_id_ = model->body_mocapid[residual_.goal_body_id_];
   if (residual_.goal_body_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
 }
-
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
   // ----- residual ----- //
@@ -582,7 +624,7 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
            foot_positions_residual.size());
   counter += foot_positions_residual.size();
 
-  // Goal Orientation Residual
+  // Board Heading Residual
   auto board_heading_residual = ComputeBoardHeadingResidual(model, data);
   mju_copy(residual + counter, board_heading_residual.data(),
            board_heading_residual.size());

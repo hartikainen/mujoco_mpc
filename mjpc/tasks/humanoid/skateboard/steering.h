@@ -68,7 +68,7 @@ class Steering : public Task {
                                                 const mjData* data) const;
     std::array<double, 2> ComputeFootPositionsResidual(
         const mjModel* model, const mjData* data) const;
-    std::array<double, 1> ComputeBoardHeadingResidual(const mjModel* model,
+    std::array<double, 2> ComputeBoardHeadingResidual(const mjModel* model,
                                                       const mjData* data) const;
     std::array<double, 3> ComputeBoardVelocityResidual(
         const mjModel* model, const mjData* data) const;

@@ -225,7 +225,7 @@ def main(argv):
         action0 = agent.get_action(data.time)
         for i in range(1, num_planner_steps + 1):
             agent.planner_step()
-            action1 = agent.get_action(data.time, averaging_duration=None)
+            action1 = agent.get_action(data.time, averaging_duration=0)
             action_diffs = np.abs(action0 - action1)
             action0 = action1
             if np.all(action_diffs < planner_step_tolerance):

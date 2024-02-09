@@ -155,7 +155,7 @@ const std::array<std::string, 7> track_body_names = {
 };
 // compute mocap translations and rotations
 void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
-                      std::__1::vector<double> parameters, int mode) {
+                      std::vector<double> parameters, int mode) {
   // todo move residual here
 
   std::vector<mjtNum> modified_mocap_pos(3 * (model->nmocap - 1));
@@ -272,11 +272,10 @@ std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 // ----------------------------------------------------------------
 
 std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
-    const mjModel *model, const mjData *data,
-    std::vector<double> parameters) const {
+    const mjModel *model, const mjData *data) const {
   std::vector<mjtNum> mocap_translated(3 * (model->nmocap - 1));
 
-  move_mocap_poses(mocap_translated.data(), model, data, parameters,
+  move_mocap_poses(mocap_translated.data(), model, data, parameters_,
                    current_mode_);
 
   // ----- get mocap frames ----- //
@@ -396,8 +395,7 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
 }
 
 std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
-    const mjModel *model, const mjData *data,
-    std::vector<double> parameters) const {
+    const mjModel *model, const mjData *data) const {
   // ----- Skateboard: Feet should be on the skateboard ----- //
   double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
   double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
@@ -409,9 +407,9 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
       mjpc::SensorByName(model, data, "tracking_foot_right");
 
   double right_feet_slider =
-      parameters[mjpc::ParameterIndex(model, "Right Foot Pos")];
+      parameters_[mjpc::ParameterIndex(model, "Right Foot Pos")];
   double left_feet_slider =
-      parameters[mjpc::ParameterIndex(model, "Left Foot Pos")];
+      parameters_[mjpc::ParameterIndex(model, "Left Foot Pos")];
 
   // calculate x-wise difference between the plates, based on right_feet_slider
   double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
@@ -447,16 +445,15 @@ std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
 }
 
 std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
-    const mjModel *model, const mjData *data,
-    std::vector<double> parameters) const {
+    const mjModel *model, const mjData *data) const {
   double skateboard_xmat[9];
   mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
 
   double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
 
   std::array<mjtNum, 2> skateboard_center = {
-    data->xpos[3 * skateboard_body_id_ + 0],
-    data->xpos[3 * skateboard_body_id_ + 1],
+      data->xpos[3 * skateboard_body_id_ + 0],
+      data->xpos[3 * skateboard_body_id_ + 1],
   };
 
   std::array<mjtNum, 2> goal_position = {
@@ -489,8 +486,8 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
   double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
 
   // parameter "Heading clamp"
-  double clamp_l = parameters[mjpc::ParameterIndex(model, "Heading clamp l")];
-  double clamp_k = parameters[mjpc::ParameterIndex(model, "Heading clamp k")];
+  double clamp_l = parameters_[mjpc::ParameterIndex(model, "Heading clamp l")];
+  double clamp_k = parameters_[mjpc::ParameterIndex(model, "Heading clamp k")];
 
   auto soft_clamp = [](double x, double limit, double k) {
     return limit * std::tanh(x / limit * k);
@@ -504,10 +501,9 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
 }
 
 std::array<mjtNum, 3> Steering::ResidualFn::ComputeBoardVelocityResidual(
-    const mjModel *model, const mjData *data,
-    std::vector<double> parameters) const {
+    const mjModel *model, const mjData *data) const {
   std::array<mjtNum, 3> skateboard_linear_velocity_target = {
-      parameters[ParameterIndex(model, "Velocity")],
+      parameters_[ParameterIndex(model, "Velocity")],
       0.0,
       0.0,
   };
@@ -575,28 +571,25 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   counter += model->nu;
 
   // Tracking Residual
-  auto tracking_residual = ComputeTrackingResidual(model, data, parameters_);
+  auto tracking_residual = ComputeTrackingResidual(model, data);
   mju_copy(residual + counter, tracking_residual.data(),
            tracking_residual.size());
   counter += tracking_residual.size();
 
   // Foot Positions Residual
-  auto foot_positions_residual =
-      ComputeFootPositionsResidual(model, data, parameters_);
+  auto foot_positions_residual = ComputeFootPositionsResidual(model, data);
   mju_copy(residual + counter, foot_positions_residual.data(),
            foot_positions_residual.size());
   counter += foot_positions_residual.size();
 
   // Goal Orientation Residual
-  auto board_heading_residual =
-      ComputeBoardHeadingResidual(model, data, parameters_);
+  auto board_heading_residual = ComputeBoardHeadingResidual(model, data);
   mju_copy(residual + counter, board_heading_residual.data(),
            board_heading_residual.size());
   counter += board_heading_residual.size();
 
   // Goal Position Residual
-  auto board_velocity_residual =
-      ComputeBoardVelocityResidual(model, data, parameters_);
+  auto board_velocity_residual = ComputeBoardVelocityResidual(model, data);
 
   mju_copy(residual + counter, board_velocity_residual.data(),
            board_velocity_residual.size());

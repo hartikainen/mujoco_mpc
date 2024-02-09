@@ -11,6 +11,11 @@
         </default>
       </default>
 
+      <default class="ghost-foot">
+        <joint type="slide" axis="0 1 0" range="-0.12 +0.12" damping="10" stiffness="10"/>
+        <geom conaffinity="0" type="sphere" mass="40" size="0.025" rgba="1 1 1 1" />
+      </default>
+
       <default class="hanger-rotate">
         <joint type="hinge" range="-9 +9" damping="5" stiffness="5"/>
       </default>
@@ -35,6 +40,8 @@
   </default>
 
   <worldbody>
+    <geom name="floor" type="plane" conaffinity="1" size="50 50 .05" material="blue_grid"/>
+
     <body name="skateboard" pos="0 0 0">
       <freejoint/>
 
@@ -50,6 +57,10 @@
         <body name="board-center">
           <geom name="board-base" class="wood" type="box" size="0.3 0.13 0.01" />
           <site name="board-base-grip" class="grip" type="box" size="0.3 0.13 0.0001" pos="0 0 0.01" />
+          <body name="ghost-foot" pos="+0.0 0 0.005">
+            <joint name="ghost-foot" class="ghost-foot" />
+            <geom name="ghost-foot" class="ghost-foot" />
+          </body>
         </body>
         <body name="board-nose" pos="+0.3685 0.0 0.0225" quat="-0.9659 0 0.15 0" >
           <geom name="board-nose" class="wood" type="box" size="0.075 0.13 0.01" />
@@ -122,6 +133,18 @@
     <joint joint1="hanger-rotate-back" joint2="board-tilt" polycoef="0 2.0 0 0 0"/>
     <joint joint1="hanger-rotate-front" joint2="board-tilt" polycoef="0 2.0 0 0 0"/>
   </equality>
+  <tendon>
+    <fixed name="throttle" >
+      <joint joint="wheel-front-left" coef="0.25"/>
+      <joint joint="wheel-front-right" coef="0.25"/>
+      <joint joint="wheel-back-right" coef="0.25"/>
+      <joint joint="wheel-back-right" coef="0.25"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <motor name="throttle" tendon="throttle" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <general name="ghost-foot" joint="ghost-foot" biastype="affine" gainprm="120.000" biasprm="0.000 -1000.000 0.000" ctrllimited="true" ctrlrange="-1.000 1.000" forcelimited="true" forcerange="-3000.000 3000.000" />
+  </actuator>
   <!-- exlude contact between all board parts,   trucks and kingpins and hangars -->
   <contact>
         <exclude body1="board" body2="baseplate-front"/>

@@ -64,10 +64,6 @@ class Steering : public Task {
     int skateboard_xbody_id_ = -1;
 
     //  ===================  helper functions  ===================
-    std::vector<double> ComputeTrackingResidual(const mjModel* model,
-                                                const mjData* data) const;
-    std::array<double, 2> ComputeFootPositionsResidual(
-        const mjModel* model, const mjData* data) const;
     std::array<double, 2> ComputeBoardHeadingResidual(const mjModel* model,
                                                       const mjData* data) const;
     std::array<double, 3> ComputeBoardVelocityResidual(

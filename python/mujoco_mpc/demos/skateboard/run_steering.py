@@ -174,9 +174,9 @@ def main(argv):
         mujoco.mjv_defaultOption(scene_option)
         scene_option.sitegroup[3] = True
 
-        renderer.update_scene(data, camera="back", scene_option=scene_option)
+        renderer.update_scene(data, camera="skateboard:back-targetbodycom", scene_option=scene_option)
         back_frame = renderer.render()
-        renderer.update_scene(data, camera="side", scene_option=scene_option)
+        renderer.update_scene(data, camera="skateboard:side-trackcom", scene_option=scene_option)
         side_frame = renderer.render()
 
         frame = np.concatenate([back_frame, side_frame], axis=1)

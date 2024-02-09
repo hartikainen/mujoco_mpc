@@ -1,6 +1,5 @@
 <mujoco model="Humanoid Skateboard Steer">
   <include file="../../common.xml"/>
-  <include file="../humanoid.xml" />
   <include file="./skateboard.xml" />
   <size memory="8M"/>
 
@@ -37,78 +36,14 @@
   <option timestep="0.01666666667" integrator="implicitfast" cone="elliptic" />
 
   <worldbody>
-    <body name="mocap[pelvis]" mocap="true">
-      <site name="mocap[pelvis]" class="mocap_site" size="0.05" />
-    </body>
-    <body name="mocap[head]" mocap="true">
-      <site name="mocap[head]" class="mocap_site" />
-    </body>
-    <body name="mocap[ltoe]" mocap="true">
-      <site name="mocap[ltoe]" class="mocap_site" />
-    </body>
-    <body name="mocap[rtoe]" mocap="true">
-      <site name="mocap[rtoe]" class="mocap_site" />
-    </body>
-    <body name="mocap[lheel]" mocap="true">
-      <site name="mocap[lheel]" class="mocap_site" />
-    </body>
-    <body name="mocap[rheel]" mocap="true">
-      <site name="mocap[rheel]" class="mocap_site" />
-    </body>
-    <body name="mocap[lknee]" mocap="true">
-      <site name="mocap[lknee]" class="mocap_site" />
-    </body>
-    <body name="mocap[rknee]" mocap="true">
-      <site name="mocap[rknee]" class="mocap_site" />
-    </body>
-    <body name="mocap[lhand]" mocap="true">
-      <site name="mocap[lhand]" class="mocap_site" />
-    </body>
-    <body name="mocap[rhand]" mocap="true">
-      <site name="mocap[rhand]" class="mocap_site" />
-    </body>
-    <body name="mocap[lelbow]" mocap="true">
-      <site name="mocap[lelbow]" class="mocap_site" />
-    </body>
-    <body name="mocap[relbow]" mocap="true">
-      <site name="mocap[relbow]" class="mocap_site" />
-    </body>
-    <body name="mocap[lshoulder]" mocap="true">
-      <site name="mocap[lshoulder]" class="mocap_site" />
-    </body>
-    <body name="mocap[rshoulder]" mocap="true">
-      <site name="mocap[rshoulder]" class="mocap_site" />
-    </body>
-    <body name="mocap[lhip]" mocap="true">
-      <site name="mocap[lhip]" class="mocap_site" />
-    </body>
-    <body name="mocap[rhip]" mocap="true">
-      <site name="mocap[rhip]" class="mocap_site" />
-    </body>
     <body name="goal" mocap="true" pos="4 8 0">
       <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
     </body>
   </worldbody>
 
   <sensor>
-    <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
-    <user name="Control" dim="21" user="3 0.3 0 1.0 0.3" />
+    <user name="Control" dim="1" user="3 0.3 0 1.0 0.3" />
 
-    <user name="Pos[avg]" dim="3" user="6 100.0 0.0 100.0 0.1" />
-    <user name="Pos[pelvis]" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="Pos[hand]" dim="6" user="6 0.0 0.0 100.0 0.1" />
-    <user name="Pos[shoulder]" dim="6" user="6 10.0 0.0 100.0 0.1" />
-    <user name="Pos[hip]" dim="6" user="6 0.0 0.0 100.0 0.1" />
-
-    <user name="Vel[root]" dim="3" user="6 0.0 0 1.0 0.3" />
-    <user name="Vel[hand]" dim="6" user="6 0.0 0 1.0 0.3" />
-    <user name="Vel[shoulder]" dim="6" user="6 0.0 0 1.0 0.3" />
-    <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
-
-    <!-- user sensors for feet on skateboard  -->
-    <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
-    <user name="Left Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
-    
     <!-- user sensors for goal position and orientation -->
     <user name="Board Heading" dim="2" user="0 1.0 0 100.0" />
     <!-- <user name="Board Heading Yaw" dim="1" user="6 3 0 100.0 0.03" /> -->
@@ -118,47 +53,7 @@
     <user name="Board Velocity Local y" dim="1" user="0 0 0 100.0" />
     <user name="Board Velocity Global z" dim="1" user="0 0 0 100.0" />
 
-    <framepos name="trace0" objtype="body" objname="torso"/>
-
-    <framepos name="tracking_foot_left" objtype="site" objname="tracking[ltoe]"/>
-    <framepos name="tracking_foot_right" objtype="site" objname="tracking[rtoe]"/>
-    <framepos name="track-back-plate" objtype="site" objname="track-back-plate"/>
-    <framepos name="track-tail" objtype="site" objname="track-tail"/>
-    <framepos name="track-front-plate" objtype="site" objname="track-front-plate"/>
-
-    <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />
-    <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]" />
-    <framepos name="tracking_pos[ltoe]" objtype="site" objname="tracking[ltoe]" />
-    <framepos name="tracking_pos[rtoe]" objtype="site" objname="tracking[rtoe]" />
-    <framepos name="tracking_pos[lheel]" objtype="site" objname="tracking[lheel]" />
-    <framepos name="tracking_pos[rheel]" objtype="site" objname="tracking[rheel]" />
-    <framepos name="tracking_pos[lknee]" objtype="site" objname="tracking[lknee]" />
-    <framepos name="tracking_pos[rknee]" objtype="site" objname="tracking[rknee]" />
-    <framepos name="tracking_pos[lhand]" objtype="site" objname="tracking[lhand]" />
-    <framepos name="tracking_pos[rhand]" objtype="site" objname="tracking[rhand]" />
-    <framepos name="tracking_pos[lelbow]" objtype="site" objname="tracking[lelbow]" />
-    <framepos name="tracking_pos[relbow]" objtype="site" objname="tracking[relbow]" />
-    <framepos name="tracking_pos[lshoulder]" objtype="site" objname="tracking[lshoulder]" />
-    <framepos name="tracking_pos[rshoulder]" objtype="site" objname="tracking[rshoulder]" />
-    <framepos name="tracking_pos[lhip]" objtype="site" objname="tracking[lhip]" />
-    <framepos name="tracking_pos[rhip]" objtype="site" objname="tracking[rhip]" />
-
-    <framelinvel name="tracking_linvel[pelvis]" objtype="site" objname="tracking[pelvis]" />
-    <framelinvel name="tracking_linvel[head]" objtype="site" objname="tracking[head]" />
-    <framelinvel name="tracking_linvel[ltoe]" objtype="site" objname="tracking[ltoe]" />
-    <framelinvel name="tracking_linvel[rtoe]" objtype="site" objname="tracking[rtoe]" />
-    <framelinvel name="tracking_linvel[lheel]" objtype="site" objname="tracking[lheel]" />
-    <framelinvel name="tracking_linvel[rheel]" objtype="site" objname="tracking[rheel]" />
-    <framelinvel name="tracking_linvel[lknee]" objtype="site" objname="tracking[lknee]" />
-    <framelinvel name="tracking_linvel[rknee]" objtype="site" objname="tracking[rknee]" />
-    <framelinvel name="tracking_linvel[lhand]" objtype="site" objname="tracking[lhand]" />
-    <framelinvel name="tracking_linvel[rhand]" objtype="site" objname="tracking[rhand]" />
-    <framelinvel name="tracking_linvel[lelbow]" objtype="site" objname="tracking[lelbow]" />
-    <framelinvel name="tracking_linvel[relbow]" objtype="site" objname="tracking[relbow]" />
-    <framelinvel name="tracking_linvel[lshoulder]" objtype="site" objname="tracking[lshoulder]" />
-    <framelinvel name="tracking_linvel[rshoulder]" objtype="site" objname="tracking[rshoulder]" />
-    <framelinvel name="tracking_linvel[lhip]" objtype="site" objname="tracking[lhip]" />
-    <framelinvel name="tracking_linvel[rhip]" objtype="site" objname="tracking[rhip]" />
+    <framepos name="trace0" objtype="body" objname="skateboard"/>
 
     <framelinvel name="skateboard_framelinvel" objtype="body" objname="skateboard"/>
   </sensor>

@@ -166,9 +166,6 @@ def main(argv):
         # },
     )
 
-    set_cost_weights(agent, cost_weights)
-    set_task_parameters(agent, task_parameters)
-
     def render_frame() -> np.ndarray:
         scene_option = mujoco.MjvOption()
         mujoco.mjv_defaultOption(scene_option)
@@ -243,6 +240,8 @@ def main(argv):
 
     def environment_reset() -> TimeStep:
         agent.reset()
+        set_cost_weights(agent, cost_weights)
+        set_task_parameters(agent, task_parameters)
 
         synchronize_state()
 

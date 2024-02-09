@@ -34,6 +34,9 @@ import numpy.typing as npt
 
 from mujoco_mpc import agent as agent_lib
 
+import visualization as visualization_lib
+
+
 dataclass = dataclasses.dataclass
 Path = pathlib.Path
 
@@ -300,6 +303,11 @@ def main(argv):
         with path.open("wb") as f:
             np.savez_compressed(f, **states)
 
+    def visualize_trajectory(path: Path) -> None:
+        qpos = np.stack([ts.qpos for ts in time_steps])
+        visualization_lib.plot_trajectory_to_path(qpos, path)
+
+
     if output_path is not None:
         time_now_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
         output_dir = output_path / time_now_str
@@ -308,11 +316,12 @@ def main(argv):
         video_save_path = output_dir / "video.mp4"
         parameters_save_path = output_dir / "parameters.json"
         mujoco_states_save_path = output_dir / "mujoco_states.npz"
+        trajectory_save_path = output_dir / "trajectory.png"
 
         dump_parameters(parameters_save_path)
         dump_video(video_save_path)
         dump_mujoco_states(mujoco_states_save_path)
-
+        visualize_trajectory(trajectory_save_path)
 
 
 if __name__ == "__main__":

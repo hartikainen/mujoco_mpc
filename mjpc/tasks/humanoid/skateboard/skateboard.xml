@@ -46,7 +46,7 @@
 
       <!-- board -->
       <body name="board" pos="0 0 0.005">
-        <joint name="board-tilt" axis="-1 0 0" range="-18 18" damping="30" stiffness="30"/>
+        <joint name="board-tilt" axis="-1 0 0" range="-18 18" damping="3" stiffness="30"/>
         <body name="board-center">
           <geom name="board-base" class="wood" type="box" size="0.3 0.13 0.01" />
           <site name="board-base-grip" class="grip" type="box" size="0.3 0.13 0.0001" pos="0 0 0.01" />

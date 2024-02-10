@@ -427,16 +427,11 @@ std::array<double, 6> Steering::ResidualFn::ComputeFootPositionsResidual(
  * target heading and the current heading of the skateboard. The target heading
  * always points from the board to the goal.
  */
-std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
+std::array<double, 2> Steering::ResidualFn::ComputeBoardHeadingResidual(
     const mjModel *model, const mjData *data) const {
-  double skateboard_xmat[9];
-  mju_copy(skateboard_xmat, data->xmat + 9 * skateboard_body_id_, 9);
-
-  double skateboard_yaw = atan2(skateboard_xmat[3], skateboard_xmat[0]);
-
-  std::array<mjtNum, 2> skateboard_center = {
-      data->xpos[3 * skateboard_body_id_ + 0],
-      data->xpos[3 * skateboard_body_id_ + 1],
+  std::array<double, 2> skateboard_heading = {
+      data->xmat[9 * skateboard_body_id_ + 0],
+      data->xmat[9 * skateboard_body_id_ + 3],
   };
 
   std::array<mjtNum, 2> goal_position = {
@@ -454,30 +449,16 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
       goal_position[1] - skateboard_position[1],
   };
 
+  mju_normalize(skateboard_heading.data(), 2);
   mju_normalize(board_to_goal.data(), 2);
 
+  mjtNum skateboard_yaw = atan2(skateboard_heading[1], skateboard_heading[0]);
   mjtNum target_yaw = atan2(board_to_goal[1], board_to_goal[0]);
 
-  // Normalize yaw error to [0, pi]. Should be at minimum, `0`, when heading
-  // faces the goal and maximum, `pi`, when tail is facing the goal.
-  auto normalize_angle = [](double angle) {
-    while (angle < -M_PI) angle += 2 * M_PI;
-    while (+M_PI < angle) angle -= 2 * M_PI;
-    return angle;
+  std::array<double, 2> result = {
+      skateboard_heading[0] - board_to_goal[0],
+      skateboard_heading[1] - board_to_goal[1],
   };
-
-  double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
-
-  double clamp_l = parameters_[mjpc::ParameterIndex(model, "Heading clamp l")];
-  double clamp_k = parameters_[mjpc::ParameterIndex(model, "Heading clamp k")];
-
-  auto soft_clamp = [](double x, double limit, double k) {
-    return limit * std::tanh(x / limit * k);
-  };
-  double yaw_error_raw = yaw_error;
-  yaw_error = soft_clamp(yaw_error, clamp_l, clamp_k);
-
-  std::array<double, 1> result = {yaw_error};
 
   return result;
 }
@@ -574,7 +555,6 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   counter += board_heading_residual.size();
 
   auto board_velocity_residual = ComputeBoardVelocityResidual(model, data);
-
   mju_copy(residual + counter, board_velocity_residual.data(),
            board_velocity_residual.size());
   counter += board_velocity_residual.size();

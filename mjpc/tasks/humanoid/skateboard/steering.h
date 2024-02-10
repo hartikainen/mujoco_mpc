@@ -72,6 +72,8 @@ class Steering : public Task {
                                                       const mjData* data) const;
     std::array<double, 3> ComputeBoardVelocityResidual(
         const mjModel* model, const mjData* data) const;
+    std::array<double, 3> ComputeHumanoidVelocityResidual(
+        const mjModel* model, const mjData* data) const;
   };
 
   Steering() : residual_(this) {}

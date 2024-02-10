@@ -490,6 +490,22 @@ std::array<mjtNum, 3> Steering::ResidualFn::ComputeBoardVelocityResidual(
   return result;
 }
 
+std::array<mjtNum, 3> Steering::ResidualFn::ComputeHumanoidVelocityResidual(
+    const mjModel *model, const mjData *data) const {
+  double *skateboard_framelinvel =
+      SensorByName(model, data, "skateboard_framelinvel");
+  double *humanoid_framelinvel =
+      SensorByName(model, data, "tracking_linvel[pelvis]");
+
+  std::array<mjtNum, 3> result = {
+      skateboard_framelinvel[0] - humanoid_framelinvel[0],
+      skateboard_framelinvel[1] - humanoid_framelinvel[1],
+      skateboard_framelinvel[2] - humanoid_framelinvel[2],
+  };
+
+  return result;
+}
+
 void Steering::ModifyScene(const mjModel *model, const mjData *data,
                            mjvScene *scene) const {}
 
@@ -545,6 +561,12 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   mju_copy(residual + counter, board_velocity_residual.data(),
            board_velocity_residual.size());
   counter += board_velocity_residual.size();
+
+  // Humanoid Velocity Residual
+  auto humanoid_velocity_residual = ComputeHumanoidVelocityResidual(model, data);
+  mju_copy(residual + counter, humanoid_velocity_residual.data(),
+           humanoid_velocity_residual.size());
+  counter += humanoid_velocity_residual.size();
 
   // TODO(eliasmikkola): fill missing skateboard residuals
 

@@ -19,8 +19,6 @@
     <numeric name="ilqg_num_rollouts" data="8" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="1" />
-    <numeric name="residual_Right Foot Pos" data="0.2 0 1.0" />
-    <numeric name="residual_Left Foot Pos" data="1.0 0 1.0" />
     <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
     <numeric name="residual_Heading clamp l" data="0.01 -3.14 3.14" />
     <numeric name="residual_Heading clamp k" data="1 -3.14 3.14" />
@@ -105,8 +103,10 @@
     <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
 
     <!-- user sensors for feet on skateboard  -->
-    <user name="Right Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
-    <user name="Left Foot on Board" dim="1" user="6 60 0.0 100.0 0.1" />
+    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.15" />
+    <user name="Right Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
+    <user name="Left Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.15" />
+    <user name="Left Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
     
     <!-- user sensors for goal position and orientation -->
     <user name="Goal Position" dim="3" user="2 0 0.0 100.0 0.1" />

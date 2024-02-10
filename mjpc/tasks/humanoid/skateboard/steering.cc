@@ -394,54 +394,27 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
   return residual_to_return;
 }
 
-std::array<double, 2> Steering::ResidualFn::ComputeFootPositionsResidual(
+std::array<double, 6> Steering::ResidualFn::ComputeFootPositionsResidual(
     const mjModel *model, const mjData *data) const {
-  // ----- Skateboard: Feet should be on the skateboard ----- //
-  double *back_plate_pos = mjpc::SensorByName(model, data, "track-back-plate");
-  double *tail_pos = mjpc::SensorByName(model, data, "track-tail");
-  double *front_plate_pos =
+  // Right foot on the front plate
+  double *humanoid_rtoe_pos_sensor =
+      mjpc::SensorByName(model, data, "tracking_pos[rtoe]");
+  double *board_front_plate_pos =
       mjpc::SensorByName(model, data, "track-front-plate");
 
-  double *left_foot_pos = mjpc::SensorByName(model, data, "tracking_foot_left");
-  double *right_foot_pos =
-      mjpc::SensorByName(model, data, "tracking_foot_right");
+  // Left foot on the tail.
+  double *humanoid_ltoe_pos_sensor =
+      mjpc::SensorByName(model, data, "tracking_pos[ltoe]");
+  double *board_tail_pos = mjpc::SensorByName(model, data, "track-tail");
 
-  double right_feet_slider =
-      parameters_[mjpc::ParameterIndex(model, "Right Foot Pos")];
-  double left_feet_slider =
-      parameters_[mjpc::ParameterIndex(model, "Left Foot Pos")];
-
-  // calculate x-wise difference between the plates, based on right_feet_slider
-  double plate_distance_x = mju_abs(back_plate_pos[0] - front_plate_pos[0]);
-  double plate_distance_y = mju_abs(back_plate_pos[1] - front_plate_pos[1]);
-  // calculate the x position of the line set by the plates
-  double right_feet_x =
-      front_plate_pos[0] - right_feet_slider * plate_distance_x;
-  double right_feet_y =
-      front_plate_pos[1] - right_feet_slider * plate_distance_y;
-
-  // left feet error, distance to back plate position
-  double distance_x = mju_abs(left_foot_pos[0] - back_plate_pos[0]);
-  double distance_y = mju_abs(left_foot_pos[1] - back_plate_pos[1]);
-  double distance_z = mju_abs(left_foot_pos[2] - back_plate_pos[2]);
-  if (left_feet_slider > 0) {
-    distance_x = mju_abs(left_foot_pos[0] - tail_pos[0]);
-    distance_y = mju_abs(left_foot_pos[1] - tail_pos[1]);
-    distance_z = mju_abs(left_foot_pos[2] - tail_pos[2]);
-  }
-  double left_feet_error =
-      mju_sqrt(distance_x * distance_x + distance_y * distance_y +
-               (distance_z * distance_z));
-
-  // right feet error, distance to front plate position
-  distance_x = mju_abs(right_foot_pos[0] - right_feet_x);
-  distance_y = mju_abs(right_foot_pos[1] - right_feet_y);
-  distance_z = mju_abs(right_foot_pos[2] - front_plate_pos[2]);
-  double right_feet_error =
-      mju_sqrt(distance_x * distance_x + distance_y * distance_y +
-               (distance_z * distance_z));
-
-  return {left_feet_error, right_feet_error};
+  return {
+      humanoid_rtoe_pos_sensor[0] - board_front_plate_pos[0],
+      humanoid_rtoe_pos_sensor[1] - board_front_plate_pos[1],
+      humanoid_rtoe_pos_sensor[2] - board_front_plate_pos[2],
+      humanoid_ltoe_pos_sensor[0] - board_tail_pos[0],
+      humanoid_ltoe_pos_sensor[1] - board_tail_pos[1],
+      humanoid_ltoe_pos_sensor[2] - board_tail_pos[2],
+  };
 }
 
 std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(

@@ -355,8 +355,8 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    mju_subFrom3(body_mpos, avg_mpos);
-    mju_subFrom3(body_sensor_pos, avg_sensor_pos);
+    // mju_subFrom3(body_mpos, avg_mpos);
+    // mju_subFrom3(body_sensor_pos, avg_sensor_pos);
 
     residual_to_return.push_back(body_mpos[0] - body_sensor_pos[0]);
     residual_to_return.push_back(body_mpos[1] - body_sensor_pos[1]);

@@ -24,7 +24,7 @@
     <numeric name="residual_Heading clamp l" data="3.14 -3.14 3.14" />
     <numeric name="residual_Heading clamp k" data="1 -3.14 3.14" />
     <numeric name="residual_Heading" data="0 -3.14 3.14" />
-    <numeric name="residual_Velocity" data="2.5 -10 10" />
+    <numeric name="residual_Velocity" data="3.0 -10 10" />
   </custom>
 
   <default>
@@ -42,7 +42,7 @@
   </worldbody>
 
   <sensor>
-    <user name="Control" dim="1" user="3 0.3 0 1.0 0.3" />
+    <user name="Control" dim="2" user="3 0.3 0 1.0 0.3" />
 
     <!-- user sensors for goal position and orientation -->
     <user name="Board Heading" dim="2" user="0 1.0 0 100.0" />

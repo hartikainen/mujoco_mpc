@@ -22,7 +22,6 @@
     <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
     <numeric name="residual_Heading clamp l" data="3.14 -3.14 3.14" />
     <numeric name="residual_Heading clamp k" data="1 -3.14 3.14" />
-    <numeric name="residual_Heading" data="0 -3.14 3.14" />
     <numeric name="residual_Velocity" data="2.5 -10 10" />
   </custom>
 

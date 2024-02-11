@@ -8,10 +8,11 @@
 
   <custom>
     <text name="task_transition" data="Steer" />
+    <numeric name="derivative_skip" data="1" />
     <numeric name="agent_planner" data="2" />
-    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_horizon" data="0.45" />
     <numeric name="agent_integrator" data="3" />
-    <numeric name="agent_timestep" data="0.01666666667" />
+    <numeric name="agent_timestep" data="0.0125" />
     <numeric name="sampling_spline_points" data="8" />
     <numeric name="sampling_exploration" data="0.05" />
     <numeric name="sampling_representation" data="1" />
@@ -31,7 +32,7 @@
     </default>
   </default>
 
-  <option timestep="0.01666666667" integrator="implicitfast" cone="elliptic" />
+  <option timestep="0.0125" integrator="implicitfast" cone="elliptic" />
 
   <worldbody>
     <body name="mocap[pelvis]" mocap="true">
@@ -103,16 +104,16 @@
     <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
 
     <!-- user sensors for feet on skateboard  -->
-    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.01" />
+    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.05" />
     <user name="Right Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
-    <user name="Left Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.01" />
+    <user name="Left Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.05" />
     <user name="Left Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
     
     <!-- user sensors for board heading and velocity -->
-    <user name="Board Heading" dim="2" user="6 10 0 100 0.03" />
+    <user name="Board Heading" dim="2" user="6 3 0 100 0.01" />
     <user name="Board Velocity Local x" dim="1" user="8 30 0 100.0 0.01" />
     <user name="Board Velocity Local y" dim="1" user="0 0 0 100" />
-    <user name="Board Velocity Global z" dim="1" user="0 0 0 100" />
+    <user name="Board Velocity Global z" dim="1" user="0 10 0 100" />
 
     <framepos name="trace0" objtype="body" objname="torso"/>
     <framepos name="trace1" objtype="body" objname="board-center"/>

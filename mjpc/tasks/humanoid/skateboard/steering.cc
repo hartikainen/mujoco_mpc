@@ -260,17 +260,13 @@ std::string Steering::XmlPath() const {
 }
 std::string Steering::Name() const { return "Humanoid Skateboard Steer"; }
 
-// ------------- Residuals for humanoid skateboard steering task -------------
-//   Number of residuals:
-//     Residual (0): Joint vel: minimise joint velocity
-//     Residual (1): Control: minimise control
-//     Residual (2-11): Steering position: minimise steering position error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//     Residual (11-20): Steering velocity: minimise steering velocity error
-//         for {root, head, toe, heel, knee, hand, elbow, shoulder, hip}.
-//   Number of parameters: 0
-// ----------------------------------------------------------------
-
+/**
+ * Humanoid tracking residual.
+ *
+ * The residual computes the difference between the target positions and the
+ * current positions of the humanoid body parts. The target positions are
+ * obtained from the mocap data.
+ */
 std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     const mjModel *model, const mjData *data) const {
   std::vector<mjtNum> mocap_translated(3 * (model->nmocap - 1));
@@ -394,6 +390,13 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
   return residual_to_return;
 }
 
+/**
+ * Humanoid foot positions residual.
+ *
+ * The board includes two sensors for tracking the position of the right and
+ * left foot. The residual is computed as the difference between these target
+ * positions and the current positions of the feet.
+ */
 std::array<double, 6> Steering::ResidualFn::ComputeFootPositionsResidual(
     const mjModel *model, const mjData *data) const {
   // Right foot on the front plate
@@ -417,6 +420,13 @@ std::array<double, 6> Steering::ResidualFn::ComputeFootPositionsResidual(
   };
 }
 
+/**
+ * Skateboard heading residual.
+ *
+ * The skateboard heading residual is computed as the difference between the
+ * target heading and the current heading of the skateboard. The target heading
+ * always points from the board to the goal.
+ */
 std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
     const mjModel *model, const mjData *data) const {
   double skateboard_xmat[9];
@@ -444,7 +454,7 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
       goal_position[1] - skateboard_position[1],
   };
 
-  mju_normalize3(board_to_goal.data());
+  mju_normalize(board_to_goal.data(), 2);
 
   mjtNum target_yaw = atan2(board_to_goal[1], board_to_goal[0]);
 
@@ -458,7 +468,6 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
 
   double yaw_error = normalize_angle(target_yaw - skateboard_yaw);
 
-  // parameter "Heading clamp"
   double clamp_l = parameters_[mjpc::ParameterIndex(model, "Heading clamp l")];
   double clamp_k = parameters_[mjpc::ParameterIndex(model, "Heading clamp k")];
 
@@ -473,6 +482,14 @@ std::array<double, 1> Steering::ResidualFn::ComputeBoardHeadingResidual(
   return result;
 }
 
+/**
+ * Skateboard velocity residual.
+ *
+ * The skateboard velocity residual is computed as the difference between the
+ * target velocity and the current velocity of the skateboard. The target
+ * velocity for the longitudinal axis is given by the `Velocity` parameter,
+ * while the target velocity for the lateral and vertical axes is zero.
+ */
 std::array<mjtNum, 3> Steering::ResidualFn::ComputeBoardVelocityResidual(
     const mjModel *model, const mjData *data) const {
   std::array<mjtNum, 3> skateboard_linear_velocity_target = {
@@ -497,7 +514,7 @@ std::array<mjtNum, 3> Steering::ResidualFn::ComputeBoardVelocityResidual(
                  skateboard_linear_velocity_global.data(),
                  skateboard_xmat.data());
 
-  // NOTE: we add small tolerance to x here.
+  // NOTE: we add small tolerance to the longitudinal residual here.
   std::array<mjtNum, 3> result = {
       skateboard_linear_velocity_target[0] -
           skateboard_linear_velocity_local[0] - 0.03,
@@ -531,37 +548,31 @@ void Steering::ResetLocked(const mjModel *model) {
 
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                     double *residual) const {
-  // ----- residual ----- //
   int counter = 0;
-  // ----- joint velocity ----- //
+
   int n_humanoid_joints = model->nv - 6 - 6 - 7;
   mju_copy(residual + counter, data->qvel + 6, n_humanoid_joints);
 
   counter += n_humanoid_joints;
 
-  // ----- action ----- //
   mju_copy(&residual[counter], data->ctrl, model->nu);
   counter += model->nu;
 
-  // Tracking Residual
   auto tracking_residual = ComputeTrackingResidual(model, data);
   mju_copy(residual + counter, tracking_residual.data(),
            tracking_residual.size());
   counter += tracking_residual.size();
 
-  // Foot Positions Residual
   auto foot_positions_residual = ComputeFootPositionsResidual(model, data);
   mju_copy(residual + counter, foot_positions_residual.data(),
            foot_positions_residual.size());
   counter += foot_positions_residual.size();
 
-  // Goal Orientation Residual
   auto board_heading_residual = ComputeBoardHeadingResidual(model, data);
   mju_copy(residual + counter, board_heading_residual.data(),
            board_heading_residual.size());
   counter += board_heading_residual.size();
 
-  // Goal Position Residual
   auto board_velocity_residual = ComputeBoardVelocityResidual(model, data);
 
   mju_copy(residual + counter, board_velocity_residual.data(),
@@ -573,16 +584,9 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   CheckSensorDim(model, counter);
 }
 
-// --------------------- Transition for humanoid task -------------------------
-//   Set `data->mocap_pos` based on `data->time` to move the mocap sites.
-//   Linearly interpolate between two consecutive key frames in order to
-//   smooth the transitions between keyframes.
-// ----------------------------------------------------------------------------
 void Steering::TransitionLocked(mjModel *model, mjData *d) {
   assert(residual_.skateboard_body_id_ >= 0);
-  // get motion start index
   int start = MotionStartIndex(mode);
-  // get motion trajectory length
   int length = MotionLength(mode);
 
   // check for motion switch

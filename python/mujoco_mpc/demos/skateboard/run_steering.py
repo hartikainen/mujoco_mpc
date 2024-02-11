@@ -74,12 +74,12 @@ class TimeStep:
     """Time step information."""
 
     time: float
-    qpos: np.ndarray
-    qvel: np.ndarray
-    ctrl: np.ndarray
+    qpos: npt.NDArray[np.float_]
+    qvel: npt.NDArray[np.float_]
+    ctrl: npt.NDArray[np.float_]
     cost_total: float
     cost_terms: dict[str, float]
-    frame: np.ndarray
+    frame: npt.NDArray[np.float_]
 
 
 def load_cost_weights(cost_weights_str: Optional[str]) -> dict[str, float]:
@@ -125,6 +125,8 @@ def set_task_parameters(agent: agent_lib.Agent, task_parameters: dict[str, float
 
 
 def main(argv):
+    del argv
+
     time_limit = _TIME_LIMIT_FLAG.value
     cost_weights = load_cost_weights(_COST_WEIGHTS_FLAG.value)
     task_parameters = load_task_parameters(_TASK_PARAMETERS_FLAG.value)
@@ -166,7 +168,7 @@ def main(argv):
         # },
     )
 
-    def render_frame() -> np.ndarray:
+    def render_frame() -> npt.NDArray[np.float_]:
         scene_option = mujoco.MjvOption()
         mujoco.mjv_defaultOption(scene_option)
         scene_option.sitegroup[3] = True
@@ -217,7 +219,7 @@ def main(argv):
             frame=render_frame(),
         )
 
-    def agent_plan() -> np.ndarray:
+    def agent_plan() -> npt.NDArray[np.float_]:
         import time
 
         start = time.time()
@@ -247,7 +249,7 @@ def main(argv):
 
         return get_time_step()
 
-    def environment_step() -> TimeStep:
+    def environment_step() -> tuple[npt.NDArray[np.float_], TimeStep]:
         action = agent_plan()
         agent.step()
 

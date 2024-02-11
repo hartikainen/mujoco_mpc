@@ -22,7 +22,7 @@
 #include "mjpc/tasks/allegro/allegro.h"
 #include "mjpc/tasks/bimanual/bimanual.h"
 #include "mjpc/tasks/cartpole/cartpole.h"
-#include "mjpc/tasks/cube/solve.h"
+// #include "mjpc/tasks/cube/solve.h"
 #include "mjpc/tasks/fingers/fingers.h"
 #include "mjpc/tasks/hand/hand.h"
 #include "mjpc/tasks/humanoid/stand/stand.h"
@@ -47,7 +47,7 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
       std::make_shared<Acrobot>(),
       std::make_shared<Allegro>(),
       std::make_shared<Bimanual>(),
-      std::make_shared<CubeSolve>(),
+      // std::make_shared<CubeSolve>(),
       std::make_shared<Cartpole>(),
       std::make_shared<Fingers>(),
       std::make_shared<Hand>(),

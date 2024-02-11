@@ -19,7 +19,7 @@
     <numeric name="ilqg_num_rollouts" data="8" />
     <numeric name="ilqg_regularization_type" data="1" />
     <numeric name="ilqg_representation" data="1" />
-    <numeric name="residual_Tilt ratio" data="0.2 0 1.0" />
+    <numeric name="residual_Tilt ratio" data="0.3 0 1.0" />
     <numeric name="residual_Heading clamp l" data="0.01 -3.14 3.14" />
     <numeric name="residual_Heading clamp k" data="1 -3.14 3.14" />
     <numeric name="residual_Velocity" data="2.5 -10 10" />

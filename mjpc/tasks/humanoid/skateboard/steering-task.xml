@@ -82,7 +82,7 @@
     <body name="mocap[rhip]" mocap="true">
       <site name="mocap[rhip]" class="mocap_site" />
     </body>
-    <body name="goal" mocap="true" pos="0 5 0">
+    <body name="goal" mocap="true" >
       <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
     </body>
   </worldbody>

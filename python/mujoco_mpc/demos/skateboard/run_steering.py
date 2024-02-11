@@ -52,6 +52,11 @@ _TASK_PARAMETERS_FLAG = flags.DEFINE_string(
     None,
     "JSON-serializable values for task_parameters.",
 )
+_CUSTOM_DATA_FLAG = flags.DEFINE_string(
+    "custom_data",
+    None,
+    "JSON-serializable values for custom data. Currently only supports setting setting numeric values.",
+)
 _NUM_PLANNER_STEPS_FLAG = flags.DEFINE_integer(
     "num_planner_steps",
     1,
@@ -82,15 +87,15 @@ class TimeStep:
     frame: npt.NDArray[np.float_]
 
 
-def load_cost_weights(cost_weights_str: Optional[str]) -> dict[str, float]:
-    if cost_weights_str is None:
+def load_json(json_str: Optional[str], error_identifier: str) -> dict[str, float]:
+    if not json_str:
         return {}
     try:
-        cost_weights = json.loads(cost_weights_str)
+        data = json.loads(json_str)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Unable to parse `cost_weights`: {e}")
+        raise ValueError(f"Unable to parse '{error_identifier}': {e}")
 
-    return cost_weights
+    return data
 
 
 def set_cost_weights(agent: agent_lib.Agent, cost_weights: dict[str, float]):
@@ -103,17 +108,6 @@ def set_cost_weights(agent: agent_lib.Agent, cost_weights: dict[str, float]):
     )
 
 
-def load_task_parameters(task_parameters_str: Optional[str]) -> dict[str, float]:
-    if task_parameters_str is None:
-        return {}
-    try:
-        task_parameters = json.loads(task_parameters_str)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Unable to parse `task_parameters`: {e}")
-
-    return task_parameters
-
-
 def set_task_parameters(agent: agent_lib.Agent, task_parameters: dict[str, float]):
     task_parameters_str = json.dumps(task_parameters, indent=2)
     logging.info(f"@set_task_parameters. task_parameters: {task_parameters_str}")
@@ -124,15 +118,69 @@ def set_task_parameters(agent: agent_lib.Agent, task_parameters: dict[str, float
     )
 
 
+def set_custom_text_data(model: mujoco.MjModel, name: str, value: str):
+    raise NotImplementedError(
+        "Can't set text values because the string buffer is read-only")
+
+    def string_slice(string, start):
+        return string[start:string.find(b'\x00', start)].decode('utf-8')
+
+    for i in range(model.ntext):
+        text_name = string_slice(model.names, model.name_textadr[i])
+
+        if text_name == name:
+            text_adr = model.text_adr[i]
+            text_size = model.text_size[i]
+            model_text_data = bytearray(model.text_data)
+            model_text_data[text_adr:text_adr + text_size - 1] = value.encode('utf-8')
+            model.text_data = bytes(model_text_data)
+
+            return
+
+    raise ValueError(f"Could not find `{name=}` in model.text_names")
+
+
+def set_custom_numeric_data(model: mujoco.MjModel, name: str, value: float | int | npt.ArrayLike):
+    value = np.array(value)
+    # make sure that value is of dtype float or int
+    is_floating = np.issubdtype(value.dtype, np.floating)
+    is_integer = np.issubdtype(value.dtype, np.integer)
+    if not (is_floating or is_integer):
+        raise ValueError(f"Expected `{name=}` to be of dtype float or int, got {value.dtype=}, {value=}")
+
+    def string_slice(string, start):
+        return string[start:string.find(b'\x00', start)].decode('utf-8')
+
+    for i in range(model.nnumeric):
+        numeric_name = string_slice(model.names, model.name_numericadr[i])
+
+        if numeric_name == name:
+            numeric_adr = model.numeric_adr[i]
+            numeric_size = model.numeric_size[i]
+            model.numeric_data[numeric_adr:numeric_adr + numeric_size] = value
+
+            return
+
+    raise ValueError(f"Could not find `{name=}` in model.numeric_names")
+
+
+def set_custom_data(model: mujoco.MjModel, custom_data: dict[str, Any]):
+    for name, value in custom_data.items():
+        if isinstance(value, str):
+            set_custom_text_data(model, name, value)
+        else:
+            set_custom_numeric_data(model, name, value)
+
 def main(argv):
     del argv
 
     time_limit = _TIME_LIMIT_FLAG.value
-    cost_weights = load_cost_weights(_COST_WEIGHTS_FLAG.value)
-    task_parameters = load_task_parameters(_TASK_PARAMETERS_FLAG.value)
+    cost_weights = load_json(_COST_WEIGHTS_FLAG.value, "cost_weights")
+    task_parameters = load_json(_TASK_PARAMETERS_FLAG.value, "task_parameters")
+    custom_data = load_json(_CUSTOM_DATA_FLAG.value, "custom_data")
     num_planner_steps = _NUM_PLANNER_STEPS_FLAG.value
     planner_step_tolerance = _PLANNER_STEP_TOLERANCE_FLAG.value
-    if _OUTPUT_PATH_FLAG.present:
+    if _OUTPUT_PATH_FLAG.present and _OUTPUT_PATH_FLAG.value is not None:
         output_path = Path(_OUTPUT_PATH_FLAG.value)
     else:
         output_path = None
@@ -140,6 +188,7 @@ def main(argv):
     logging.info(f"{time_limit=}")
     logging.info(f"{cost_weights=}")
     logging.info(f"{task_parameters=}")
+    logging.info(f"{custom_data=}")
 
     model_path = (
         Path(__file__).parents[5]
@@ -155,6 +204,12 @@ def main(argv):
     model = mujoco.MjModel.from_xml_path(str(model_path))
     model.vis.global_.offheight = render_height
     model.vis.global_.offwidth = render_width
+
+    # NOTE(hartikainen): custom data, such as the agent or planner parameters
+    # are set directly into the model because the grpc api only allows setting
+    # "residual_"-values.
+    set_custom_data(model, custom_data)
+
     data = mujoco.MjData(model)
 
     renderer = mujoco.Renderer(model, height=render_height, width=render_width)
@@ -272,6 +327,7 @@ def main(argv):
             "time_limit": time_limit,
             "cost_weights": cost_weights,
             "task_parameters": task_parameters,
+            "custom_data": custom_data,
             "num_planner_steps": num_planner_steps,
             "planner_step_tolerance": planner_step_tolerance,
         }

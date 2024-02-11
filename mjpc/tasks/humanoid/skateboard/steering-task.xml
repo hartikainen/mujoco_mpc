@@ -103,13 +103,13 @@
     <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
 
     <!-- user sensors for feet on skateboard  -->
-    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.15" />
+    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.01" />
     <user name="Right Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
-    <user name="Left Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.15" />
+    <user name="Left Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.01" />
     <user name="Left Foot on Board z" dim="1" user="2 10 0.0 100.0 0.05" />
     
     <!-- user sensors for board heading and velocity -->
-    <user name="Board Heading" dim="2" user="0 3 0 100" />
+    <user name="Board Heading" dim="2" user="6 10 0 100 0.03" />
     <user name="Board Velocity Local x" dim="1" user="8 30 0 100.0 0.01" />
     <user name="Board Velocity Local y" dim="1" user="0 0 0 100" />
     <user name="Board Velocity Global z" dim="1" user="0 0 0 100" />

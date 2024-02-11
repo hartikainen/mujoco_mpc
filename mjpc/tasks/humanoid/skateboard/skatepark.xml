@@ -1,0 +1,8 @@
+<mujoco model="skatepark">
+  <worldbody>
+    <body name="skatepark" pos="0 0 0">
+      <!-- <geom name="ollie-obstacle" pos="0 4 0.1" type="box" size="20.0 0.1 0.1"/> -->
+      <geom name="ollie-obstacle" pos="0 4 0" type="cylinder" size="0.2 20.0" rgba="1 0 0 0.3" quat="1 0 1 0"/>
+    </body>
+  </worldbody>
+</mujoco>

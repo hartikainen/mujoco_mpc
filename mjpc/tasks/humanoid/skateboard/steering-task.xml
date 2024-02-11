@@ -2,18 +2,19 @@
   <include file="../../common.xml"/>
   <include file="../humanoid.xml" />
   <include file="./skateboard.xml" />
+  <include file="./skatepark.xml" />
   <size memory="8M"/>
 
   <compiler autolimits="true" />
 
   <custom>
     <text name="task_transition" data="Steer" />
-    <numeric name="agent_planner" data="2" />
-    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_planner" data="3" />
+    <numeric name="agent_horizon" data="0.5" />
     <numeric name="agent_integrator" data="3" />
     <numeric name="agent_timestep" data="0.01666666667" />
     <numeric name="sampling_spline_points" data="8" />
-    <numeric name="sampling_exploration" data="0.05" />
+    <numeric name="sampling_exploration" data="0.1" />
     <numeric name="sampling_representation" data="1" />
     <numeric name="gradient_spline_points" data="5" />
     <numeric name="ilqg_num_rollouts" data="8" />
@@ -82,7 +83,7 @@
     <body name="mocap[rhip]" mocap="true">
       <site name="mocap[rhip]" class="mocap_site" />
     </body>
-    <body name="goal" mocap="true" pos="4 8 0">
+    <body name="goal" mocap="true" pos="0 8 0">
       <geom type="cylinder" size="0.5 0.001" contype="0" conaffinity="0" rgba="1 0 0 0.8" group="2"/>
     </body>
   </worldbody>
@@ -91,10 +92,15 @@
     <user name="Joint Vel." dim="21" user="0 0.001 0.0 0.01" />
     <user name="Control" dim="21" user="3 0.3 0 1.0 0.3" />
 
-    <user name="Pos[avg]" dim="3" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[pelvis]" dim="3" user="6 10.0 0.0 100.0 0.1" />
-    <user name="Pos[hand]" dim="6" user="6 0.0 0.0 100.0 0.1" />
-    <user name="Pos[shoulder]" dim="6" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Pos[avg-xy]" dim="2" user="6 100.0 0.0 100.0 0.05" />
+    <user name="Pos[avg-z]" dim="1" user="6 10.0 0.0 100.0 0.3" />
+    <user name="Pos[pelvis-xy]" dim="2" user="6 10.0 0.0 100.0 0.1" />
+    <user name="Pos[pelvis-z]" dim="1" user="6 10.0 0.0 100.0 0.3" />
+    <user name="Pos[hand]" dim="6" user="6 3.0 0.0 100.0 0.1" />
+    <user name="Pos[lshoulder-xy]" dim="2" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Pos[lshoulder-z]" dim="1" user="6 10.0 0.0 100.0 0.3" />
+    <user name="Pos[rshoulder-xy]" dim="2" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Pos[rshoulder-z]" dim="1" user="6 10.0 0.0 100.0 0.3" />
     <user name="Pos[hip]" dim="6" user="6 0.0 0.0 100.0 0.1" />
 
     <user name="Vel[root]" dim="3" user="6 0.0 0 1.0 0.3" />
@@ -103,29 +109,40 @@
     <user name="Vel[hip]" dim="6" user="6 0.0 0 1.0 0.3" />
 
     <!-- user sensors for feet on skateboard  -->
-    <user name="Right Foot on Board xy" dim="2" user="2 3 0.0 100.0 0.1" />
-    <user name="Right Foot on Board z" dim="1" user="2 1 0.0 100.0 0.05" />
-    <user name="Left Foot on Board xy" dim="2" user="2 3 0.0 100.0 0.1" />
-    <user name="Left Foot on Board z" dim="1" user="2 1 0.0 100.0 0.05" />
+    <user name="Right Foot on Board xy" dim="2" user="2 10 0.0 100.0 0.1" />
+    <user name="Right Foot on Board z" dim="1" user="2 10 0.0 100.0 0.01" />
+    <user name="Left Foot on Board xy" dim="2" user="2 30 0.0 100.0 0.01" />
+    <user name="Left Foot on Board z" dim="1" user="2 10 0.0 100.0 0.01" />
     
     <!-- user sensors for goal position and orientation -->
     <user name="Board Heading" dim="2" user="0 1.0 0 100.0" />
     <!-- <user name="Board Heading Yaw" dim="1" user="6 3 0 100.0 0.03" /> -->
     <!-- <user name="Board Heading Roll" dim="1" user="0 1 0 100.0" /> -->
     <!-- <user name="Board Heading Pitch" dim="1" user="0 1 0 100.0" /> -->
-    <user name="Board Velocity Local x" dim="1" user="8 30 0 100.0 0.01" />
+    <user name="Board Velocity Local x" dim="1" user="8 100 0 100.0 0.01" />
     <user name="Board Velocity Local y" dim="1" user="0 0 0 100.0" />
     <user name="Board Velocity Global z" dim="1" user="0 0 0 100.0" />
 
-    <user name="Humanoid Velocity" dim="3" user="0 10 0 100.0" />
+    <user name="Humanoid Velocity" dim="3" user="0 1 0 100.0" />
+
+    <user name="Ollie Obstacle Avoid" dim="4" user="8 300 0 100.0 0.01" />
 
     <framepos name="trace0" objtype="body" objname="torso"/>
+    <framepos name="trace1" objtype="body" objname="board-nose"/>
+    <framepos name="trace2" objtype="body" objname="board-center"/>
+    <framepos name="trace3" objtype="body" objname="board-tail"/>
 
     <framepos name="tracking_foot_left" objtype="site" objname="tracking[ltoe]"/>
     <framepos name="tracking_foot_right" objtype="site" objname="tracking[rtoe]"/>
     <framepos name="track-back-plate" objtype="site" objname="track-back-plate"/>
     <framepos name="track-tail" objtype="site" objname="track-tail"/>
     <framepos name="track-front-plate" objtype="site" objname="track-front-plate"/>
+
+    <framepos name="ollie-obstacle-framepos" objtype="geom" objname="ollie-obstacle"/>
+    <framepos name="board-nose-framepos" objtype="geom" objname="board-nose"/>
+    <framepos name="board-tail-framepos" objtype="geom" objname="board-tail"/>
+    <framepos name="hanger-front-framepos" objtype="geom" objname="hanger-front"/>
+    <framepos name="hanger-back-framepos" objtype="geom" objname="hanger-back"/>
 
     <framepos name="tracking_pos[pelvis]" objtype="site" objname="tracking[pelvis]" />
     <framepos name="tracking_pos[head]" objtype="site" objname="tracking[head]" />

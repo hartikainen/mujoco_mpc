@@ -61,8 +61,8 @@
         </body>
       </body>
       <!-- trucks -->
-      <geom  name="truck-nose" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020" />
-      <geom  name="truck-tail" class="truck" fromto="-0.20 0.0 -0.020 -0.30 0.0 -0.020" />
+      <geom name="truck-nose" class="truck" fromto="0.20 0.0 -0.020 0.30 0.0 -0.020" />
+      <geom name="truck-tail" class="truck" fromto="-0.20 0.0 -0.020 -0.30 0.0 -0.020" />
 
       <!-- Baseplate -->
       <body name="baseplate-front" pos="0.25 0.0 -0.01">

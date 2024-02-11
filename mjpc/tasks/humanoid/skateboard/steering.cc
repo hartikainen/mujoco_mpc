@@ -355,8 +355,8 @@ std::vector<double> Steering::ResidualFn::ComputeTrackingResidual(
     double body_sensor_pos[3];
     get_body_sensor_pos(body_name, body_sensor_pos);
 
-    // mju_subFrom3(body_mpos, avg_mpos);
-    // mju_subFrom3(body_sensor_pos, avg_sensor_pos);
+    mju_subFrom3(body_mpos, avg_mpos);
+    mju_subFrom3(body_sensor_pos, avg_sensor_pos);
 
     residual_to_return.push_back(body_mpos[0] - body_sensor_pos[0]);
     residual_to_return.push_back(body_mpos[1] - body_sensor_pos[1]);
@@ -506,6 +506,75 @@ std::array<mjtNum, 3> Steering::ResidualFn::ComputeHumanoidVelocityResidual(
   return result;
 }
 
+std::array<mjtNum, 4> Steering::ResidualFn::ComputeOllieResidual(
+    const mjModel *model, const mjData *data) const {
+  int ollie_obstacle_geom_id =
+      mj_name2id(model, mjOBJ_GEOM, "ollie-obstacle");
+  assert(0 <= ollie_obstacle_geom_id);
+
+  double *ollie_obstacle_framepos =
+      SensorByName(model, data, "ollie-obstacle-framepos");
+  double *board_nose_framepos =
+      SensorByName(model, data, "board-nose-framepos");
+  double *board_tail_framepos =
+      SensorByName(model, data, "board-tail-framepos");
+  double *hanger_front_framepos =
+      SensorByName(model, data, "hanger-front-framepos");
+  double *hanger_back_framepos =
+      SensorByName(model, data, "hanger-back-framepos");
+
+  auto distance = [](const std::array<mjtNum, 2> &a,
+                    const std::array<mjtNum, 2> &b) {
+    return std::sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]));
+  };
+
+  std::array<double, 2> ollie_obstacle_yz = {
+    ollie_obstacle_framepos[1],
+    ollie_obstacle_framepos[2],
+  };
+  double obstacle_radius = model->geom_size[3 * ollie_obstacle_geom_id + 0];
+  double obstacle_avoid_tolerance = 0.1;
+  double obstacle_avoid_radius = obstacle_radius + obstacle_avoid_tolerance;
+
+  std::array<mjtNum, 2> board_nose_yz = {
+      board_nose_framepos[1], board_nose_framepos[2],
+  };
+  std::array<mjtNum, 2> board_tail_yz = {
+      board_tail_framepos[1], board_tail_framepos[2],
+  };
+  std::array<mjtNum, 2> hanger_front_yz = {
+      hanger_front_framepos[1], hanger_front_framepos[2],
+  };
+  std::array<mjtNum, 2> hanger_back_yz = {
+      hanger_back_framepos[1], hanger_back_framepos[2],
+  };
+
+  // Make sure none of the skateboard parts are inside the obstacle radius
+  double nose_obstacle_distance = distance(board_nose_yz, ollie_obstacle_yz);
+  double tail_obstacle_distance = distance(board_tail_yz, ollie_obstacle_yz);
+  double hanger_front_obstacle_distance = distance(hanger_front_yz, ollie_obstacle_yz);
+  double hanger_back_obstacle_distance = distance(hanger_back_yz, ollie_obstacle_yz);
+
+  if (jiiri++ % 5000 == 0) {
+    printf("Ollie obstacle yz: [%f, %f]\n", ollie_obstacle_yz[0], ollie_obstacle_yz[1]);
+    printf("Ollie obstacle radius: %f\n", obstacle_radius);
+    printf("Nose obstacle distance: %f\n", nose_obstacle_distance);
+    printf("Tail obstacle distance: %f\n", tail_obstacle_distance);
+    printf("Hanger front obstacle distance: %f\n",
+           hanger_front_obstacle_distance);
+    printf("Hanger back obstacle distance: %f\n", hanger_back_obstacle_distance);
+  }
+
+  std::array<mjtNum, 4> result = {
+      obstacle_avoid_radius - nose_obstacle_distance,
+      obstacle_avoid_radius - tail_obstacle_distance,
+      obstacle_avoid_radius - hanger_front_obstacle_distance,
+      obstacle_avoid_radius - hanger_back_obstacle_distance,
+  };
+
+  return result;
+}
+
 void Steering::ModifyScene(const mjModel *model, const mjData *data,
                            mjvScene *scene) const {}
 
@@ -567,6 +636,12 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   mju_copy(residual + counter, humanoid_velocity_residual.data(),
            humanoid_velocity_residual.size());
   counter += humanoid_velocity_residual.size();
+
+  // Humanoid Velocity Residual
+  auto ollie_residual = ComputeOllieResidual(model, data);
+  mju_copy(residual + counter, ollie_residual.data(),
+           ollie_residual.size());
+  counter += ollie_residual.size();
 
   // TODO(eliasmikkola): fill missing skateboard residuals
 

@@ -115,6 +115,7 @@
     <user name="Board Velocity Global z" dim="1" user="0 0 0 100" />
 
     <framepos name="trace0" objtype="body" objname="torso"/>
+    <framepos name="trace1" objtype="body" objname="board-center"/>
 
     <framepos name="tracking_foot_left" objtype="site" objname="tracking[ltoe]"/>
     <framepos name="tracking_foot_right" objtype="site" objname="tracking[rtoe]"/>

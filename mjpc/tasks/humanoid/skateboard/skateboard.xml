@@ -50,6 +50,9 @@
         <body name="board-center">
           <geom name="board-base" class="wood" type="box" size="0.3 0.13 0.01" />
           <site name="board-base-grip" class="grip" type="box" size="0.299 0.1299 0.00099" pos="0 0 0.01" />
+
+          <site name="track-front-plate" class="tracking_site_board" pos="+0.2 0.04 0.025" />
+          <site name="track-back-plate" class="tracking_site_board" pos="-0.2 0.04 0.025" />
         </body>
         <body name="board-nose" pos="+0.3685 0.0 0.0225" quat="-0.9659 0 0.15 0" >
           <geom name="board-nose" class="wood" type="box" size="0.075 0.13 0.01" />
@@ -58,6 +61,8 @@
         <body name="board-tail" pos="-0.3685 0.0 0.0225" quat="+0.9659 0 0.15 0" >
           <geom name="board-tail" class="wood" type="box" size="0.075 0.13 0.01" />
           <site name="board-tail-grip" class="grip" type="box" size="0.07399 0.1299 0.00099" pos="-0.001 0 0.01" />
+
+          <site name="track-tail" class="tracking_site_board" pos="0.025 0.04 0.025" />
         </body>
       </body>
       <!-- trucks -->
@@ -68,7 +73,6 @@
       <body name="baseplate-front" pos="0.25 0.0 -0.01">
         <!-- rotate -->
         <body name="kingpin-front" pos="0 0 -0.01">
-          <site name="track-front-plate" class="tracking_site_board"  pos="-0.05 0.00 0.05" />
           <geom type="capsule" fromto="0 0 0 0 0 -0.02" size="0.01" rgba="0.5 0.5 0.5 1"/>
           <joint name="hanger-rotate-front" class="hanger-rotate" axis="0 0 1" />
           <!-- Bushings and hanger -->
@@ -92,8 +96,6 @@
       <!-- identical but for back truck -->
       <body name="baseplate-back" pos="-0.25 0.0 -0.01">
         <body name="kingpin-back" pos="0 0 -0.01">
-          <site name="track-back-plate" class="tracking_site_board"  pos="0.05 0.00 0.05" />
-          <site name="track-tail" class="tracking_site_board"  pos="-0.1 0.00 0.05" />
           <geom type="capsule" fromto="0 0 0 0 0 -0.02" size="0.01" rgba="0.5 0.5 0.5 1"/>
           <joint name="hanger-rotate-back" class="hanger-rotate" axis="0 0 -1"/>
           <!-- Bushings and hanger -->

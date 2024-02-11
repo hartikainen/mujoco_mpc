@@ -332,8 +332,10 @@ def main(argv):
             "planner_step_tolerance": planner_step_tolerance,
         }
 
-        with path.open("wt") as f:
+        with (path / "parameters").open("wt") as f:
             json.dump(parameters, f, indent=2, sort_keys=True)
+
+        mujoco.mj_saveLastXML((path / "model.xml").as_posix(), model)
 
     def dump_video(path: Path) -> None:
         with mediapy.VideoWriter(
@@ -364,10 +366,10 @@ def main(argv):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         video_save_path = output_dir / "video.mp4"
-        parameters_save_path = output_dir / "parameters.json"
+        parameters_save_dir = output_dir
         mujoco_states_save_path = output_dir / "mujoco_states.npz"
 
-        dump_parameters(parameters_save_path)
+        dump_parameters(parameters_save_dir)
         dump_video(video_save_path)
         dump_mujoco_states(mujoco_states_save_path)
 

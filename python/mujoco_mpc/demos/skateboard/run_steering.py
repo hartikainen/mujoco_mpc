@@ -286,6 +286,20 @@ def main(argv):
             for time_step in time_steps:
                 video_writer.add_image(time_step.frame)
 
+    def dump_mujoco_states(path: Path) -> None:
+        states = {
+            "time": np.stack([ts.time for ts in time_steps]),
+            "qpos": np.stack([ts.qpos for ts in time_steps]),
+            "qvel": np.stack([ts.qvel for ts in time_steps]),
+            "ctrl": np.stack([ts.ctrl for ts in time_steps]),
+            "cost_total": np.stack([ts.cost_total for ts in time_steps]),
+            "cost_terms": np.stack([ts.time for ts in time_steps]),
+        }
+
+        assert path.suffix == ".npz", path
+        with path.open("wb") as f:
+            np.savez_compressed(f, **states)
+
     if output_path is not None:
         time_now_str = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
         output_dir = output_path / time_now_str
@@ -293,9 +307,11 @@ def main(argv):
 
         video_save_path = output_dir / "video.mp4"
         parameters_save_path = output_dir / "parameters.json"
+        mujoco_states_save_path = output_dir / "mujoco_states.npz"
 
         dump_parameters(parameters_save_path)
         dump_video(video_save_path)
+        dump_mujoco_states(mujoco_states_save_path)
 
 
 if __name__ == "__main__":

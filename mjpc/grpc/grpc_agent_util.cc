@@ -288,6 +288,7 @@ grpc::Status Reset(mjpc::Agent* agent, const mjModel* model, mjData* data) {
   } else {
     mj_resetData(model, data);
   }
+  mj_forward(model, data);
   agent->SetState(data);
   return grpc::Status::OK;
 }

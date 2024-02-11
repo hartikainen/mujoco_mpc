@@ -332,7 +332,7 @@ def main(argv):
             "planner_step_tolerance": planner_step_tolerance,
         }
 
-        with (path / "parameters").open("wt") as f:
+        with (path / "parameters.json").open("wt") as f:
             json.dump(parameters, f, indent=2, sort_keys=True)
 
         mujoco.mj_saveLastXML((path / "model.xml").as_posix(), model)

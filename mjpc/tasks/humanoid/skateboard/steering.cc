@@ -525,6 +525,9 @@ void Steering::ResetLocked(const mjModel *model) {
   if (residual_.goal_body_id_ < 0) mju_error("body 'goal' not found");
   residual_.goal_body_mocap_id_ = model->body_mocapid[residual_.goal_body_id_];
   if (residual_.goal_body_mocap_id_ < 0) mju_error("body 'goal' is not mocap");
+
+  residual_.torso_body_id_ = mj_name2id(model, mjOBJ_BODY, "torso");
+  if (residual_.torso_body_id_ < 0) mju_error("body 'torso' not found");
 }
 
 void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
@@ -558,6 +561,15 @@ void Steering::ResidualFn::Residual(const mjModel *model, const mjData *data,
   mju_copy(residual + counter, board_velocity_residual.data(),
            board_velocity_residual.size());
   counter += board_velocity_residual.size();
+
+  std::array<mjtNum, 2> humanoid_com_residual = {
+      data->subtree_com[3 * skateboard_body_id_ + 0] - data->subtree_com[3 * torso_body_id_ + 0],
+      data->subtree_com[3 * skateboard_body_id_ + 1] - data->subtree_com[3 * torso_body_id_ + 1],
+  };
+  mju_copy(residual + counter, humanoid_com_residual.data(),
+           humanoid_com_residual.size());
+  counter += humanoid_com_residual.size();
+
 
   // TODO(eliasmikkola): fill missing skateboard residuals
 

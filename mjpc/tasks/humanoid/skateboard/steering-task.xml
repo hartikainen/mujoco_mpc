@@ -123,6 +123,8 @@
     <user name="Board Velocity Local y" dim="1" user="0 0 0 100" />
     <user name="Board Velocity Global z" dim="1" user="0 10 0 100" />
 
+    <user name="Humanoid CoM" dim="2" user="0 100 0 100" />
+
     <framepos name="trace0" objtype="body" objname="torso"/>
     <framepos name="trace1" objtype="body" objname="board-center"/>
 

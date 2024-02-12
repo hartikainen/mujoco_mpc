@@ -60,6 +60,7 @@ class Steering : public Task {
     int goal_geom_id_ = -1;
     int skateboard_body_id_ = -1;
     int skateboard_xbody_id_ = -1;
+    int torso_body_id_ = -1;
 
     //  ===================  helper functions  ===================
     std::vector<double> ComputeTrackingResidual(const mjModel* model,

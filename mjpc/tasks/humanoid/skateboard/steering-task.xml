@@ -93,18 +93,18 @@
     <user name="Control" dim="21" user="3 0.3 0 1.0 0.3" />
 
     <user name="Pos[avg-xy]" dim="2" user="6 100.0 0.0 100.0 0.1" />
-    <user name="Pos[avg-z]" dim="1" user="6 100.0 0.0 100.0 0.1" />
+    <user name="Pos[avg-z]" dim="1" user="6 100.0 0.0 100.0 0.25" />
     <user name="Pos[pelvis-xy]" dim="2" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[pelvis-z]" dim="1" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[pelvis-z]" dim="1" user="6 30.0 0.0 100.0 0.25" />
     <user name="Pos[hand]" dim="6" user="6 30.0 0.0 100.0 0.1" />
     <user name="Pos[lshoulder-xy]" dim="2" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[lshoulder-z]" dim="1" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[lshoulder-z]" dim="1" user="6 30.0 0.0 100.0 0.25" />
     <user name="Pos[rshoulder-xy]" dim="2" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[rshoulder-z]" dim="1" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[rshoulder-z]" dim="1" user="6 30.0 0.0 100.0 0.25" />
     <user name="Pos[lhip-xy]" dim="2" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[lhip-z]" dim="1" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[lhip-z]" dim="1" user="6 30.0 0.0 100.0 0.25" />
     <user name="Pos[rhip-xy]" dim="2" user="6 30.0 0.0 100.0 0.1" />
-    <user name="Pos[rhip-z]" dim="1" user="6 30.0 0.0 100.0 0.1" />
+    <user name="Pos[rhip-z]" dim="1" user="6 30.0 0.0 100.0 0.25" />
 
     <user name="Vel[root]" dim="3" user="6 0.0 0 1.0 0.3" />
     <user name="Vel[hand]" dim="6" user="6 0.0 0 1.0 0.3" />

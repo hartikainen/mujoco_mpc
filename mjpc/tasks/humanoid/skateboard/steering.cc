@@ -170,25 +170,25 @@ void move_mocap_poses(mjtNum *result, const mjModel *model, const mjData *data,
   mju_copy(skateboard_center, data->xpos + 3 * skateboard_body_id, 3);
 
   // print average center of mpos
-  double average_mpos[2] = {0};
+  // double average_mpos[2] = {0};
 
   // get average center of mpos
   for (int i = 0; i < model->nmocap - 1; i++) {
-    average_mpos[0] += modified_mocap_pos[3 * i + 0];
-    average_mpos[1] += modified_mocap_pos[3 * i + 1];
+    // average_mpos[0] += modified_mocap_pos[3 * i + 0];
+    // average_mpos[1] += modified_mocap_pos[3 * i + 1];
 
     modified_mocap_pos[3 * i + 0] += skateboard_center[0];
     modified_mocap_pos[3 * i + 1] += skateboard_center[1];
     modified_mocap_pos[3 * i + 2] += skateboard_center[2] - 0.1;
   }
-  average_mpos[0] /= model->nmocap - 1;
-  average_mpos[1] /= model->nmocap - 1;
+  // average_mpos[0] /= model->nmocap - 1;
+  // average_mpos[1] /= model->nmocap - 1;
 
-  // subtract the difference between average_mpos and skateboard_center
-  for (int i = 0; i < model->nmocap - 1; i++) {
-    modified_mocap_pos[3 * i + 0] -= average_mpos[0];
-    modified_mocap_pos[3 * i + 1] -= average_mpos[1];
-  }
+  // // subtract the difference between average_mpos and skateboard_center
+  // for (int i = 0; i < model->nmocap - 1; i++) {
+  //   modified_mocap_pos[3 * i + 0] -= average_mpos[0];
+  //   modified_mocap_pos[3 * i + 1] -= average_mpos[1];
+  // }
 
   double skateboard_heading = 0.0;
   double skateboard_xmat[9];
